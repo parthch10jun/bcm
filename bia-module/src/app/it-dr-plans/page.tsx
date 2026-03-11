@@ -48,7 +48,6 @@ export default function BCPModuleLandingPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [ownerFilter, setOwnerFilter] = useState<string>('');
   const [locationFilter, setLocationFilter] = useState<string>('');
-  const [complianceFilter, setComplianceFilter] = useState<string>('');
   const [sortColumn, setSortColumn] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -239,8 +238,6 @@ export default function BCPModuleLandingPage() {
     return dueDate < new Date();
   }).length;
 
-  const samaGapsCount = bcpPlans.filter(p => p.samaStatus === 'Has Gaps').length;
-
   // Get unique owners and locations for filters
   const uniqueOwners = Array.from(new Set(bcpPlans.map(p => p.owner))).sort();
   const uniqueLocations = Array.from(new Set(bcpPlans.map(p => p.location))).sort();
@@ -255,9 +252,8 @@ export default function BCPModuleLandingPage() {
     const matchesStatus = statusFilter === '' || plan.status === statusFilter;
     const matchesOwner = ownerFilter === '' || plan.owner === ownerFilter;
     const matchesLocation = locationFilter === '' || plan.location === locationFilter;
-    const matchesCompliance = complianceFilter === '' || plan.samaStatus === complianceFilter;
 
-    return matchesSearch && matchesStatus && matchesOwner && matchesLocation && matchesCompliance;
+    return matchesSearch && matchesStatus && matchesOwner && matchesLocation;
   });
 
   // Apply sorting
@@ -294,17 +290,6 @@ export default function BCPModuleLandingPage() {
     }
   };
 
-  const getSAMAStatusIcon = (status: string): React.JSX.Element => {
-    switch (status) {
-      case 'Compliant':
-        return <CheckCircleIcon className="h-4 w-4 text-green-600" />;
-      case 'Has Gaps':
-        return <ExclamationTriangleIcon className="h-4 w-4 text-amber-600" />;
-      default:
-        return <ClockIcon className="h-4 w-4 text-gray-400" />;
-    }
-  };
-
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -319,10 +304,9 @@ export default function BCPModuleLandingPage() {
     setStatusFilter('');
     setOwnerFilter('');
     setLocationFilter('');
-    setComplianceFilter('');
   };
 
-  const hasActiveFilters = searchQuery || statusFilter || ownerFilter || locationFilter || complianceFilter;
+  const hasActiveFilters = searchQuery || statusFilter || ownerFilter || locationFilter;
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -358,6 +342,21 @@ export default function BCPModuleLandingPage() {
 
             {/* Key Metrics Cards */}
             <div className="grid grid-cols-4 gap-3">
+              {/* Total Plans Metric */}
+              <div className="bg-white border border-gray-200 rounded-sm p-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">Total Plans</p>
+                    <div className="mt-2 flex items-baseline">
+                      <p className="text-2xl font-semibold text-gray-900">{totalPlans}</p>
+                    </div>
+                    <div className="mt-2 text-[10px] text-gray-600">
+                      {publishedPlans} Published, {totalPlans - publishedPlans} Draft/Review
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Coverage Metric */}
               <div className="bg-white border border-gray-200 rounded-sm p-3">
                 <div className="flex items-start justify-between">
@@ -403,30 +402,14 @@ export default function BCPModuleLandingPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Compliance Gaps Metric */}
-              <div className="bg-white border border-gray-200 rounded-sm p-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">Compliance Gaps</p>
-                    <div className="mt-2 flex items-baseline">
-                      <p className={`text-2xl font-semibold ${samaGapsCount > 0 ? 'text-red-600' : 'text-gray-900'}`}>{samaGapsCount}</p>
-                      <span className="ml-1 text-xs text-gray-500">BCPs</span>
-                    </div>
-                    <div className="mt-2 text-[10px] text-gray-600">
-                      BCPs with compliance gaps
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Filters & Search */}
             <div className="bg-white border border-gray-200 rounded-sm">
               <div className="p-3">
-                <div className="grid grid-cols-5 gap-2">
+                <div className="flex items-center gap-2">
                   {/* Search Input */}
-                  <div>
+                  <div className="flex-1">
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                         <MagnifyingGlassIcon className="h-3.5 w-3.5 text-gray-400" />
@@ -442,7 +425,7 @@ export default function BCPModuleLandingPage() {
                   </div>
 
                   {/* Status Filter */}
-                  <div>
+                  <div className="w-40">
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
@@ -458,7 +441,7 @@ export default function BCPModuleLandingPage() {
                   </div>
 
                   {/* Owner Filter */}
-                  <div>
+                  <div className="w-40">
                     <select
                       value={ownerFilter}
                       onChange={(e) => setOwnerFilter(e.target.value)}
@@ -472,7 +455,7 @@ export default function BCPModuleLandingPage() {
                   </div>
 
                   {/* Location Filter */}
-                  <div>
+                  <div className="w-48">
                     <select
                       value={locationFilter}
                       onChange={(e) => setLocationFilter(e.target.value)}
@@ -485,27 +468,15 @@ export default function BCPModuleLandingPage() {
                     </select>
                   </div>
 
-                  {/* Compliance Filter */}
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={complianceFilter}
-                      onChange={(e) => setComplianceFilter(e.target.value)}
-                      className="block w-full h-[30px] px-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
+                  {/* Clear Filters Button */}
+                  {hasActiveFilters && (
+                    <button
+                      onClick={clearFilters}
+                      className="h-[30px] px-3 text-xs text-gray-600 hover:text-gray-900 whitespace-nowrap border border-gray-300 rounded-sm hover:bg-gray-50"
                     >
-                      <option value="">All Compliance</option>
-                      <option value="Compliant">Compliant</option>
-                      <option value="Has Gaps">Has Gaps</option>
-                      <option value="Not Assessed">Not Assessed</option>
-                    </select>
-                    {hasActiveFilters && (
-                      <button
-                        onClick={clearFilters}
-                        className="h-[30px] px-2 text-xs text-gray-600 hover:text-gray-900 whitespace-nowrap"
-                      >
-                        Clear
-                      </button>
-                    )}
-                  </div>
+                      Clear Filters
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -641,18 +612,6 @@ export default function BCPModuleLandingPage() {
                               )}
                             </div>
                           </th>
-                          <th
-                            onClick={() => handleSort('samaStatus')}
-                            className="px-3 py-2 text-center text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                            style={{ width: '12%' }}
-                          >
-                            <div className="flex items-center justify-center gap-1">
-                              Compliance
-                              {sortColumn === 'samaStatus' && (
-                                <span className="text-gray-400">{sortDirection === 'asc' ? '▲' : '▼'}</span>
-                              )}
-                            </div>
-                          </th>
                           <th className="px-3 py-2 text-center text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[70px]">
                             Actions
                           </th>
@@ -737,17 +696,6 @@ export default function BCPModuleLandingPage() {
                               <td className="px-3 py-2 text-center">
                                 <span className="text-xs text-gray-900">
                                   {plan.lastTestDate || '-'}
-                                </span>
-                              </td>
-                              <td className="px-3 py-2 text-center">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-medium ${
-                                  plan.samaStatus === 'Compliant' ? 'bg-green-50 text-green-700 border border-green-200' :
-                                  plan.samaStatus === 'Has Gaps' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                                  'bg-gray-50 text-gray-500 border border-gray-200'
-                                }`}>
-                                  {plan.samaStatus === 'Compliant' ? '✓ Compliant' :
-                                   plan.samaStatus === 'Has Gaps' ? '⚠ Gaps' :
-                                   '- N/A'}
                                 </span>
                               </td>
                               <td className="px-3 py-2 text-center">

@@ -46,83 +46,87 @@ const defaultDRPlan = {
   nextReview: '2025-12-15',
 };
 
-// Mock data for demo - BCP Plans with Enabler Types
+// Mock data for demo - IT DR Plans matching the list view
 const mockDRPlanDetails: Record<string, any> = {
   'BCP-001': {
     id: 'BCP-001',
-    name: 'People Displacement - Mumbai Office',
-    description: 'Business continuity plan for managing workforce displacement scenarios including office evacuation, pandemic lockdowns, and mass transit disruptions affecting employee availability.',
-    service: 'Human Resources',
-    status: 'Approved',
+    name: 'Core Insurance Platform Recovery',
+    description: 'Application recovery plan for the core insurance platform supporting policy management, claims processing, and customer service operations.',
+    service: 'Core Insurance Platform',
+    status: 'Published',
     criticality: 'Tier 1',
     rto: '2 Hours',
     rpo: '15 Minutes',
-    linkedBIA: 'BIA-FIN-001',
-    owner: 'John Smith',
-    enablerType: 'Human Resources',
-    strategy: 'Work from Home / Alternate Site',
+    linkedBIA: 'BIA-INS-001',
+    owner: 'John Doe',
+    enablerType: 'Technology',
+    planType: 'ARP',
+    itService: 'Core Insurance Platform',
+    businessProcessesCount: 5,
+    recoveryStrategy: 'Hot Site',
+    location: 'Munich Data Center',
     ...defaultDRPlan,
-    recoveryStrategy: {
-      type: 'Work from Home / Alternate Site',
-      location: 'Distributed (Home Offices + Backup Office - Navi Mumbai)',
-      infrastructure: 'VPN infrastructure, collaboration tools (Teams/Zoom), cloud-based applications',
-      failoverMechanism: 'Immediate activation of remote work protocols with automated access provisioning'
+    recoveryStrategyDetails: {
+      type: 'Hot Site',
+      location: 'Frankfurt DR Site',
+      infrastructure: 'Active-Active cluster with real-time replication',
+      failoverMechanism: 'Automated failover with load balancer redirection'
     },
     dependencies: {
       upstream: [
-        { id: 'SYS-001', name: 'VPN Infrastructure', type: 'System', criticality: 'Tier 1' },
-        { id: 'SYS-002', name: 'Identity & Access Management', type: 'System', criticality: 'Tier 1' },
-        { id: 'SYS-003', name: 'Collaboration Tools (Teams/Zoom)', type: 'System', criticality: 'Tier 1' }
+        { id: 'DB-001', name: 'Policy Database', type: 'Database', criticality: 'Tier 1' },
+        { id: 'SYS-001', name: 'Application Server Cluster', type: 'System', criticality: 'Tier 1' },
+        { id: 'SYS-002', name: 'Load Balancer', type: 'System', criticality: 'Tier 1' }
       ],
       downstream: [
-        { id: 'APP-001', name: 'Core Business Applications', type: 'Application', criticality: 'Tier 1' },
-        { id: 'APP-002', name: 'HR Management System', type: 'Application', criticality: 'Tier 2' },
-        { id: 'APP-003', name: 'Time Tracking System', type: 'Application', criticality: 'Tier 2' }
+        { id: 'PROC-001', name: 'Policy Management', type: 'Business Process', criticality: 'Tier 1' },
+        { id: 'PROC-002', name: 'Claims Processing', type: 'Business Process', criticality: 'Tier 1' },
+        { id: 'PROC-003', name: 'Customer Service', type: 'Business Process', criticality: 'Tier 1' }
       ],
       vendors: [
-        { id: 'VEN-001', name: 'Microsoft', service: 'Teams & Office 365', sla: '2 Hours' },
-        { id: 'VEN-002', name: 'Cisco', service: 'VPN Infrastructure', sla: '4 Hours' }
+        { id: 'VEN-001', name: 'Oracle', service: 'Database Support', sla: '2 Hours' },
+        { id: 'VEN-002', name: 'IBM', service: 'Application Server Support', sla: '4 Hours' }
       ]
     },
     enablerResources: {
-      personnel: [
-        { role: 'Critical Staff (Tier 1)', count: 450, remoteCapable: 450, alternateLocation: 50 },
-        { role: 'Essential Staff (Tier 2)', count: 320, remoteCapable: 300, alternateLocation: 20 },
-        { role: 'Support Staff (Tier 3)', count: 180, remoteCapable: 150, alternateLocation: 0 }
+      infrastructure: [
+        { component: 'Application Servers', primary: 12, dr: 12, capacity: '100%', status: 'Active-Active' },
+        { component: 'Database Servers', primary: 4, dr: 4, capacity: '100%', status: 'Active-Active' },
+        { component: 'Load Balancers', primary: 2, dr: 2, capacity: '100%', status: 'Active-Active' }
       ],
-      equipment: [
-        { item: 'Laptops with VPN', quantity: 950, available: 950, location: 'Distributed' },
-        { item: 'Mobile Phones', quantity: 950, available: 950, location: 'Distributed' },
-        { item: 'Backup Office Workstations', quantity: 70, available: 70, location: 'Navi Mumbai' }
+      network: [
+        { type: 'Primary Link', bandwidth: '10 Gbps', provider: 'Deutsche Telekom', backup: 'Yes' },
+        { type: 'Secondary Link', bandwidth: '10 Gbps', provider: 'Vodafone', backup: 'Yes' }
       ],
-      facilities: [
-        { name: 'Backup Office - Navi Mumbai', capacity: 70, type: 'Hot Desk', readiness: 'Active' },
-        { name: 'Satellite Office - Pune', capacity: 30, type: 'Hot Desk', readiness: 'Standby' }
+      power: [
+        { type: 'Grid Power', capacity: '500 kW', backup: 'UPS + Generator' },
+        { type: 'UPS', capacity: '400 kW', runtime: '15 minutes' },
+        { type: 'Diesel Generator', capacity: '600 kW', runtime: '72 hours' }
       ]
     },
     recoveryProcedures: [
-      { phase: 'Phase 1: Assessment & Activation', duration: '15 minutes', steps: ['Assess displacement scenario and scope', 'Activate BCP team and HR leadership', 'Determine affected employee count and locations', 'Verify remote work infrastructure capacity'] },
-      { phase: 'Phase 2: Employee Notification', duration: '30 minutes', steps: ['Send mass notification to all affected employees', 'Provide work-from-home instructions and VPN access', 'Identify employees requiring alternate office space', 'Coordinate transportation to backup facilities if needed'] },
-      { phase: 'Phase 3: Access Provisioning', duration: '45 minutes', steps: ['Activate VPN accounts for all displaced staff', 'Provision collaboration tool licenses', 'Enable remote access to critical applications', 'Set up virtual meeting rooms for teams'] },
-      { phase: 'Phase 4: Validation & Support', duration: '30 minutes', steps: ['Verify all critical staff are online and productive', 'Test access to essential business applications', 'Establish IT helpdesk for remote work issues', 'Monitor productivity and connectivity metrics'] }
+      { phase: 'Phase 1: Detection & Assessment', duration: '15 minutes', steps: ['Automated monitoring detects platform outage', 'Assess scope and impact', 'Activate IT operations team', 'Determine if DR failover is required'] },
+      { phase: 'Phase 2: Failover Initiation', duration: '45 minutes', steps: ['Initiate automated failover to Frankfurt DR site', 'Verify database replication status', 'Activate DR application servers', 'Update DNS and load balancer configurations'] },
+      { phase: 'Phase 3: Service Restoration', duration: '45 minutes', steps: ['Bring all critical applications online at DR site', 'Verify network connectivity', 'Test user access and authentication', 'Restore batch processing'] },
+      { phase: 'Phase 4: Validation', duration: '15 minutes', steps: ['Execute end-to-end transaction tests', 'Verify data integrity', 'Confirm all critical services operational', 'Monitor performance metrics'] }
     ],
     testingHistory: [
-      { date: '2025-10-15', type: 'Full BCP Exercise', result: 'Successful', notes: '950 employees transitioned to remote work in 1h 50m' },
-      { date: '2025-08-20', type: 'Tabletop Exercise', result: 'Successful', notes: 'All teams participated, identified VPN capacity gap (now resolved)' }
+      { date: '2024-10-20', type: 'Full DR Failover Test', result: 'Successful', notes: 'Complete failover achieved in 1h 50m, all systems operational' },
+      { date: '2024-07-15', type: 'Partial Failover Test', result: 'Successful', notes: 'Database failover completed in 30 minutes' }
     ],
     linkedIRPs: [
-      { id: 'IRP-001', name: 'Pandemic Response Protocol', type: 'Health Emergency', severity: 'Critical', triggerCondition: 'When health emergency requires office closure' },
-      { id: 'IRP-003', name: 'Natural Disaster Response', type: 'Natural Disaster', severity: 'High', triggerCondition: 'When natural disaster affects office accessibility' }
+      { id: 'IRP-001', name: 'Data Center Outage', type: 'Infrastructure', severity: 'Critical', triggerCondition: 'When Munich data center becomes unavailable' },
+      { id: 'IRP-002', name: 'Cyber Attack Response', type: 'Cyber', severity: 'Critical', triggerCondition: 'When cyber attack affects core platform' }
     ],
     linkedCrisisPlaybooks: [
-      { id: 'CPB-001', name: 'Mass Transit Disruption Response', severity: 'High' }
+      { id: 'CPB-001', name: 'Technology Infrastructure Failure', severity: 'Critical' }
     ]
   },
   'BCP-002': {
     id: 'BCP-002',
-    name: 'Building Evacuation - Head Office',
-    description: 'Business continuity plan for managing building evacuation scenarios including fire, structural damage, bomb threats, and environmental hazards affecting the head office facility.',
-    service: 'Facilities Management',
+    name: 'Claims Management System Recovery',
+    description: 'Application recovery plan for the claims management system supporting claims intake, processing, adjudication, and payment operations.',
+    service: 'Claims Management System',
     status: 'Approved',
     criticality: 'Tier 1',
     rto: '4 Hours',
@@ -188,188 +192,379 @@ const mockDRPlanDetails: Record<string, any> = {
   },
   'BCP-003': {
     id: 'BCP-003',
-    name: 'Technology Outage - Core Systems',
-    description: 'Business continuity plan for managing technology infrastructure failures including data center outages, network failures, and critical system unavailability.',
-    service: 'IT Infrastructure',
-    status: 'Approved',
+    name: 'Munich Data Center Infrastructure Recovery',
+    description: 'Infrastructure recovery plan for Munich data center including power, cooling, network, and physical security systems.',
+    service: 'Munich Data Center',
+    status: 'Published',
     criticality: 'Tier 1',
-    rto: '2 Hours',
-    rpo: '15 Minutes',
-    linkedBIA: 'BIA-IT-001',
-    owner: 'Mike Chen',
-    enablerType: 'Technology',
-    strategy: 'Failover to DR Site',
+    rto: '4 Hours',
+    rpo: '1 Hour',
+    linkedBIA: 'BIA-INF-001',
+    owner: 'Mike Johnson',
+    enablerType: 'Building',
+    planType: 'IRP',
+    itService: 'Munich Data Center',
+    businessProcessesCount: 12,
+    recoveryStrategy: 'Warm Site',
+    location: 'Munich Data Center',
     ...defaultDRPlan,
-    recoveryStrategy: {
-      type: 'Failover to DR Site',
-      location: 'DR Data Center - Navi Mumbai',
-      infrastructure: 'Active-Active cluster with real-time synchronous replication',
-      failoverMechanism: 'Automated failover with health monitoring and zero data loss'
+    recoveryStrategyDetails: {
+      type: 'Warm Site',
+      location: 'Frankfurt Backup Data Center',
+      infrastructure: 'Pre-configured infrastructure with 4-hour activation time',
+      failoverMechanism: 'Manual failover with infrastructure activation'
     },
     dependencies: {
       upstream: [
-        { id: 'SYS-001', name: 'Power Infrastructure', type: 'System', criticality: 'Tier 1' },
-        { id: 'SYS-005', name: 'Network Connectivity', type: 'System', criticality: 'Tier 1' },
-        { id: 'SYS-006', name: 'Storage Infrastructure', type: 'System', criticality: 'Tier 1' }
+        { id: 'SYS-001', name: 'Power Grid', type: 'System', criticality: 'Tier 1' },
+        { id: 'SYS-002', name: 'Cooling Systems', type: 'System', criticality: 'Tier 1' },
+        { id: 'SYS-003', name: 'Network Backbone', type: 'System', criticality: 'Tier 1' }
       ],
       downstream: [
-        { id: 'APP-006', name: 'All Business Applications', type: 'Application', criticality: 'Tier 1' }
+        { id: 'APP-001', name: 'All Hosted Applications', type: 'Application', criticality: 'Tier 1' }
       ],
       vendors: [
-        { id: 'VEN-004', name: 'IBM', service: 'Hardware Support', sla: '4 Hours' },
-        { id: 'VEN-005', name: 'Oracle', service: 'Database Support', sla: '2 Hours' },
-        { id: 'VEN-006', name: 'Cisco', service: 'Network Support', sla: '4 Hours' }
+        { id: 'VEN-001', name: 'Siemens', service: 'Power Systems', sla: '2 Hours' },
+        { id: 'VEN-002', name: 'Schneider Electric', service: 'Cooling Systems', sla: '4 Hours' }
       ]
     },
     enablerResources: {
       infrastructure: [
-        { component: 'Application Servers', primary: 24, dr: 24, capacity: '100%', status: 'Active-Active' },
-        { component: 'Database Servers', primary: 8, dr: 8, capacity: '100%', status: 'Active-Active' },
-        { component: 'Storage Arrays', primary: 4, dr: 4, capacity: '10 PB', status: 'Replicated' }
-      ],
-      network: [
-        { type: 'Primary Link', bandwidth: '10 Gbps', provider: 'Tata', backup: 'Yes' },
-        { type: 'Secondary Link', bandwidth: '10 Gbps', provider: 'Airtel', backup: 'Yes' },
-        { type: 'Tertiary Link', bandwidth: '1 Gbps', provider: 'BSNL', backup: 'No' }
-      ],
-      power: [
-        { type: 'Grid Power', capacity: '2 MW', backup: 'UPS + Generator' },
-        { type: 'UPS', capacity: '1.5 MW', runtime: '15 minutes' },
-        { type: 'Diesel Generator', capacity: '2 MW', runtime: '72 hours' }
+        { component: 'Power Systems', primary: 2, dr: 2, capacity: '2 MW', status: 'Redundant' },
+        { component: 'Cooling Units', primary: 4, dr: 4, capacity: '500 kW', status: 'N+1' },
+        { component: 'Network Core', primary: 2, dr: 2, capacity: '100 Gbps', status: 'Active-Active' }
       ]
     },
     recoveryProcedures: [
-      { phase: 'Phase 1: Detection & Assessment', duration: '10 minutes', steps: ['Automated monitoring detects outage', 'Assess scope and impact of technology failure', 'Activate IT operations team', 'Determine if DR failover is required'] },
-      { phase: 'Phase 2: Failover Initiation', duration: '30 minutes', steps: ['Initiate automated failover to DR site', 'Verify database replication status', 'Activate DR application servers', 'Update DNS and load balancer configurations'] },
-      { phase: 'Phase 3: Service Restoration', duration: '1 hour', steps: ['Bring all critical applications online at DR site', 'Verify network connectivity and routing', 'Test user access and authentication', 'Restore batch processing and scheduled jobs'] },
-      { phase: 'Phase 4: Validation', duration: '20 minutes', steps: ['Execute end-to-end transaction tests', 'Verify data integrity and consistency', 'Confirm all critical services are operational', 'Monitor performance and capacity metrics'] }
+      { phase: 'Phase 1: Detection & Assessment', duration: '30 minutes', steps: ['Detect infrastructure failure', 'Assess impact scope', 'Activate facilities team', 'Determine recovery approach'] },
+      { phase: 'Phase 2: Failover to Frankfurt', duration: '2 hours', steps: ['Initiate workload migration', 'Activate Frankfurt infrastructure', 'Redirect network traffic', 'Verify system availability'] },
+      { phase: 'Phase 3: Validation', duration: '1 hour', steps: ['Test all critical systems', 'Verify data integrity', 'Confirm business operations', 'Monitor performance'] },
+      { phase: 'Phase 4: Stabilization', duration: '30 minutes', steps: ['Fine-tune performance', 'Document issues', 'Brief stakeholders', 'Plan recovery'] }
     ],
     testingHistory: [
-      { date: '2025-11-01', type: 'Full DR Failover Test', result: 'Successful', notes: 'Complete failover achieved in 1h 35m, all systems operational' },
-      { date: '2025-09-15', type: 'Partial Failover Test', result: 'Successful', notes: 'Database failover completed in 25 minutes' }
+      { date: '2024-11-10', type: 'Infrastructure Failover Test', result: 'Successful', notes: 'Failover completed in 3h 45m, all systems operational' },
+      { date: '2024-08-20', type: 'Power Failure Simulation', result: 'Successful', notes: 'UPS and generator systems performed as expected' }
     ],
     linkedIRPs: [
-      { id: 'IRP-003', name: 'Cyber Attack Response', type: 'Cyber', severity: 'Critical', triggerCondition: 'When cyber attack affects technology infrastructure' },
-      { id: 'IRP-007', name: 'Data Center Outage', type: 'Infrastructure', severity: 'Critical', triggerCondition: 'When data center becomes unavailable' }
+      { id: 'IRP-001', name: 'Data Center Power Failure', type: 'Infrastructure', severity: 'Critical', triggerCondition: 'When power systems fail' },
+      { id: 'IRP-002', name: 'Cooling System Failure', type: 'Infrastructure', severity: 'High', triggerCondition: 'When cooling capacity is compromised' }
     ],
     linkedCrisisPlaybooks: [
-      { id: 'CPB-001', name: 'Technology Infrastructure Failure', severity: 'Critical' }
+      { id: 'CPB-001', name: 'Data Center Outage Response', severity: 'Critical' }
     ]
   },
-  'DR-004': {
-    id: 'DR-004',
-    name: 'Data Warehouse Recovery',
-    description: 'Disaster recovery plan for enterprise data warehouse and business intelligence systems.',
-    service: 'Data Warehouse',
-    status: 'Approved',
-    criticality: 'Tier 3',
-    rto: '24 Hours',
-    rpo: '4 Hours',
-    linkedBIA: 'BIA-DATA-001',
+  'BCP-004': {
+    id: 'BCP-004',
+    name: 'Policy Database Recovery Plan',
+    description: 'Data recovery plan for the policy database supporting all insurance policy operations and customer data.',
+    service: 'Policy Database',
+    status: 'In Review',
+    criticality: 'Tier 1',
+    rto: '4 Hours',
+    rpo: '1 Hour',
+    linkedBIA: 'BIA-DB-001',
     owner: 'Emily Davis',
+    enablerType: 'Technology',
+    planType: 'DRP',
+    itService: 'Policy Database',
+    businessProcessesCount: 4,
+    recoveryStrategy: 'Cloud DR',
+    location: 'Munich Data Center',
     ...defaultDRPlan,
-    recoveryStrategy: {
-      type: 'Cold Site',
-      location: 'Pune DR Site',
-      infrastructure: 'Daily backups with 4-hour RPO restore capability',
-      failoverMechanism: 'Manual failover with restore from backup'
+    recoveryStrategyDetails: {
+      type: 'Cloud DR',
+      location: 'AWS Frankfurt Region',
+      infrastructure: 'Cloud-based database replication with automated failover',
+      failoverMechanism: 'Automated cloud failover with RDS Multi-AZ'
     },
     dependencies: {
       upstream: [
-        { id: 'DR-001', name: 'Core Banking System', type: 'DR Plan', criticality: 'Tier 1' },
-        { id: 'SYS-006', name: 'ETL Services', type: 'System', criticality: 'Tier 2' }
+        { id: 'DB-001', name: 'Database Servers', type: 'Infrastructure', criticality: 'Tier 1' },
+        { id: 'SYS-001', name: 'Storage Systems', type: 'System', criticality: 'Tier 1' }
       ],
       downstream: [
-        { id: 'APP-007', name: 'BI Dashboards', type: 'Application', criticality: 'Tier 3' },
-        { id: 'APP-008', name: 'Regulatory Reports', type: 'Application', criticality: 'Tier 2' }
+        { id: 'PROC-001', name: 'Policy Management', type: 'Business Process', criticality: 'Tier 1' },
+        { id: 'PROC-002', name: 'Customer Service', type: 'Business Process', criticality: 'Tier 1' }
       ],
       vendors: [
-        { id: 'VEN-006', name: 'Informatica', service: 'ETL Support', sla: '8 Hours' }
+        { id: 'VEN-001', name: 'AWS', service: 'Cloud Infrastructure', sla: '1 Hour' },
+        { id: 'VEN-002', name: 'Oracle', service: 'Database Support', sla: '2 Hours' }
       ]
     },
-    technicalDetails: {
-      servers: [
-        { name: 'DW-PROD-01', role: 'Data Warehouse Server', location: 'Primary DC', backup: 'DW-DR-01' }
-      ],
-      databases: [
-        { name: 'DW_MAIN', size: '15 TB', replication: 'Daily Backup', lastBackup: '2025-12-03 00:00' }
-      ],
-      networks: [
-        { segment: 'Data VLAN 300', subnet: '10.10.300.0/24', drSubnet: '10.20.300.0/24' }
+    enablerResources: {
+      infrastructure: [
+        { component: 'RDS Instances', primary: 2, dr: 2, capacity: '100%', status: 'Multi-AZ' },
+        { component: 'Storage (EBS)', primary: 1, dr: 1, capacity: '10 TB', status: 'Replicated' }
       ]
     },
     recoveryProcedures: [
-      { phase: 'Phase 1: Assessment', duration: '1 hour', steps: ['Assess data warehouse impact', 'Identify data loss window', 'Activate DR team'] },
-      { phase: 'Phase 2: Recovery', duration: '12 hours', steps: ['Provision DR infrastructure', 'Restore from latest backup', 'Verify data integrity'] },
-      { phase: 'Phase 3: Validation', duration: '8 hours', steps: ['Run ETL jobs', 'Validate report outputs', 'Verify BI dashboard connectivity'] },
-      { phase: 'Phase 4: Sync', duration: '3 hours', steps: ['Sync incremental data', 'Update downstream systems', 'Document recovery'] }
+      { phase: 'Phase 1: Detection', duration: '15 minutes', steps: ['Detect database failure', 'Assess impact', 'Activate DB team', 'Initiate failover'] },
+      { phase: 'Phase 2: Failover', duration: '2 hours', steps: ['Trigger AWS RDS failover', 'Verify replication status', 'Update application connections', 'Test database connectivity'] },
+      { phase: 'Phase 3: Validation', duration: '1 hour', steps: ['Run data integrity checks', 'Test application queries', 'Verify performance', 'Monitor replication lag'] },
+      { phase: 'Phase 4: Stabilization', duration: '45 minutes', steps: ['Fine-tune performance', 'Document recovery', 'Brief stakeholders', 'Plan fallback'] }
     ],
     testingHistory: [
-      { date: '2025-07-15', type: 'Backup Restore Test', result: 'Successful', notes: 'Full restore completed in 18 hours' }
+      { date: '2024-10-15', type: 'RDS Failover Test', result: 'Successful', notes: 'Automated failover completed in 3h 30m' },
+      { date: '2024-07-20', type: 'Backup Restore Test', result: 'Successful', notes: 'Database restored from snapshot in 2h 15m' }
     ],
-    linkedIRPs: [],
-    linkedCrisisPlaybooks: []
+    linkedIRPs: [
+      { id: 'IRP-001', name: 'Database Corruption', type: 'Data', severity: 'Critical', triggerCondition: 'When database integrity is compromised' },
+      { id: 'IRP-002', name: 'Ransomware Attack', type: 'Cyber', severity: 'Critical', triggerCondition: 'When database is encrypted by ransomware' }
+    ],
+    linkedCrisisPlaybooks: [
+      { id: 'CPB-001', name: 'Data Loss Response', severity: 'Critical' }
+    ]
   },
-  'DR-005': {
-    id: 'DR-005',
-    name: 'Network Infrastructure Recovery',
-    description: 'Disaster recovery plan for core network infrastructure including routers, switches, firewalls, and load balancers.',
-    service: 'Network Infrastructure',
-    status: 'Approved',
+  'BCP-005': {
+    id: 'BCP-005',
+    name: 'Cybersecurity Incident Response Plan',
+    description: 'Cybersecurity incident response plan for detecting, containing, and recovering from security incidents and cyber attacks.',
+    service: 'Security Operations Center',
+    status: 'Published',
     criticality: 'Tier 1',
     rto: '1 Hour',
-    rpo: '5 Minutes',
-    linkedBIA: 'BIA-IT-001',
-    owner: 'Raj Patel',
+    rpo: '0 Minutes',
+    linkedBIA: 'BIA-SEC-001',
+    owner: 'David Wilson',
+    enablerType: 'Technology',
+    planType: 'CIRP',
+    itService: 'Security Operations Center',
+    businessProcessesCount: 15,
+    recoveryStrategy: 'Manual',
+    location: 'All Locations',
     ...defaultDRPlan,
-    recoveryStrategy: {
-      type: 'Hot Site',
-      location: 'Mumbai DR Site',
-      infrastructure: 'Redundant network with automated failover',
-      failoverMechanism: 'BGP-based automatic failover with VRRP'
+    recoveryStrategyDetails: {
+      type: 'Manual',
+      location: 'Distributed SOC Teams',
+      infrastructure: 'Security tools, SIEM, incident response playbooks',
+      failoverMechanism: 'Manual incident response procedures'
     },
     dependencies: {
       upstream: [
-        { id: 'SYS-007', name: 'ISP Links', type: 'External', criticality: 'Tier 1' },
-        { id: 'SYS-008', name: 'MPLS Network', type: 'External', criticality: 'Tier 1' }
+        { id: 'SYS-001', name: 'SIEM Platform', type: 'System', criticality: 'Tier 1' },
+        { id: 'SYS-002', name: 'Threat Intelligence', type: 'System', criticality: 'Tier 1' }
       ],
       downstream: [
         { id: 'ALL', name: 'All IT Systems', type: 'Infrastructure', criticality: 'Tier 1' }
       ],
       vendors: [
-        { id: 'VEN-007', name: 'Cisco', service: 'Network Support', sla: '30 Minutes' },
-        { id: 'VEN-008', name: 'Tata Communications', service: 'ISP Support', sla: '1 Hour' }
+        { id: 'VEN-001', name: 'CrowdStrike', service: 'EDR Platform', sla: '1 Hour' },
+        { id: 'VEN-002', name: 'Palo Alto', service: 'Firewall Support', sla: '2 Hours' }
       ]
     },
-    technicalDetails: {
-      servers: [
-        { name: 'FW-PROD-01', role: 'Primary Firewall', location: 'Primary DC', backup: 'FW-DR-01' },
-        { name: 'FW-PROD-02', role: 'Secondary Firewall', location: 'Primary DC', backup: 'FW-DR-02' },
-        { name: 'LB-PROD-01', role: 'Load Balancer', location: 'Primary DC', backup: 'LB-DR-01' }
-      ],
-      databases: [],
-      networks: [
-        { segment: 'Core Network', subnet: '10.10.0.0/16', drSubnet: '10.20.0.0/16' },
-        { segment: 'Management VLAN', subnet: '10.10.1.0/24', drSubnet: '10.20.1.0/24' }
+    enablerResources: {
+      infrastructure: [
+        { component: 'SIEM Platform', primary: 1, dr: 1, capacity: '100%', status: 'Active-Active' },
+        { component: 'SOC Workstations', primary: 20, dr: 10, capacity: '50%', status: 'Standby' }
       ]
     },
     recoveryProcedures: [
-      { phase: 'Phase 1: Detection', duration: '5 minutes', steps: ['Automated alerts trigger', 'NOC confirms outage', 'Initiate failover'] },
-      { phase: 'Phase 2: Failover', duration: '30 minutes', steps: ['Activate DR network devices', 'Update BGP routing', 'Verify VRRP takeover', 'Confirm ISP failover'] },
-      { phase: 'Phase 3: Validation', duration: '20 minutes', steps: ['Verify all VLANs active', 'Test inter-site connectivity', 'Confirm firewall rules', 'Validate load balancer'] },
-      { phase: 'Phase 4: Notification', duration: '5 minutes', steps: ['Notify all IT teams', 'Update monitoring systems', 'Brief management'] }
+      { phase: 'Phase 1: Detection & Triage', duration: '15 minutes', steps: ['Detect security incident', 'Classify severity', 'Activate SOC team', 'Initiate containment'] },
+      { phase: 'Phase 2: Containment', duration: '30 minutes', steps: ['Isolate affected systems', 'Block malicious IPs', 'Disable compromised accounts', 'Preserve evidence'] },
+      { phase: 'Phase 3: Eradication', duration: '2 hours', steps: ['Remove malware', 'Patch vulnerabilities', 'Reset credentials', 'Verify clean state'] },
+      { phase: 'Phase 4: Recovery', duration: '1 hour', steps: ['Restore systems', 'Monitor for reinfection', 'Document incident', 'Brief stakeholders'] }
     ],
     testingHistory: [
-      { date: '2025-11-01', type: 'Automated Failover Test', result: 'Successful', notes: 'Failover completed in 12 minutes' },
-      { date: '2025-09-15', type: 'Full Network DR Test', result: 'Successful', notes: 'All systems recovered within RTO' }
+      { date: '2024-10-30', type: 'Ransomware Simulation', result: 'Successful', notes: 'Incident contained in 45 minutes, full recovery in 3h 30m' },
+      { date: '2024-08-15', type: 'Phishing Attack Drill', result: 'Successful', notes: 'All affected accounts disabled within 20 minutes' }
     ],
     linkedIRPs: [
-      { id: 'IRP-001', name: 'Ransomware Attack Response', type: 'Ransomware', severity: 'Critical', triggerCondition: 'When network devices are compromised' },
-      { id: 'IRP-003', name: 'DDoS Attack Mitigation', type: 'DDoS', severity: 'High', triggerCondition: 'When network is under attack' }
+      { id: 'IRP-001', name: 'Ransomware Attack', type: 'Cyber', severity: 'Critical', triggerCondition: 'When ransomware is detected' },
+      { id: 'IRP-002', name: 'Data Breach', type: 'Cyber', severity: 'Critical', triggerCondition: 'When unauthorized data access is detected' }
     ],
     linkedCrisisPlaybooks: [
-      { id: 'CPB-001', name: 'Trading System Outage Response', severity: 'Critical' }
+      { id: 'CPB-001', name: 'Cyber Attack Response', severity: 'Critical' }
     ]
+  },
+  // Simplified entries for remaining plans
+  'BCP-006': {
+    id: 'BCP-006',
+    name: 'Customer Portal Application Recovery',
+    description: 'Application recovery plan for the customer self-service portal enabling policy inquiries, claims submission, and account management.',
+    service: 'Customer Portal',
+    status: 'Published',
+    criticality: 'Tier 2',
+    rto: '8 Hours',
+    rpo: '4 Hours',
+    linkedBIA: 'BIA-APP-002',
+    owner: 'Lisa Anderson',
+    enablerType: 'Technology',
+    planType: 'ARP',
+    itService: 'Customer Portal',
+    businessProcessesCount: 2,
+    recoveryStrategy: 'Warm Site',
+    location: 'Frankfurt DR Site',
+    strategy: 'Warm Site Recovery',
+    ...defaultDRPlan,
+    recoveryProcedures: [
+      { phase: 'Phase 1: Assessment', duration: '1 hour', steps: ['Assess portal outage scope', 'Identify affected customer services', 'Activate application team', 'Notify stakeholders'] },
+      { phase: 'Phase 2: Warm Site Activation', duration: '4 hours', steps: ['Activate Frankfurt warm site infrastructure', 'Deploy application code from repository', 'Configure load balancers', 'Update DNS records'] },
+      { phase: 'Phase 3: Data Sync', duration: '2 hours', steps: ['Sync customer data from primary database', 'Verify data integrity', 'Test authentication services', 'Validate session management'] },
+      { phase: 'Phase 4: Go-Live', duration: '1 hour', steps: ['Execute smoke tests', 'Enable customer access', 'Monitor application performance', 'Document recovery timeline'] }
+    ],
+    dependencies: {
+      upstream: [
+        { id: 'DB-001', name: 'Customer Database', type: 'Database', criticality: 'Tier 1' },
+        { id: 'AUTH-001', name: 'Authentication Service', type: 'Application', criticality: 'Tier 1' }
+      ],
+      downstream: [
+        { id: 'PROC-003', name: 'Customer Self-Service', type: 'Business Process', criticality: 'Tier 2' }
+      ],
+      vendors: [
+        { id: 'VEN-003', name: 'Akamai', service: 'CDN Services', sla: '4 Hours' }
+      ]
+    }
+  },
+  'BCP-007': {
+    id: 'BCP-007',
+    name: 'Payment Gateway Recovery Plan',
+    description: 'Application recovery plan for payment processing gateway handling premium payments, claims disbursements, and financial transactions.',
+    service: 'Payment Gateway',
+    status: 'Approved',
+    criticality: 'Tier 1',
+    rto: '4 Hours',
+    rpo: '1 Hour',
+    linkedBIA: 'BIA-APP-003',
+    owner: 'Tom Harris',
+    enablerType: 'Technology',
+    planType: 'ARP',
+    itService: 'Payment Gateway',
+    businessProcessesCount: 3,
+    recoveryStrategy: 'Cloud DR',
+    location: 'Cloud (AWS)',
+    strategy: 'Cloud-based Recovery',
+    ...defaultDRPlan,
+    recoveryProcedures: [
+      { phase: 'Phase 1: Detection & Triage', duration: '30 minutes', steps: ['Detect payment gateway failure', 'Assess transaction impact', 'Activate payments team', 'Halt new payment processing'] },
+      { phase: 'Phase 2: Cloud Failover', duration: '2 hours', steps: ['Trigger AWS auto-failover to DR region', 'Verify payment queue integrity', 'Activate standby payment processors', 'Update payment routing'] },
+      { phase: 'Phase 3: Transaction Recovery', duration: '1 hour', steps: ['Replay failed transactions from queue', 'Reconcile payment records', 'Verify bank connectivity', 'Test end-to-end payment flow'] },
+      { phase: 'Phase 4: Validation', duration: '30 minutes', steps: ['Process test transactions', 'Verify PCI compliance', 'Resume normal operations', 'Notify finance team'] }
+    ],
+    dependencies: {
+      upstream: [
+        { id: 'BANK-001', name: 'Banking Integration', type: 'External Service', criticality: 'Tier 1' },
+        { id: 'DB-002', name: 'Transaction Database', type: 'Database', criticality: 'Tier 1' }
+      ],
+      downstream: [
+        { id: 'PROC-004', name: 'Premium Collection', type: 'Business Process', criticality: 'Tier 1' },
+        { id: 'PROC-005', name: 'Claims Payment', type: 'Business Process', criticality: 'Tier 1' }
+      ],
+      vendors: [
+        { id: 'VEN-004', name: 'Stripe', service: 'Payment Processing', sla: '2 Hours' },
+        { id: 'VEN-005', name: 'AWS', service: 'Cloud Infrastructure', sla: '1 Hour' }
+      ]
+    }
+  },
+  'BCP-008': {
+    id: 'BCP-008',
+    name: 'Underwriting System Recovery',
+    description: 'Application recovery plan for the underwriting system supporting risk assessment, policy pricing, and approval workflows.',
+    service: 'Underwriting System',
+    status: 'Draft',
+    criticality: 'Tier 2',
+    rto: '12 Hours',
+    rpo: '4 Hours',
+    linkedBIA: 'BIA-APP-004',
+    owner: 'Anna Schmidt',
+    enablerType: 'Technology',
+    planType: 'ARP',
+    itService: 'Underwriting System',
+    businessProcessesCount: 2,
+    recoveryStrategy: 'Warm Site',
+    location: 'Munich Data Center',
+    strategy: 'Warm Site Recovery',
+    ...defaultDRPlan,
+    recoveryProcedures: [
+      { phase: 'Phase 1: Assessment', duration: '2 hours', steps: ['Assess underwriting system outage', 'Identify pending applications', 'Activate underwriting team', 'Implement manual workarounds'] },
+      { phase: 'Phase 2: Recovery', duration: '6 hours', steps: ['Restore application from backup', 'Verify risk models and pricing rules', 'Test workflow engine', 'Validate integration with policy system'] },
+      { phase: 'Phase 3: Data Validation', duration: '3 hours', steps: ['Reconcile pending applications', 'Verify underwriting decisions', 'Test approval workflows', 'Validate reporting'] },
+      { phase: 'Phase 4: Resume Operations', duration: '1 hour', steps: ['Resume automated underwriting', 'Process backlog', 'Monitor system performance', 'Brief underwriting team'] }
+    ],
+    dependencies: {
+      upstream: [
+        { id: 'RISK-001', name: 'Risk Assessment Engine', type: 'Application', criticality: 'Tier 2' }
+      ],
+      downstream: [
+        { id: 'PROC-006', name: 'Policy Underwriting', type: 'Business Process', criticality: 'Tier 2' }
+      ],
+      vendors: []
+    }
+  },
+  'BCP-009': {
+    id: 'BCP-009',
+    name: 'Frankfurt Infrastructure Recovery',
+    description: 'Infrastructure recovery plan for Frankfurt data center including power, cooling, network, and physical security systems.',
+    service: 'Frankfurt Data Center',
+    status: 'Published',
+    criticality: 'Tier 1',
+    rto: '4 Hours',
+    rpo: '1 Hour',
+    linkedBIA: 'BIA-INF-002',
+    owner: 'Klaus Weber',
+    enablerType: 'Building',
+    planType: 'IRP',
+    itService: 'Frankfurt Data Center',
+    businessProcessesCount: 10,
+    recoveryStrategy: 'Cold Site',
+    location: 'Frankfurt DR Site',
+    strategy: 'Cold Site Activation',
+    ...defaultDRPlan,
+    recoveryProcedures: [
+      { phase: 'Phase 1: Emergency Response', duration: '30 minutes', steps: ['Assess infrastructure failure', 'Ensure personnel safety', 'Activate facilities team', 'Notify all IT teams'] },
+      { phase: 'Phase 2: Cold Site Activation', duration: '2 hours', steps: ['Activate Frankfurt DR facility', 'Power up infrastructure systems', 'Establish network connectivity', 'Verify environmental controls'] },
+      { phase: 'Phase 3: Workload Migration', duration: '1 hour', steps: ['Migrate critical workloads to DR site', 'Activate backup servers', 'Restore network services', 'Test application connectivity'] },
+      { phase: 'Phase 4: Validation', duration: '30 minutes', steps: ['Verify all systems operational', 'Test business applications', 'Monitor infrastructure health', 'Document recovery'] }
+    ],
+    dependencies: {
+      upstream: [
+        { id: 'POWER-001', name: 'Power Grid', type: 'Utility', criticality: 'Tier 1' },
+        { id: 'COOL-001', name: 'Cooling Systems', type: 'Infrastructure', criticality: 'Tier 1' }
+      ],
+      downstream: [
+        { id: 'ALL-APPS', name: 'All Frankfurt Applications', type: 'Application', criticality: 'Tier 1' }
+      ],
+      vendors: [
+        { id: 'VEN-006', name: 'Siemens', service: 'Power Systems', sla: '2 Hours' }
+      ]
+    }
+  },
+  'BCP-010': {
+    id: 'BCP-010',
+    name: 'Claims Database Backup & Recovery',
+    description: 'Data recovery plan for the claims database supporting all claims processing, adjudication, and payment operations.',
+    service: 'Claims Database',
+    status: 'Published',
+    criticality: 'Tier 1',
+    rto: '4 Hours',
+    rpo: '1 Hour',
+    linkedBIA: 'BIA-DB-002',
+    owner: 'Maria Schneider',
+    enablerType: 'Technology',
+    planType: 'DRP',
+    itService: 'Claims Database',
+    businessProcessesCount: 3,
+    recoveryStrategy: 'Cloud DR',
+    location: 'Munich Data Center',
+    strategy: 'Cloud-based Recovery',
+    ...defaultDRPlan,
+    recoveryProcedures: [
+      { phase: 'Phase 1: Detection', duration: '15 minutes', steps: ['Detect database failure or corruption', 'Assess data loss window', 'Activate database team', 'Halt claims processing'] },
+      { phase: 'Phase 2: Cloud Failover', duration: '2 hours', steps: ['Trigger AWS RDS failover', 'Verify replication status', 'Activate read replicas', 'Update application connection strings'] },
+      { phase: 'Phase 3: Data Validation', duration: '1 hour', steps: ['Run data integrity checks', 'Verify claims records', 'Test database queries', 'Validate backup consistency'] },
+      { phase: 'Phase 4: Resume Operations', duration: '45 minutes', steps: ['Resume claims processing', 'Process queued transactions', 'Monitor database performance', 'Notify claims team'] }
+    ],
+    dependencies: {
+      upstream: [
+        { id: 'STORAGE-001', name: 'Cloud Storage', type: 'Infrastructure', criticality: 'Tier 1' }
+      ],
+      downstream: [
+        { id: 'PROC-007', name: 'Claims Processing', type: 'Business Process', criticality: 'Tier 1' },
+        { id: 'PROC-008', name: 'Claims Adjudication', type: 'Business Process', criticality: 'Tier 1' }
+      ],
+      vendors: [
+        { id: 'VEN-007', name: 'AWS', service: 'RDS Database', sla: '1 Hour' }
+      ]
+    }
   }
 };
 
@@ -740,84 +935,102 @@ export default function DRPlanDetailPage() {
 
         {activeTab === 'technical' && (
           <div className="space-y-6">
-            {/* Servers */}
-            <div className="bg-white border border-gray-200 rounded-sm p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Servers</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Server Name</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Role</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Location</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Backup Server</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {plan.technicalDetails.servers.map((server: Server, index: number) => (
-                      <tr key={index}>
-                        <td className="px-3 py-2 text-xs text-gray-900">{server.name}</td>
-                        <td className="px-3 py-2 text-xs text-gray-700">{server.role}</td>
-                        <td className="px-3 py-2 text-xs text-gray-700">{server.location}</td>
-                        <td className="px-3 py-2 text-xs text-gray-700">{server.backup}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {plan.technicalDetails ? (
+              <>
+                {/* Servers */}
+                {plan.technicalDetails.servers && plan.technicalDetails.servers.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-sm p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-4">Servers</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Server Name</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Role</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Location</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Backup Server</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {plan.technicalDetails.servers.map((server: Server, index: number) => (
+                            <tr key={index}>
+                              <td className="px-3 py-2 text-xs text-gray-900">{server.name}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{server.role}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{server.location}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{server.backup}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
 
-            {/* Databases */}
-            <div className="bg-white border border-gray-200 rounded-sm p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Databases</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Database Name</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Size</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Replication</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Last Backup</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {plan.technicalDetails.databases.map((db: Database, index: number) => (
-                      <tr key={index}>
-                        <td className="px-3 py-2 text-xs text-gray-900">{db.name}</td>
-                        <td className="px-3 py-2 text-xs text-gray-700">{db.size}</td>
-                        <td className="px-3 py-2 text-xs text-gray-700">{db.replication}</td>
-                        <td className="px-3 py-2 text-xs text-gray-700">{db.lastBackup}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                {/* Databases */}
+                {plan.technicalDetails.databases && plan.technicalDetails.databases.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-sm p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-4">Databases</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Database Name</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Size</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Replication</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Last Backup</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {plan.technicalDetails.databases.map((db: Database, index: number) => (
+                            <tr key={index}>
+                              <td className="px-3 py-2 text-xs text-gray-900">{db.name}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{db.size}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{db.replication}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{db.lastBackup}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
 
-            {/* Networks */}
-            <div className="bg-white border border-gray-200 rounded-sm p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Network Configuration</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Network Segment</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Production Subnet</th>
-                      <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">DR Subnet</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {plan.technicalDetails.networks.map((network: Network, index: number) => (
-                      <tr key={index}>
-                        <td className="px-3 py-2 text-xs text-gray-900">{network.segment}</td>
-                        <td className="px-3 py-2 text-xs text-gray-700">{network.subnet}</td>
-                        <td className="px-3 py-2 text-xs text-gray-700">{network.drSubnet}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                {/* Networks */}
+                {plan.technicalDetails.networks && plan.technicalDetails.networks.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-sm p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-4">Network Configuration</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Network Segment</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">Production Subnet</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-700 uppercase">DR Subnet</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {plan.technicalDetails.networks.map((network: Network, index: number) => (
+                            <tr key={index}>
+                              <td className="px-3 py-2 text-xs text-gray-900">{network.segment}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{network.subnet}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{network.drSubnet}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-white border border-gray-200 rounded-sm p-8">
+                <div className="text-center">
+                  <ServerIcon className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No Technical Details Available</h3>
+                  <p className="mt-1 text-xs text-gray-500">Technical infrastructure details have not been documented for this plan yet.</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
