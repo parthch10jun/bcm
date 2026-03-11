@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCM Alert Dashboard - Global Threat Intelligence</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .dashboard-container {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        .stat-card .label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-card.active .value { color: #60a5fa; }
+        .stat-card.critical .value { color: #ef4444; }
+        .stat-card.high .value { color: #f97316; }
+        .stat-card.medium .value { color: #eab308; }
+        
+        .stat-card .subtitle {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        
+        /* Map Container */
+        .map-container {
+            position: relative;
+            height: 700px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+        
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+        
+        .legend h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.813rem;
+        }
+        
+        .legend-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .legend-icon.critical { background: #ef4444; }
+        .legend-icon.high { background: #f97316; }
+        .legend-icon.medium { background: #eab308; }
+        .legend-icon.low { background: #22c55e; }
+        
+        .weather-gradient {
+            height: 20px;
+            background: linear-gradient(to right, #3b82f6, #22c55e, #eab308, #ef4444);
+            border-radius: 4px;
+            margin: 8px 0;
+        }
+        
+        .weather-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.688rem;
+            color: #94a3b8;
+        }
+        
+        /* Custom Leaflet Popup */
+        .leaflet-popup-content-wrapper {
+            background: rgba(15, 23, 42, 0.98);
+            color: #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .leaflet-popup-content {
+            margin: 16px;
+            font-size: 0.875rem;
+        }
+        
+        .leaflet-popup-tip {
+            background: rgba(15, 23, 42, 0.98);
+        }
+        
+        .popup-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #60a5fa;
+        }
+        
+        .popup-detail {
+            margin: 4px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .popup-label {
+            color: #94a3b8;
+            margin-right: 12px;
+        }
+        
+        .popup-value {
+            font-weight: 500;
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .severity-badge.critical { background: #ef4444; color: white; }
+        .severity-badge.high { background: #f97316; color: white; }
+        .severity-badge.medium { background: #eab308; color: #1e293b; }
+        .severity-badge.low { background: #22c55e; color: white; }
+        
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .loading {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌍 BCM Global Threat Intelligence</h1>
+            <p>Real-time Business Continuity Monitoring & Risk Assessment</p>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card active">
+                <div class="label">Active Threats</div>
+                <div class="value" id="activeThreats">--</div>
+                <div class="subtitle">Monitoring globally</div>
+            </div>
+            <div class="stat-card critical">
+                <div class="label">Critical Threats</div>
+                <div class="value" id="criticalThreats">--</div>
+                <div class="subtitle">Immediate action required</div>
+            </div>
+            <div class="stat-card high">
+                <div class="label">High Risk Events</div>
+                <div class="value" id="highRiskEvents">--</div>
+                <div class="subtitle">Elevated monitoring</div>
+            </div>
+            <div class="stat-card medium">
+                <div class="label">Average Probability</div>
+                <div class="value" id="avgProbability">--</div>
+                <div class="subtitle">Risk assessment score</div>
+            </div>
+        </div>
+        
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Legend -->
+            <div class="legend">
+                <h3>Threat Severity</h3>
+                <div class="legend-item">
+                    <div class="legend-icon critical"></div>
+                    <span>Critical</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon high"></div>
+                    <span>High</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon medium"></div>
+                    <span>Medium</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon low"></div>
+                    <span>Low</span>
+                </div>
+                
+                <h3 style="margin-top: 16px;">Weather Overlay</h3>
+                <div class="weather-gradient"></div>
+                <div class="weather-labels">
+                    <span>Cold</span>
+                    <span>Hot</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Simplex Noise for weather animation -->
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@4.0.1/dist/simplex-noise.min.js"></script>
+    
+    <script>
+        // Initialize the map with CartoDB Positron (clean, modern style)
+        const map = L.map('map', {
+            center: [20, 0],
+            zoom: 2,
+            minZoom: 2,
+            maxZoom: 10,
+            zoomControl: true
+        });
+        
+        // Use CartoDB Positron for a clean, professional look
+        // Alternative: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' for dark theme
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // BCM Alert Data - Simulated realistic global threats
+        const bcmAlerts = [
+            { id: 1, lat: 40.7128, lng: -74.0060, location: 'New York, USA', type: 'Cyber Attack', severity: 'critical', impact: 'High', probability: 92, lastUpdated: '2 min ago' },
+            { id: 2, lat: 51.5074, lng: -0.1278, location: 'London, UK', type: 'Supply Chain Disruption', severity: 'high', impact: 'Medium-High', probability: 78, lastUpdated: '15 min ago' },
+            { id: 3, lat: 35.6762, lng: 139.6503, location: 'Tokyo, Japan', type: 'Earthquake Alert', severity: 'critical', impact: 'Severe', probability: 88, lastUpdated: '5 min ago' },
+            { id: 4, lat: 19.0760, lng: 72.8777, location: 'Mumbai, India', type: 'Pandemic Impact', severity: 'medium', impact: 'Medium', probability: 65, lastUpdated: '1 hour ago' },
+            { id: 5, lat: -23.5505, lng: -46.6333, location: 'São Paulo, Brazil', type: 'Political Unrest', severity: 'high', impact: 'High', probability: 82, lastUpdated: '30 min ago' },
+            { id: 6, lat: 37.7749, lng: -122.4194, location: 'San Francisco, USA', type: 'Data Center Outage', severity: 'critical', impact: 'Critical', probability: 95, lastUpdated: '1 min ago' },
+            { id: 7, lat: 1.3521, lng: 103.8198, location: 'Singapore', type: 'Hurricane Warning', severity: 'medium', impact: 'Low-Medium', probability: 58, lastUpdated: '2 hours ago' },
+            { id: 8, lat: -33.8688, lng: 151.2093, location: 'Sydney, Australia', type: 'Wildfire Alert', severity: 'high', impact: 'High', probability: 75, lastUpdated: '45 min ago' },
+            { id: 9, lat: 55.7558, lng: 37.6173, location: 'Moscow, Russia', type: 'Energy Crisis', severity: 'medium', impact: 'Medium', probability: 62, lastUpdated: '3 hours ago' },
+            { id: 10, lat: 25.2048, lng: 55.2708, location: 'Dubai, UAE', type: 'Extreme Heat', severity: 'low', impact: 'Low', probability: 45, lastUpdated: '4 hours ago' },
+            { id: 11, lat: -1.2921, lng: 36.8219, location: 'Nairobi, Kenya', type: 'Drought Conditions', severity: 'medium', impact: 'Medium', probability: 68, lastUpdated: '6 hours ago' },
+            { id: 12, lat: 52.5200, lng: 13.4050, location: 'Berlin, Germany', type: 'Infrastructure Failure', severity: 'high', impact: 'High', probability: 71, lastUpdated: '20 min ago' },
+            { id: 13, lat: -34.6037, lng: -58.3816, location: 'Buenos Aires, Argentina', type: 'Financial Crisis', severity: 'medium', impact: 'Medium-High', probability: 69, lastUpdated: '1 hour ago' },
+            { id: 14, lat: 39.9042, lng: 116.4074, location: 'Beijing, China', type: 'Air Quality Emergency', severity: 'low', impact: 'Low-Medium', probability: 52, lastUpdated: '5 hours ago' },
+            { id: 15, lat: 45.4215, lng: -75.6972, location: 'Ottawa, Canada', type: 'Severe Winter Storm', severity: 'high', impact: 'Medium-High', probability: 79, lastUpdated: '10 min ago' }
+        ];
+
+        // Custom marker icons based on severity
+        const createCustomIcon = (severity) => {
+            const colors = {
+                critical: '#ef4444',
+                high: '#f97316',
+                medium: '#eab308',
+                low: '#22c55e'
+            };
+
+            const color = colors[severity] || '#94a3b8';
+
+            // Create SVG icon with pulsing effect for critical/high
+            const svgIcon = `
+                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" fill="${color}" opacity="0.3" />
+                    <circle cx="16" cy="16" r="10" fill="${color}" stroke="white" stroke-width="2" />
+                    ${severity === 'critical' || severity === 'high' ?
+                        '<circle cx="16" cy="16" r="14" fill="none" stroke="' + color + '" stroke-width="2" opacity="0.5"><animate attributeName="r" from="10" to="16" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.8" to="0" dur="1.5s" repeatCount="indefinite"/></circle>'
+                        : ''}
+                </svg>
+            `;
+
+            return L.divIcon({
+                html: svgIcon,
+                className: 'custom-marker-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            });
+        };
+
+        // Add markers to map
+        bcmAlerts.forEach(alert => {
+            const marker = L.marker([alert.lat, alert.lng], {
+                icon: createCustomIcon(alert.severity)
+            }).addTo(map);
+
+            // Create popup content
+            const popupContent = `
+                <div class="popup-title">${alert.type}</div>
+                <div class="popup-detail">
+                    <span class="popup-label">Location:</span>
+                    <span class="popup-value">${alert.location}</span>
+                </div>
+                <div class="popup-detail">
+                    <span class="popup-label">Severity:</span>
+                    <span class="severity-badge ${alert.severity}">${alert.severity}</span>
+                </div>
+                <div class="popup-detail">
+                    <span class="popup-label">Impact:</span>
+                    <span class="popup-value">${alert.impact}</span>
+                </div>
+                <div class="popup-detail">
+                    <span class="popup-label">Probability:</span>
+                    <span class="popup-value">${alert.probability}%</span>
+                </div>
+                <div class="popup-detail">
+                    <span class="popup-label">Updated:</span>
+                    <span class="popup-value">${alert.lastUpdated}</span>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+        });
+
+        // Calculate and update stats
+        const updateStats = () => {
+            const activeThreats = bcmAlerts.length;
+            const criticalThreats = bcmAlerts.filter(a => a.severity === 'critical').length;
+            const highRiskEvents = bcmAlerts.filter(a => a.severity === 'high').length;
+            const avgProbability = Math.round(bcmAlerts.reduce((sum, a) => sum + a.probability, 0) / bcmAlerts.length);
+
+            document.getElementById('activeThreats').textContent = activeThreats;
+            document.getElementById('criticalThreats').textContent = criticalThreats;
+            document.getElementById('highRiskEvents').textContent = highRiskEvents;
+            document.getElementById('avgProbability').textContent = avgProbability + '%';
+        };
+
+        updateStats();
+
+        // ========================================
+        // ANIMATED WEATHER OVERLAY using 3D Perlin Noise
+        // ========================================
+
+        // Initialize simplex noise generator
+        const { createNoise3D } = window.SimplexNoise;
+        const noise3D = createNoise3D();
+
+        // Weather overlay configuration
+        let time = 0;
+        const gridResolution = 30; // Lower = more detail, higher = better performance
+        let weatherLayer = null;
+
+        // Generate weather heatmap data using 3D Perlin noise
+        // The third dimension (time) creates smooth animation
+        const generateWeatherData = (currentTime) => {
+            const points = [];
+            const latStep = 180 / gridResolution;
+            const lngStep = 360 / gridResolution;
+
+            for (let lat = -90; lat <= 90; lat += latStep) {
+                for (let lng = -180; lng <= 180; lng += lngStep) {
+                    // Use 3D noise: x, y, and time for animation
+                    // Adjust frequency for smoother/rougher patterns
+                    const frequency = 0.02;
+                    const noiseValue = noise3D(
+                        lng * frequency,
+                        lat * frequency,
+                        currentTime * 0.5 // Time dimension for animation
+                    );
+
+                    // Normalize noise from [-1, 1] to [0, 1]
+                    const intensity = (noiseValue + 1) / 2;
+
+                    // Only add points with significant intensity to reduce data
+                    if (intensity > 0.3) {
+                        points.push([lat, lng, intensity]);
+                    }
+                }
+            }
+
+            return points;
+        };
+
+        // Create heatmap layer with custom gradient
+        const createWeatherLayer = () => {
+            // Remove existing layer if present
+            if (weatherLayer) {
+                map.removeLayer(weatherLayer);
+            }
+
+            // Generate current weather data
+            const weatherData = generateWeatherData(time);
+
+            // Create heatmap layer
+            // Note: Leaflet doesn't have built-in heatmap, so we'll use a canvas overlay
+            const WeatherOverlay = L.Layer.extend({
+                onAdd: function(map) {
+                    this._map = map;
+
+                    // Create canvas element
+                    const canvas = L.DomUtil.create('canvas', 'weather-canvas');
+                    const size = map.getSize();
+                    canvas.width = size.x;
+                    canvas.height = size.y;
+                    canvas.style.position = 'absolute';
+                    canvas.style.top = '0';
+                    canvas.style.left = '0';
+                    canvas.style.pointerEvents = 'none';
+                    canvas.style.opacity = '0.4';
+
+                    this._canvas = canvas;
+                    this._ctx = canvas.getContext('2d');
+
+                    map.getPanes().overlayPane.appendChild(canvas);
+
+                    // Draw weather data
+                    this._draw();
+
+                    // Redraw on map move/zoom
+                    map.on('moveend', this._draw, this);
+                    map.on('zoomend', this._draw, this);
+                },
+
+                onRemove: function(map) {
+                    L.DomUtil.remove(this._canvas);
+                    map.off('moveend', this._draw, this);
+                    map.off('zoomend', this._draw, this);
+                },
+
+                _draw: function() {
+                    const ctx = this._ctx;
+                    const canvas = this._canvas;
+                    const map = this._map;
+
+                    // Resize canvas if needed
+                    const size = map.getSize();
+                    if (canvas.width !== size.x || canvas.height !== size.y) {
+                        canvas.width = size.x;
+                        canvas.height = size.y;
+                    }
+
+                    // Clear canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw each weather point
+                    weatherData.forEach(([lat, lng, intensity]) => {
+                        const point = map.latLngToContainerPoint([lat, lng]);
+
+                        // Create radial gradient for smooth blending
+                        const radius = 40;
+                        const gradient = ctx.createRadialGradient(
+                            point.x, point.y, 0,
+                            point.x, point.y, radius
+                        );
+
+                        // Color based on intensity (blue -> green -> yellow -> red)
+                        const color = getWeatherColor(intensity);
+                        gradient.addColorStop(0, color.replace(')', ', 0.6)').replace('rgb', 'rgba'));
+                        gradient.addColorStop(1, color.replace(')', ', 0)').replace('rgb', 'rgba'));
+
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(point.x - radius, point.y - radius, radius * 2, radius * 2);
+                    });
+                }
+            });
+
+            weatherLayer = new WeatherOverlay();
+            weatherLayer.addTo(map);
+        };
+
+        // Get color based on intensity (heatmap gradient)
+        const getWeatherColor = (intensity) => {
+            if (intensity < 0.25) return 'rgb(59, 130, 246)';      // Blue (cold)
+            if (intensity < 0.5) return 'rgb(34, 197, 94)';        // Green
+            if (intensity < 0.75) return 'rgb(234, 179, 8)';       // Yellow
+            return 'rgb(239, 68, 68)';                              // Red (hot)
+        };
+
+        // Animation loop using requestAnimationFrame
+        let animationRunning = true;
+
+        const animate = () => {
+            if (!animationRunning) return;
+
+            // Increment time for animation
+            time += 0.005; // Adjust speed here (lower = slower, higher = faster)
+
+            // Regenerate weather layer
+            createWeatherLayer();
+
+            // Continue animation
+            requestAnimationFrame(animate);
+        };
+
+        // Start animation
+        createWeatherLayer();
+        animate();
+
+        // Optional: Pause/resume animation on visibility change
+        document.addEventListener('visibilitychange', () => {
+            animationRunning = !document.hidden;
+            if (animationRunning) animate();
+        });
+    </script>
+</body>
+</html>
+

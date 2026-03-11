@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>IT Disaster Recovery Plan Template</title>
+  <style>
+    @page { size: A4; margin: 2.5cm; }
+    body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.5; color: #333; max-width: 21cm; margin: 0 auto; padding: 2cm; }
+    h1 { font-size: 24pt; color: #1e3a5f; border-bottom: 3px solid #1e3a5f; padding-bottom: 10px; margin-top: 0; }
+    h2 { font-size: 16pt; color: #1e3a5f; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 30px; page-break-after: avoid; }
+    h3 { font-size: 13pt; color: #2c5282; margin-top: 20px; }
+    h4 { font-size: 11pt; color: #4a5568; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 10pt; }
+    th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; }
+    th { background-color: #1e3a5f; color: white; font-weight: bold; }
+    tr:nth-child(even) { background-color: #f8f9fa; }
+    .header-table { border: none; margin-bottom: 30px; }
+    .header-table td { border: none; padding: 5px 10px; }
+    .header-table .label { font-weight: bold; color: #666; width: 150px; }
+    .cover-page { text-align: center; padding: 100px 0; page-break-after: always; }
+    .cover-page h1 { font-size: 32pt; border: none; margin-bottom: 20px; }
+    .cover-page .org-name { font-size: 18pt; color: #666; margin-bottom: 50px; }
+    .cover-page .doc-info { font-size: 12pt; color: #666; margin-top: 100px; }
+    .toc { page-break-after: always; }
+    .toc h2 { border-bottom: 2px solid #1e3a5f; }
+    .toc ul { list-style: none; padding: 0; }
+    .toc li { padding: 8px 0; border-bottom: 1px dotted #ccc; }
+    .toc a { text-decoration: none; color: #333; }
+    .section { page-break-inside: avoid; }
+    .critical { background-color: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 3px; font-weight: bold; }
+    .high { background-color: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 3px; font-weight: bold; }
+    .medium { background-color: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 3px; font-weight: bold; }
+    .placeholder { color: #dc2626; font-style: italic; background-color: #fef2f2; padding: 2px 5px; }
+    .note { background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 10px 15px; margin: 15px 0; font-size: 10pt; }
+    .warning { background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 10px 15px; margin: 15px 0; font-size: 10pt; }
+    .checklist { list-style: none; padding-left: 0; }
+    .checklist li { padding: 5px 0; }
+    .checklist li:before { content: "☐ "; font-size: 14pt; }
+    .signature-block { margin-top: 50px; }
+    .signature-line { border-bottom: 1px solid #333; width: 250px; display: inline-block; margin-top: 40px; }
+    .footer { text-align: center; font-size: 9pt; color: #666; margin-top: 50px; border-top: 1px solid #ccc; padding-top: 10px; }
+    .confidential { color: #dc2626; font-weight: bold; text-align: center; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover-page">
+  <p class="confidential">CONFIDENTIAL</p>
+  <h1>IT Disaster Recovery Plan</h1>
+  <p class="org-name"><span class="placeholder">[Organization Name]</span></p>
+  <p style="font-size: 14pt; margin-top: 30px;"><strong>Plan Name:</strong> <span class="placeholder">[IT DR Plan Name]</span></p>
+  <p style="font-size: 14pt;"><strong>Plan ID:</strong> <span class="placeholder">[DR-XXX]</span></p>
+  <div class="doc-info">
+    <p><strong>Version:</strong> 1.0</p>
+    <p><strong>Effective Date:</strong> <span class="placeholder">[DD/MM/YYYY]</span></p>
+    <p><strong>Classification:</strong> Confidential</p>
+    <p><strong>Document Owner:</strong> <span class="placeholder">[Owner Name]</span></p>
+  </div>
+</div>
+
+<!-- DOCUMENT CONTROL -->
+<h2>Document Control</h2>
+<table class="header-table">
+  <tr><td class="label">Document Title:</td><td><span class="placeholder">[IT Disaster Recovery Plan - System Name]</span></td></tr>
+  <tr><td class="label">Document ID:</td><td><span class="placeholder">[DR-XXX]</span></td></tr>
+  <tr><td class="label">Version:</td><td>1.0</td></tr>
+  <tr><td class="label">Status:</td><td>Draft / In Review / Approved</td></tr>
+  <tr><td class="label">Classification:</td><td>Confidential</td></tr>
+  <tr><td class="label">Owner:</td><td><span class="placeholder">[Plan Owner Name]</span></td></tr>
+  <tr><td class="label">Department:</td><td><span class="placeholder">[Department Name]</span></td></tr>
+  <tr><td class="label">Created Date:</td><td><span class="placeholder">[DD/MM/YYYY]</span></td></tr>
+  <tr><td class="label">Last Updated:</td><td><span class="placeholder">[DD/MM/YYYY]</span></td></tr>
+  <tr><td class="label">Next Review Date:</td><td><span class="placeholder">[DD/MM/YYYY]</span></td></tr>
+</table>
+
+<h3>Version History</h3>
+<table>
+  <tr><th>Version</th><th>Date</th><th>Author</th><th>Changes</th><th>Approved By</th></tr>
+  <tr><td>0.1</td><td><span class="placeholder">[Date]</span></td><td><span class="placeholder">[Author]</span></td><td>Initial draft</td><td>-</td></tr>
+  <tr><td>1.0</td><td><span class="placeholder">[Date]</span></td><td><span class="placeholder">[Author]</span></td><td>First approved version</td><td><span class="placeholder">[Approver]</span></td></tr>
+</table>
+
+<h3>Approval Signatures</h3>
+<table>
+  <tr><th>Role</th><th>Name</th><th>Signature</th><th>Date</th></tr>
+  <tr><td>Plan Owner</td><td><span class="placeholder">[Name]</span></td><td></td><td></td></tr>
+  <tr><td>IT Manager</td><td><span class="placeholder">[Name]</span></td><td></td><td></td></tr>
+  <tr><td>BCM Coordinator</td><td><span class="placeholder">[Name]</span></td><td></td><td></td></tr>
+  <tr><td>CISO / CIO</td><td><span class="placeholder">[Name]</span></td><td></td><td></td></tr>
+</table>
+
+<h3>Distribution List</h3>
+<table>
+  <tr><th>Name</th><th>Role</th><th>Department</th><th>Copy Type</th></tr>
+  <tr><td><span class="placeholder">[Name]</span></td><td>IT DR Lead</td><td>IT Operations</td><td>Controlled</td></tr>
+  <tr><td><span class="placeholder">[Name]</span></td><td>Data Center Manager</td><td>Infrastructure</td><td>Controlled</td></tr>
+  <tr><td><span class="placeholder">[Name]</span></td><td>BCM Coordinator</td><td>Risk Management</td><td>Controlled</td></tr>
+</table>
+
+<div style="page-break-after: always;"></div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><a href="#section1">1. Executive Summary</a></li>
+    <li><a href="#section2">2. Plan Overview</a></li>
+    <li><a href="#section3">3. Scope & Objectives</a></li>
+    <li><a href="#section4">4. Recovery Objectives (RTO/RPO)</a></li>
+    <li><a href="#section5">5. Roles & Responsibilities</a></li>
+    <li><a href="#section6">6. Activation Criteria & Procedures</a></li>
+    <li><a href="#section7">7. Recovery Strategy</a></li>
+    <li><a href="#section8">8. Recovery Procedures</a></li>
+    <li><a href="#section9">9. IT Infrastructure & Assets</a></li>
+    <li><a href="#section10">10. Dependencies</a></li>
+    <li><a href="#section11">11. Communication Plan</a></li>
+    <li><a href="#section12">12. Testing & Maintenance</a></li>
+    <li><a href="#section13">13. Appendices</a></li>
+  </ul>
+</div>
+
+<!-- SECTION 1: EXECUTIVE SUMMARY -->
+<h2 id="section1">1. Executive Summary</h2>
+<p>This IT Disaster Recovery Plan (IT DRP) provides a structured approach for responding to and recovering from disruptions affecting <span class="placeholder">[System/Service Name]</span>. The plan ensures the timely restoration of critical IT services to support business continuity.</p>
+
+<div class="note">
+  <strong>Key Recovery Objectives:</strong><br>
+  • Recovery Time Objective (RTO): <span class="placeholder">[X hours]</span><br>
+  • Recovery Point Objective (RPO): <span class="placeholder">[X hours]</span><br>
+  • Maximum Acceptable Outage (MAO): <span class="placeholder">[X hours]</span>
+</div>
+
+<p><strong>Recovery Strategy:</strong> <span class="placeholder">[Brief description of recovery strategy - e.g., Failover to DR Site, Cloud-based recovery, etc.]</span></p>
+
+<p><strong>Last Test Date:</strong> <span class="placeholder">[DD/MM/YYYY]</span> | <strong>Test Result:</strong> <span class="placeholder">[Successful/Partial/Failed]</span></p>
+
+<!-- SECTION 2: PLAN OVERVIEW -->
+<h2 id="section2">2. Plan Overview</h2>
+
+<h3>2.1 Purpose</h3>
+<p>This plan establishes procedures for the recovery and restoration of IT systems and services following a disaster or significant disruption. It ensures:</p>
+<ul>
+  <li>Minimization of service interruption and data loss</li>
+  <li>Orderly recovery of critical IT systems within defined timeframes</li>
+  <li>Clear roles, responsibilities, and escalation paths</li>
+  <li>Compliance with regulatory requirements and industry standards</li>
+</ul>
+
+<h3>2.2 Plan Activation Authority</h3>
+<table>
+  <tr><th>Authority Level</th><th>Name</th><th>Title</th><th>Contact</th></tr>
+  <tr><td>Primary</td><td><span class="placeholder">[Name]</span></td><td><span class="placeholder">[Title]</span></td><td><span class="placeholder">[Phone/Email]</span></td></tr>
+  <tr><td>Alternate 1</td><td><span class="placeholder">[Name]</span></td><td><span class="placeholder">[Title]</span></td><td><span class="placeholder">[Phone/Email]</span></td></tr>
+  <tr><td>Alternate 2</td><td><span class="placeholder">[Name]</span></td><td><span class="placeholder">[Title]</span></td><td><span class="placeholder">[Phone/Email]</span></td></tr>
+</table>
+
+<h3>2.3 Related Documents</h3>
+<table>
+  <tr><th>Document</th><th>Document ID</th><th>Relationship</th></tr>
+  <tr><td>Business Impact Analysis</td><td><span class="placeholder">[BIA-XXX]</span></td><td>Source of RTO/RPO requirements</td></tr>
+  <tr><td>Business Continuity Plan</td><td><span class="placeholder">[BCP-XXX]</span></td><td>Parent business continuity plan</td></tr>
+  <tr><td>Incident Response Plan</td><td><span class="placeholder">[IRP-XXX]</span></td><td>Cyber incident escalation</td></tr>
+  <tr><td>Crisis Communication Plan</td><td><span class="placeholder">[CCP-XXX]</span></td><td>Stakeholder communication</td></tr>
+</table>
+
+<!-- SECTION 3: SCOPE & OBJECTIVES -->
+<h2 id="section3">3. Scope & Objectives</h2>
+
+<h3>3.1 In Scope</h3>
+<p>This plan covers the following systems, applications, and infrastructure:</p>
+<table>
+  <tr><th>Category</th><th>Systems/Components</th><th>Criticality</th></tr>
+  <tr><td>Applications</td><td><span class="placeholder">[List critical applications]</span></td><td><span class="critical">Tier 1</span></td></tr>
+  <tr><td>Databases</td><td><span class="placeholder">[List databases]</span></td><td><span class="critical">Tier 1</span></td></tr>
+  <tr><td>Servers</td><td><span class="placeholder">[List servers]</span></td><td><span class="high">Tier 2</span></td></tr>
+  <tr><td>Network Infrastructure</td><td><span class="placeholder">[List network components]</span></td><td><span class="critical">Tier 1</span></td></tr>
+  <tr><td>Storage Systems</td><td><span class="placeholder">[List storage systems]</span></td><td><span class="critical">Tier 1</span></td></tr>
+</table>
+
+<h3>3.2 Out of Scope</h3>
+<ul>
+  <li><span class="placeholder">[List systems/services not covered by this plan]</span></li>
+  <li><span class="placeholder">[Reference other DR plans if applicable]</span></li>
+</ul>
+
+<h3>3.3 Objectives</h3>
+<ul class="checklist">
+  <li>Restore critical IT services within the defined RTO</li>
+  <li>Minimize data loss to within the defined RPO</li>
+  <li>Ensure clear communication with stakeholders during recovery</li>
+  <li>Maintain compliance with regulatory requirements</li>
+  <li>Document lessons learned for continuous improvement</li>
+</ul>
+
+<!-- SECTION 4: RECOVERY OBJECTIVES -->
+<h2 id="section4">4. Recovery Objectives (RTO/RPO)</h2>
+
+<h3>4.1 Recovery Time Objectives</h3>
+<table>
+  <tr><th>System/Service</th><th>Criticality</th><th>RTO</th><th>RPO</th><th>MAO</th></tr>
+  <tr><td><span class="placeholder">[Core Banking System]</span></td><td><span class="critical">Tier 1</span></td><td>2 hours</td><td>15 minutes</td><td>4 hours</td></tr>
+  <tr><td><span class="placeholder">[Email System]</span></td><td><span class="high">Tier 2</span></td><td>4 hours</td><td>1 hour</td><td>8 hours</td></tr>
+  <tr><td><span class="placeholder">[Reporting System]</span></td><td><span class="medium">Tier 3</span></td><td>24 hours</td><td>4 hours</td><td>48 hours</td></tr>
+</table>
+
+<div class="note">
+  <strong>Definitions:</strong><br>
+  <strong>RTO (Recovery Time Objective):</strong> Maximum acceptable time to restore the system after a disruption.<br>
+  <strong>RPO (Recovery Point Objective):</strong> Maximum acceptable data loss measured in time.<br>
+  <strong>MAO (Maximum Acceptable Outage):</strong> Maximum time the business can survive without the system.
+</div>
+
+<h3>4.2 Recovery Priority Sequence</h3>
+<table>
+  <tr><th>Priority</th><th>System/Service</th><th>Target Recovery Time</th><th>Dependencies</th></tr>
+  <tr><td>1</td><td><span class="placeholder">[Network Infrastructure]</span></td><td>30 minutes</td><td>Power, Cooling</td></tr>
+  <tr><td>2</td><td><span class="placeholder">[Database Servers]</span></td><td>1 hour</td><td>Network, Storage</td></tr>
+  <tr><td>3</td><td><span class="placeholder">[Application Servers]</span></td><td>2 hours</td><td>Database, Network</td></tr>
+  <tr><td>4</td><td><span class="placeholder">[End-User Services]</span></td><td>4 hours</td><td>Applications</td></tr>
+</table>
+
+<!-- SECTION 5: ROLES & RESPONSIBILITIES -->
+<h2 id="section5">5. Roles & Responsibilities</h2>
+
+<h3>5.1 DR Team Structure</h3>
+<table>
+  <tr><th>Role</th><th>Primary</th><th>Alternate</th><th>Responsibilities</th></tr>
+  <tr>
+    <td><strong>DR Coordinator</strong></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td>Overall DR coordination, decision-making, stakeholder communication</td>
+  </tr>
+  <tr>
+    <td><strong>Infrastructure Lead</strong></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td>Server, storage, and network recovery</td>
+  </tr>
+  <tr>
+    <td><strong>Database Lead</strong></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td>Database recovery and data integrity verification</td>
+  </tr>
+  <tr>
+    <td><strong>Application Lead</strong></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td>Application restoration and testing</td>
+  </tr>
+  <tr>
+    <td><strong>Network Lead</strong></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td>Network connectivity and security</td>
+  </tr>
+  <tr>
+    <td><strong>Communications Lead</strong></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td><span class="placeholder">[Name]</span><br><span class="placeholder">[Phone]</span></td>
+    <td>Internal and external communications</td>
+  </tr>
+</table>
+
+<h3>5.2 Vendor Contacts</h3>
+<table>
+  <tr><th>Vendor</th><th>Service</th><th>Contact Name</th><th>Phone</th><th>SLA</th></tr>
+  <tr><td><span class="placeholder">[Vendor Name]</span></td><td>Hardware Support</td><td><span class="placeholder">[Name]</span></td><td><span class="placeholder">[Phone]</span></td><td>4-hour response</td></tr>
+  <tr><td><span class="placeholder">[Vendor Name]</span></td><td>Cloud Services</td><td><span class="placeholder">[Name]</span></td><td><span class="placeholder">[Phone]</span></td><td>99.9% uptime</td></tr>
+  <tr><td><span class="placeholder">[Vendor Name]</span></td><td>Network Provider</td><td><span class="placeholder">[Name]</span></td><td><span class="placeholder">[Phone]</span></td><td>2-hour response</td></tr>
+</table>
+
+<!-- SECTION 6: ACTIVATION CRITERIA -->
+<h2 id="section6">6. Activation Criteria & Procedures</h2>
+
+<h3>6.1 Activation Triggers</h3>
+<p>This DR plan shall be activated when any of the following conditions occur:</p>
+<table>
+  <tr><th>Trigger Event</th><th>Description</th><th>Activation Level</th></tr>
+  <tr><td>Data Center Outage</td><td>Complete loss of primary data center for &gt;30 minutes</td><td><span class="critical">Full Activation</span></td></tr>
+  <tr><td>Critical System Failure</td><td>Tier 1 system unavailable for &gt;RTO threshold</td><td><span class="critical">Full Activation</span></td></tr>
+  <tr><td>Cyber Attack</td><td>Ransomware, data breach, or major security incident</td><td><span class="critical">Full Activation</span></td></tr>
+  <tr><td>Natural Disaster</td><td>Fire, flood, earthquake affecting IT facilities</td><td><span class="critical">Full Activation</span></td></tr>
+  <tr><td>Network Outage</td><td>Complete network connectivity loss for &gt;1 hour</td><td><span class="high">Partial Activation</span></td></tr>
+  <tr><td>Power Failure</td><td>Extended power outage beyond UPS/generator capacity</td><td><span class="high">Partial Activation</span></td></tr>
+</table>
+
+<h3>6.2 Activation Decision Tree</h3>
+<div class="note">
+  <strong>Step 1:</strong> Incident detected → Notify DR Coordinator<br>
+  <strong>Step 2:</strong> Assess impact and estimated recovery time<br>
+  <strong>Step 3:</strong> If recovery time &gt; RTO → Activate DR Plan<br>
+  <strong>Step 4:</strong> Notify DR Team and stakeholders<br>
+  <strong>Step 5:</strong> Begin recovery procedures
+</div>
+
+<h3>6.3 Activation Checklist</h3>
+<ul class="checklist">
+  <li>Confirm incident severity and scope</li>
+  <li>Obtain activation authorization from designated authority</li>
+  <li>Notify all DR team members</li>
+  <li>Establish command center (physical or virtual)</li>
+  <li>Begin incident logging and documentation</li>
+  <li>Notify key stakeholders and management</li>
+  <li>Engage vendors if required</li>
+</ul>
+
+<!-- SECTION 7: RECOVERY STRATEGY -->
+<h2 id="section7">7. Recovery Strategy</h2>
+
+<h3>7.1 Recovery Strategy Overview</h3>
+<table>
+  <tr><th>Attribute</th><th>Details</th></tr>
+  <tr><td><strong>Strategy Type</strong></td><td><span class="placeholder">[Hot Site / Warm Site / Cold Site / Cloud-based / Hybrid]</span></td></tr>
+  <tr><td><strong>DR Site Location</strong></td><td><span class="placeholder">[DR Site Address]</span></td></tr>
+  <tr><td><strong>Distance from Primary</strong></td><td><span class="placeholder">[XX km]</span></td></tr>
+  <tr><td><strong>Failover Mechanism</strong></td><td><span class="placeholder">[Automated / Manual / Semi-automated]</span></td></tr>
+  <tr><td><strong>Data Replication</strong></td><td><span class="placeholder">[Synchronous / Asynchronous / Backup-based]</span></td></tr>
+  <tr><td><strong>Replication Frequency</strong></td><td><span class="placeholder">[Real-time / Every X minutes / Daily]</span></td></tr>
+</table>
+
+<h3>7.2 DR Site Infrastructure</h3>
+<table>
+  <tr><th>Component</th><th>Primary Site</th><th>DR Site</th><th>Sync Status</th></tr>
+  <tr><td>Servers</td><td><span class="placeholder">[Count/Specs]</span></td><td><span class="placeholder">[Count/Specs]</span></td><td><span class="placeholder">[Active-Active/Standby]</span></td></tr>
+  <tr><td>Storage</td><td><span class="placeholder">[Capacity]</span></td><td><span class="placeholder">[Capacity]</span></td><td><span class="placeholder">[Replicated]</span></td></tr>
+  <tr><td>Network</td><td><span class="placeholder">[Bandwidth]</span></td><td><span class="placeholder">[Bandwidth]</span></td><td><span class="placeholder">[Configured]</span></td></tr>
+  <tr><td>Databases</td><td><span class="placeholder">[Count]</span></td><td><span class="placeholder">[Count]</span></td><td><span class="placeholder">[Sync method]</span></td></tr>
+</table>
+
+<h3>7.3 Backup Strategy</h3>
+<table>
+  <tr><th>Data Type</th><th>Backup Frequency</th><th>Retention</th><th>Storage Location</th><th>Encryption</th></tr>
+  <tr><td>Database</td><td>Every 15 minutes</td><td>30 days</td><td>DR Site + Cloud</td><td>AES-256</td></tr>
+  <tr><td>Application Data</td><td>Hourly</td><td>30 days</td><td>DR Site</td><td>AES-256</td></tr>
+  <tr><td>System Images</td><td>Weekly</td><td>90 days</td><td>Offsite Vault</td><td>AES-256</td></tr>
+  <tr><td>Logs</td><td>Daily</td><td>1 year</td><td>Cloud Archive</td><td>AES-256</td></tr>
+</table>
+
+<!-- SECTION 8: RECOVERY PROCEDURES -->
+<h2 id="section8">8. Recovery Procedures</h2>
+
+<h3>8.1 Phase 1: Detection & Assessment (0-30 minutes)</h3>
+<table>
+  <tr><th>#</th><th>Action</th><th>Responsible</th><th>Duration</th><th>Completed</th></tr>
+  <tr><td>1.1</td><td>Confirm incident through monitoring systems</td><td>NOC Team</td><td>5 min</td><td>☐</td></tr>
+  <tr><td>1.2</td><td>Assess scope and impact of the incident</td><td>DR Coordinator</td><td>10 min</td><td>☐</td></tr>
+  <tr><td>1.3</td><td>Determine if DR activation is required</td><td>DR Coordinator</td><td>5 min</td><td>☐</td></tr>
+  <tr><td>1.4</td><td>Obtain activation authorization</td><td>DR Coordinator</td><td>5 min</td><td>☐</td></tr>
+  <tr><td>1.5</td><td>Notify DR team members</td><td>Communications Lead</td><td>5 min</td><td>☐</td></tr>
+</table>
+
+<h3>8.2 Phase 2: Failover Initiation (30 minutes - 2 hours)</h3>
+<table>
+  <tr><th>#</th><th>Action</th><th>Responsible</th><th>Duration</th><th>Completed</th></tr>
+  <tr><td>2.1</td><td>Activate DR site infrastructure</td><td>Infrastructure Lead</td><td>15 min</td><td>☐</td></tr>
+  <tr><td>2.2</td><td>Verify database replication status</td><td>Database Lead</td><td>10 min</td><td>☐</td></tr>
+  <tr><td>2.3</td><td>Initiate database failover</td><td>Database Lead</td><td>20 min</td><td>☐</td></tr>
+  <tr><td>2.4</td><td>Update DNS and load balancer configurations</td><td>Network Lead</td><td>15 min</td><td>☐</td></tr>
+  <tr><td>2.5</td><td>Activate DR application servers</td><td>Application Lead</td><td>30 min</td><td>☐</td></tr>
+</table>
+
+<h3>8.3 Phase 3: Service Restoration (2-4 hours)</h3>
+<table>
+  <tr><th>#</th><th>Action</th><th>Responsible</th><th>Duration</th><th>Completed</th></tr>
+  <tr><td>3.1</td><td>Bring critical applications online</td><td>Application Lead</td><td>30 min</td><td>☐</td></tr>
+  <tr><td>3.2</td><td>Verify network connectivity and routing</td><td>Network Lead</td><td>15 min</td><td>☐</td></tr>
+  <tr><td>3.3</td><td>Test user access and authentication</td><td>Application Lead</td><td>15 min</td><td>☐</td></tr>
+  <tr><td>3.4</td><td>Restore batch processing and scheduled jobs</td><td>Application Lead</td><td>30 min</td><td>☐</td></tr>
+  <tr><td>3.5</td><td>Verify data integrity</td><td>Database Lead</td><td>30 min</td><td>☐</td></tr>
+</table>
+
+<h3>8.4 Phase 4: Validation & Handover (4-6 hours)</h3>
+<table>
+  <tr><th>#</th><th>Action</th><th>Responsible</th><th>Duration</th><th>Completed</th></tr>
+  <tr><td>4.1</td><td>Execute validation test scripts</td><td>Application Lead</td><td>30 min</td><td>☐</td></tr>
+  <tr><td>4.2</td><td>Confirm all services operational</td><td>DR Coordinator</td><td>15 min</td><td>☐</td></tr>
+  <tr><td>4.3</td><td>Notify business users of service restoration</td><td>Communications Lead</td><td>10 min</td><td>☐</td></tr>
+  <tr><td>4.4</td><td>Hand over to normal operations</td><td>DR Coordinator</td><td>15 min</td><td>☐</td></tr>
+  <tr><td>4.5</td><td>Document recovery actions and timeline</td><td>DR Coordinator</td><td>30 min</td><td>☐</td></tr>
+</table>
+
+<h3>8.5 Failback Procedures</h3>
+<div class="warning">
+  <strong>Important:</strong> Failback to primary site should only be initiated after the primary site has been fully restored and validated. Failback should be scheduled during a maintenance window to minimize business impact.
+</div>
+<table>
+  <tr><th>#</th><th>Action</th><th>Responsible</th><th>Duration</th></tr>
+  <tr><td>1</td><td>Confirm primary site is fully operational</td><td>Infrastructure Lead</td><td>2 hours</td></tr>
+  <tr><td>2</td><td>Synchronize data from DR to primary</td><td>Database Lead</td><td>4-8 hours</td></tr>
+  <tr><td>3</td><td>Schedule failback maintenance window</td><td>DR Coordinator</td><td>-</td></tr>
+  <tr><td>4</td><td>Execute failback procedures</td><td>All Leads</td><td>2-4 hours</td></tr>
+  <tr><td>5</td><td>Validate primary site operations</td><td>Application Lead</td><td>2 hours</td></tr>
+  <tr><td>6</td><td>Deactivate DR site (return to standby)</td><td>Infrastructure Lead</td><td>1 hour</td></tr>
+</table>
+
+<!-- SECTION 9: IT INFRASTRUCTURE & ASSETS -->
+<h2 id="section9">9. IT Infrastructure & Assets</h2>
+
+<h3>9.1 Servers</h3>
+<table>
+  <tr><th>Server Name</th><th>Role</th><th>OS</th><th>Location</th><th>DR Status</th><th>Backup Method</th></tr>
+  <tr><td><span class="placeholder">[Server1]</span></td><td>Application Server</td><td>Windows Server 2022</td><td>Primary DC</td><td>Replicated</td><td>VM Snapshot</td></tr>
+  <tr><td><span class="placeholder">[Server2]</span></td><td>Database Server</td><td>Linux RHEL 8</td><td>Primary DC</td><td>Active-Active</td><td>DB Replication</td></tr>
+  <tr><td><span class="placeholder">[Server3]</span></td><td>Web Server</td><td>Linux Ubuntu 22</td><td>Primary DC</td><td>Replicated</td><td>VM Snapshot</td></tr>
+</table>
+
+<h3>9.2 Databases</h3>
+<table>
+  <tr><th>Database Name</th><th>Type</th><th>Size</th><th>Replication</th><th>Last Backup</th><th>RPO</th></tr>
+  <tr><td><span class="placeholder">[DB1]</span></td><td>Oracle 19c</td><td>500 GB</td><td>Data Guard</td><td><span class="placeholder">[Date/Time]</span></td><td>15 min</td></tr>
+  <tr><td><span class="placeholder">[DB2]</span></td><td>SQL Server 2019</td><td>200 GB</td><td>Always On</td><td><span class="placeholder">[Date/Time]</span></td><td>15 min</td></tr>
+  <tr><td><span class="placeholder">[DB3]</span></td><td>PostgreSQL 14</td><td>100 GB</td><td>Streaming</td><td><span class="placeholder">[Date/Time]</span></td><td>1 hour</td></tr>
+</table>
+
+<h3>9.3 Network Infrastructure</h3>
+<table>
+  <tr><th>Component</th><th>Model</th><th>Location</th><th>DR Equivalent</th><th>Failover Type</th></tr>
+  <tr><td>Core Switch</td><td><span class="placeholder">[Model]</span></td><td>Primary DC</td><td><span class="placeholder">[Model]</span></td><td>VRRP</td></tr>
+  <tr><td>Firewall</td><td><span class="placeholder">[Model]</span></td><td>Primary DC</td><td><span class="placeholder">[Model]</span></td><td>Active-Passive</td></tr>
+  <tr><td>Load Balancer</td><td><span class="placeholder">[Model]</span></td><td>Primary DC</td><td><span class="placeholder">[Model]</span></td><td>DNS Failover</td></tr>
+</table>
+
+<!-- SECTION 10: DEPENDENCIES -->
+<h2 id="section10">10. Dependencies</h2>
+
+<h3>10.1 Internal Dependencies</h3>
+<table>
+  <tr><th>Dependency</th><th>Type</th><th>Criticality</th><th>Owner</th><th>Impact if Unavailable</th></tr>
+  <tr><td><span class="placeholder">[Active Directory]</span></td><td>Infrastructure</td><td><span class="critical">Critical</span></td><td>IT Security</td><td>No user authentication</td></tr>
+  <tr><td><span class="placeholder">[DNS Services]</span></td><td>Infrastructure</td><td><span class="critical">Critical</span></td><td>Network Team</td><td>No name resolution</td></tr>
+  <tr><td><span class="placeholder">[Email System]</span></td><td>Application</td><td><span class="high">High</span></td><td>IT Operations</td><td>No email communication</td></tr>
+</table>
+
+<h3>10.2 External Dependencies</h3>
+<table>
+  <tr><th>Vendor/Service</th><th>Service Provided</th><th>SLA</th><th>Contact</th><th>Escalation</th></tr>
+  <tr><td><span class="placeholder">[ISP Name]</span></td><td>Internet Connectivity</td><td>99.9%</td><td><span class="placeholder">[Phone]</span></td><td><span class="placeholder">[Escalation Contact]</span></td></tr>
+  <tr><td><span class="placeholder">[Cloud Provider]</span></td><td>Cloud Infrastructure</td><td>99.95%</td><td><span class="placeholder">[Phone]</span></td><td><span class="placeholder">[Escalation Contact]</span></td></tr>
+  <tr><td><span class="placeholder">[Hardware Vendor]</span></td><td>Hardware Support</td><td>4-hour response</td><td><span class="placeholder">[Phone]</span></td><td><span class="placeholder">[Escalation Contact]</span></td></tr>
+</table>
+
+<!-- SECTION 11: COMMUNICATION PLAN -->
+<h2 id="section11">11. Communication Plan</h2>
+
+<h3>11.1 Communication Matrix</h3>
+<table>
+  <tr><th>Stakeholder</th><th>When to Notify</th><th>Method</th><th>Responsible</th><th>Template</th></tr>
+  <tr><td>Executive Management</td><td>Within 30 minutes of activation</td><td>Phone + Email</td><td>DR Coordinator</td><td>Exec Notification</td></tr>
+  <tr><td>IT Staff</td><td>Immediately upon activation</td><td>SMS + Teams</td><td>Communications Lead</td><td>IT Alert</td></tr>
+  <tr><td>Business Users</td><td>Within 1 hour</td><td>Email + Intranet</td><td>Communications Lead</td><td>User Advisory</td></tr>
+  <tr><td>Vendors</td><td>As needed</td><td>Phone</td><td>Respective Leads</td><td>Vendor Request</td></tr>
+  <tr><td>Regulators</td><td>Per regulatory requirements</td><td>Formal Letter</td><td>Compliance</td><td>Regulatory Notice</td></tr>
+</table>
+
+<h3>11.2 Status Update Schedule</h3>
+<table>
+  <tr><th>Phase</th><th>Update Frequency</th><th>Recipients</th><th>Format</th></tr>
+  <tr><td>Initial Response (0-2 hours)</td><td>Every 30 minutes</td><td>Executive Team, IT Management</td><td>Brief status call</td></tr>
+  <tr><td>Active Recovery (2-8 hours)</td><td>Every hour</td><td>All stakeholders</td><td>Email update</td></tr>
+  <tr><td>Extended Recovery (&gt;8 hours)</td><td>Every 2 hours</td><td>All stakeholders</td><td>Email update</td></tr>
+  <tr><td>Post-Recovery</td><td>Daily for 3 days</td><td>Management</td><td>Summary report</td></tr>
+</table>
+
+<h3>11.3 Communication Templates</h3>
+<div class="note">
+  <strong>Initial Notification Template:</strong><br><br>
+  Subject: [URGENT] IT DR Plan Activated - <span class="placeholder">[System Name]</span><br><br>
+  A disaster recovery event has been declared for <span class="placeholder">[System Name]</span> at <span class="placeholder">[Time]</span>.<br><br>
+  <strong>Incident:</strong> <span class="placeholder">[Brief description]</span><br>
+  <strong>Impact:</strong> <span class="placeholder">[Affected services]</span><br>
+  <strong>Expected Recovery:</strong> <span class="placeholder">[Estimated time]</span><br>
+  <strong>Next Update:</strong> <span class="placeholder">[Time]</span><br><br>
+  DR Coordinator: <span class="placeholder">[Name]</span> | <span class="placeholder">[Phone]</span>
+</div>
+
+<!-- SECTION 12: TESTING & MAINTENANCE -->
+<h2 id="section12">12. Testing & Maintenance</h2>
+
+<h3>12.1 Testing Schedule</h3>
+<table>
+  <tr><th>Test Type</th><th>Frequency</th><th>Scope</th><th>Last Test</th><th>Next Test</th></tr>
+  <tr><td>Tabletop Exercise</td><td>Quarterly</td><td>Walkthrough of procedures</td><td><span class="placeholder">[Date]</span></td><td><span class="placeholder">[Date]</span></td></tr>
+  <tr><td>Component Test</td><td>Monthly</td><td>Individual system failover</td><td><span class="placeholder">[Date]</span></td><td><span class="placeholder">[Date]</span></td></tr>
+  <tr><td>Full DR Test</td><td>Annually</td><td>Complete failover to DR site</td><td><span class="placeholder">[Date]</span></td><td><span class="placeholder">[Date]</span></td></tr>
+  <tr><td>Backup Restore Test</td><td>Monthly</td><td>Verify backup integrity</td><td><span class="placeholder">[Date]</span></td><td><span class="placeholder">[Date]</span></td></tr>
+</table>
+
+<h3>12.2 Test History</h3>
+<table>
+  <tr><th>Date</th><th>Test Type</th><th>Result</th><th>RTO Achieved</th><th>Issues Found</th><th>Actions Taken</th></tr>
+  <tr><td><span class="placeholder">[Date]</span></td><td>Full DR Test</td><td>Successful</td><td>1.5 hours</td><td>Minor DNS delay</td><td>Updated DNS TTL</td></tr>
+  <tr><td><span class="placeholder">[Date]</span></td><td>Tabletop</td><td>Successful</td><td>N/A</td><td>Contact list outdated</td><td>Updated contacts</td></tr>
+</table>
+
+<h3>12.3 Plan Maintenance</h3>
+<table>
+  <tr><th>Activity</th><th>Frequency</th><th>Responsible</th><th>Last Completed</th></tr>
+  <tr><td>Review and update contact lists</td><td>Monthly</td><td>DR Coordinator</td><td><span class="placeholder">[Date]</span></td></tr>
+  <tr><td>Review recovery procedures</td><td>Quarterly</td><td>Technical Leads</td><td><span class="placeholder">[Date]</span></td></tr>
+  <tr><td>Full plan review</td><td>Annually</td><td>DR Coordinator</td><td><span class="placeholder">[Date]</span></td></tr>
+  <tr><td>Update after major changes</td><td>As needed</td><td>DR Coordinator</td><td><span class="placeholder">[Date]</span></td></tr>
+</table>
+
+<!-- SECTION 13: APPENDICES -->
+<h2 id="section13">13. Appendices</h2>
+
+<h3>Appendix A: Quick Reference Card</h3>
+<div style="border: 2px solid #1e3a5f; padding: 15px; background-color: #f8fafc;">
+  <h4 style="margin-top: 0; color: #1e3a5f;">DR QUICK REFERENCE</h4>
+  <table style="border: none;">
+    <tr><td style="border: none; width: 50%;"><strong>DR Coordinator:</strong></td><td style="border: none;"><span class="placeholder">[Name] - [Phone]</span></td></tr>
+    <tr><td style="border: none;"><strong>Alternate:</strong></td><td style="border: none;"><span class="placeholder">[Name] - [Phone]</span></td></tr>
+    <tr><td style="border: none;"><strong>DR Site:</strong></td><td style="border: none;"><span class="placeholder">[Location]</span></td></tr>
+    <tr><td style="border: none;"><strong>RTO:</strong></td><td style="border: none;"><span class="placeholder">[X hours]</span></td></tr>
+    <tr><td style="border: none;"><strong>RPO:</strong></td><td style="border: none;"><span class="placeholder">[X hours]</span></td></tr>
+  </table>
+  <p style="margin-bottom: 0;"><strong>Activation Steps:</strong> 1) Confirm incident → 2) Get authorization → 3) Notify team → 4) Execute procedures</p>
+</div>
+
+<h3>Appendix B: Glossary</h3>
+<table>
+  <tr><th>Term</th><th>Definition</th></tr>
+  <tr><td>RTO</td><td>Recovery Time Objective - Maximum acceptable time to restore service</td></tr>
+  <tr><td>RPO</td><td>Recovery Point Objective - Maximum acceptable data loss</td></tr>
+  <tr><td>MAO</td><td>Maximum Acceptable Outage - Maximum time business can survive without service</td></tr>
+  <tr><td>DR</td><td>Disaster Recovery</td></tr>
+  <tr><td>BCP</td><td>Business Continuity Plan</td></tr>
+  <tr><td>Failover</td><td>Switching operations from primary to backup systems</td></tr>
+  <tr><td>Failback</td><td>Returning operations from backup to primary systems</td></tr>
+</table>
+
+<h3>Appendix C: Revision Checklist</h3>
+<ul class="checklist">
+  <li>All contact information verified and current</li>
+  <li>Recovery procedures tested and validated</li>
+  <li>RTO/RPO objectives reviewed with business</li>
+  <li>Vendor SLAs confirmed</li>
+  <li>DR site infrastructure verified</li>
+  <li>Backup and replication status confirmed</li>
+  <li>All team members trained on procedures</li>
+  <li>Plan approved by designated authorities</li>
+</ul>
+
+<div class="footer">
+  <p><strong>IT Disaster Recovery Plan</strong> | <span class="placeholder">[Organization Name]</span> | Version 1.0</p>
+  <p>This document is confidential and intended for authorized personnel only.</p>
+  <p>Generated from AutoBCM Platform</p>
+</div>
+
+</body>
+</html>
+

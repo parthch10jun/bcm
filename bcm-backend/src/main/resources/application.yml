@@ -1,0 +1,148 @@
+spring:
+  application:
+    name: bcm-platform
+  
+  # Database Configuration - H2 In-Memory for Development
+  datasource:
+    url: jdbc:h2:mem:bcm_platform;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      max-lifetime: 1800000
+  
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    schemas: public
+  
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+    default-property-inclusion: non_null
+
+  # Multipart File Upload Configuration
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+      file-size-threshold: 2KB
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+# CORS Configuration
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003
+  allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 3600
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production-please-make-it-long-enough}
+  expiration: 86400000 # 24 hours in milliseconds
+  refresh-expiration: 604800000 # 7 days in milliseconds
+
+# API Documentation
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+  show-actuator: false
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.bcm: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/bcm-platform.log
+    max-size: 10MB
+    max-history: 30
+
+# Application specific properties
+app:
+  name: BCM Platform
+  version: 1.0.0
+  description: Business Continuity Management Platform
+  
+  # BIA Configuration
+  bia:
+    impact-values:
+      none: 0
+      low: 1
+      medium: 2
+      high: 3
+      critical: 4
+    time-weights:
+      one-hour: 10
+      four-hours: 8
+      twenty-four-hours: 6
+      three-days: 4
+      one-week: 2
+    criticality-tiers:
+      tier1-threshold: 32
+      tier2-threshold: 24
+      tier3-threshold: 16
+      tier4-threshold: 8
+  
+  # File Upload Configuration
+  upload:
+    max-file-size: 10MB
+    max-request-size: 20MB
+    allowed-extensions: pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv
+  
+  # Email Configuration (for notifications)
+  email:
+    enabled: false
+    from: noreply@bcmplatform.com
+    smtp:
+      host: smtp.gmail.com
+      port: 587
+      username: ${EMAIL_USERNAME:}
+      password: ${EMAIL_PASSWORD:}
+      auth: true
+      starttls: true
+

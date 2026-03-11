@@ -1,0 +1,216 @@
+-- =====================================================
+-- BCM Platform - Database Migration V1
+-- Create Organizational Units Table (Self-Referencing Hierarchy)
+-- =====================================================
+
+-- Create organizational_units table
+CREATE TABLE organizational_units (
+    id BIGSERIAL PRIMARY KEY,
+    
+    -- Basic Information
+    unit_code VARCHAR(50) UNIQUE,
+    unit_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    
+    -- Self-Referencing Hierarchy
+    parent_unit_id BIGINT,
+    
+    -- Unit Classification
+    unit_type VARCHAR(50) NOT NULL,
+    is_bia_eligible BOOLEAN NOT NULL DEFAULT false,
+    
+    -- Unit Leadership
+    unit_head VARCHAR(255),
+    unit_head_email VARCHAR(255),
+    unit_head_phone VARCHAR(50),
+    
+    -- Location Reference (will be created in later migration)
+    location_id BIGINT,
+    
+    -- Criticality Information
+    criticality_tier VARCHAR(20),
+    criticality_score INTEGER,
+    
+    -- Organizational Metrics
+    employee_count INTEGER,
+    annual_budget DECIMAL(15, 2),
+    
+    -- Flexible Metadata
+    metadata TEXT,
+    
+    -- Audit Fields
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_by VARCHAR(255),
+    version BIGINT DEFAULT 0,
+    is_deleted BOOLEAN DEFAULT false,
+    
+    -- Foreign Key Constraints
+    CONSTRAINT fk_parent_unit FOREIGN KEY (parent_unit_id) 
+        REFERENCES organizational_units(id) ON DELETE CASCADE,
+    
+    -- Check Constraints
+    CONSTRAINT chk_unit_type CHECK (unit_type IN (
+        'ORGANIZATION', 'DIVISION', 'DEPARTMENT', 'TEAM', 'SUB_TEAM', 'CUSTOM'
+    )),
+    CONSTRAINT chk_criticality_tier CHECK (criticality_tier IN (
+        'TIER_1', 'TIER_2', 'TIER_3', 'TIER_4', 'TIER_5'
+    ))
+);
+
+-- Create Indexes for Performance
+CREATE INDEX idx_parent_unit ON organizational_units(parent_unit_id);
+CREATE INDEX idx_unit_type ON organizational_units(unit_type);
+CREATE INDEX idx_bia_eligible ON organizational_units(is_bia_eligible);
+CREATE INDEX idx_unit_code ON organizational_units(unit_code);
+CREATE INDEX idx_unit_name ON organizational_units(unit_name);
+CREATE INDEX idx_is_deleted ON organizational_units(is_deleted);
+
+-- Create Index for BIA-Eligible Units (Most Common Query)
+CREATE INDEX idx_bia_eligible_units ON organizational_units(is_bia_eligible, is_deleted) 
+    WHERE is_bia_eligible = true AND is_deleted = false;
+
+-- Comments for Documentation
+COMMENT ON TABLE organizational_units IS 'Self-referencing hierarchical organizational structure supporting unlimited nesting levels';
+COMMENT ON COLUMN organizational_units.parent_unit_id IS 'Self-referencing foreign key - NULL for top-level organization';
+COMMENT ON COLUMN organizational_units.is_bia_eligible IS 'Flag indicating if BIAs can be conducted for this unit (typically leaf nodes)';
+COMMENT ON COLUMN organizational_units.unit_type IS 'Type of organizational unit (ORGANIZATION, DIVISION, DEPARTMENT, TEAM, etc.)';
+COMMENT ON COLUMN organizational_units.metadata IS 'JSON format for flexible additional data';
+
+-- =====================================================
+-- Sample Data - Example Organizational Structure
+-- =====================================================
+
+-- Top Level: Organization
+INSERT INTO organizational_units (
+    id, unit_code, unit_name, description, parent_unit_id, unit_type, 
+    is_bia_eligible, unit_head, unit_head_email, employee_count, created_by
+) VALUES (
+    1, 'ORG-001', 'ACME Corporation', 'Global technology and services company', 
+    NULL, 'ORGANIZATION', false, 'John Smith', 'john.smith@acme.com', 5000, 'SYSTEM'
+);
+
+-- Level 1: Divisions
+INSERT INTO organizational_units (
+    id, unit_code, unit_name, description, parent_unit_id, unit_type, 
+    is_bia_eligible, unit_head, unit_head_email, employee_count, created_by
+) VALUES 
+(2, 'DIV-OPS', 'Operations', 'Operations Division', 1, 'DIVISION', false, 
+    'Sarah Johnson', 'sarah.johnson@acme.com', 2000, 'SYSTEM'),
+(3, 'DIV-TECH', 'Technology', 'Technology Division', 1, 'DIVISION', false, 
+    'Michael Chen', 'michael.chen@acme.com', 1500, 'SYSTEM'),
+(4, 'DIV-FIN', 'Finance', 'Finance Division', 1, 'DIVISION', false, 
+    'Emily Davis', 'emily.davis@acme.com', 500, 'SYSTEM'),
+(5, 'DIV-HR', 'Human Resources', 'Human Resources Division', 1, 'DIVISION', false, 
+    'Robert Wilson', 'robert.wilson@acme.com', 300, 'SYSTEM');
+
+-- Level 2: Departments under Technology Division
+INSERT INTO organizational_units (
+    id, unit_code, unit_name, description, parent_unit_id, unit_type, 
+    is_bia_eligible, unit_head, unit_head_email, employee_count, created_by
+) VALUES 
+(6, 'DEPT-IT-INFRA', 'IT Infrastructure', 'Infrastructure and Operations', 3, 'DEPARTMENT', true, 
+    'David Lee', 'david.lee@acme.com', 200, 'SYSTEM'),
+(7, 'DEPT-SW-DEV', 'Software Development', 'Application Development', 3, 'DEPARTMENT', true, 
+    'Lisa Anderson', 'lisa.anderson@acme.com', 400, 'SYSTEM'),
+(8, 'DEPT-CYBER-SEC', 'Cybersecurity', 'Information Security', 3, 'DEPARTMENT', true, 
+    'James Martinez', 'james.martinez@acme.com', 150, 'SYSTEM'),
+(9, 'DEPT-DATA', 'Data & Analytics', 'Data Engineering and Analytics', 3, 'DEPARTMENT', true, 
+    'Maria Garcia', 'maria.garcia@acme.com', 180, 'SYSTEM');
+
+-- Level 2: Departments under Finance Division
+INSERT INTO organizational_units (
+    id, unit_code, unit_name, description, parent_unit_id, unit_type, 
+    is_bia_eligible, unit_head, unit_head_email, employee_count, created_by
+) VALUES 
+(10, 'DEPT-ACCT', 'Accounting', 'Financial Accounting', 4, 'DEPARTMENT', true, 
+    'Patricia Brown', 'patricia.brown@acme.com', 150, 'SYSTEM'),
+(11, 'DEPT-PAYROLL', 'Payroll', 'Payroll Processing', 4, 'DEPARTMENT', true, 
+    'Christopher Taylor', 'christopher.taylor@acme.com', 80, 'SYSTEM'),
+(12, 'DEPT-FP-A', 'FP&A', 'Financial Planning and Analysis', 4, 'DEPARTMENT', true, 
+    'Jennifer White', 'jennifer.white@acme.com', 100, 'SYSTEM');
+
+-- Level 2: Departments under Operations Division
+INSERT INTO organizational_units (
+    id, unit_code, unit_name, description, parent_unit_id, unit_type, 
+    is_bia_eligible, unit_head, unit_head_email, employee_count, created_by
+) VALUES 
+(13, 'DEPT-CUST-SVC', 'Customer Service', 'Customer Support Operations', 2, 'DEPARTMENT', true, 
+    'Daniel Harris', 'daniel.harris@acme.com', 500, 'SYSTEM'),
+(14, 'DEPT-LOGISTICS', 'Logistics', 'Supply Chain and Logistics', 2, 'DEPARTMENT', true, 
+    'Amanda Clark', 'amanda.clark@acme.com', 400, 'SYSTEM'),
+(15, 'DEPT-QUALITY', 'Quality Assurance', 'Quality Control and Assurance', 2, 'DEPARTMENT', true, 
+    'Kevin Rodriguez', 'kevin.rodriguez@acme.com', 200, 'SYSTEM');
+
+-- Level 2: Departments under HR Division
+INSERT INTO organizational_units (
+    id, unit_code, unit_name, description, parent_unit_id, unit_type, 
+    is_bia_eligible, unit_head, unit_head_email, employee_count, created_by
+) VALUES 
+(16, 'DEPT-RECRUIT', 'Recruitment', 'Talent Acquisition', 5, 'DEPARTMENT', true, 
+    'Michelle Lewis', 'michelle.lewis@acme.com', 80, 'SYSTEM'),
+(17, 'DEPT-COMP-BEN', 'Compensation & Benefits', 'Employee Compensation and Benefits', 5, 'DEPARTMENT', true, 
+    'Brian Walker', 'brian.walker@acme.com', 60, 'SYSTEM'),
+(18, 'DEPT-TRAINING', 'Training & Development', 'Employee Learning and Development', 5, 'DEPARTMENT', true, 
+    'Nicole Hall', 'nicole.hall@acme.com', 50, 'SYSTEM');
+
+-- Level 3: Teams under Software Development Department (Example of deeper nesting)
+INSERT INTO organizational_units (
+    id, unit_code, unit_name, description, parent_unit_id, unit_type, 
+    is_bia_eligible, unit_head, unit_head_email, employee_count, created_by
+) VALUES 
+(19, 'TEAM-FRONTEND', 'Frontend Team', 'Frontend Development Team', 7, 'TEAM', true, 
+    'Alex Turner', 'alex.turner@acme.com', 50, 'SYSTEM'),
+(20, 'TEAM-BACKEND', 'Backend Team', 'Backend Development Team', 7, 'TEAM', true, 
+    'Sophia King', 'sophia.king@acme.com', 60, 'SYSTEM'),
+(21, 'TEAM-MOBILE', 'Mobile Team', 'Mobile App Development Team', 7, 'TEAM', true, 
+    'Ryan Scott', 'ryan.scott@acme.com', 40, 'SYSTEM');
+
+-- Reset sequence to continue from last inserted ID
+SELECT setval('organizational_units_id_seq', (SELECT MAX(id) FROM organizational_units));
+
+-- =====================================================
+-- Verification Queries (for testing)
+-- =====================================================
+
+-- Query to see the full hierarchy
+-- SELECT 
+--     CASE 
+--         WHEN parent_unit_id IS NULL THEN unit_name
+--         ELSE REPEAT('  ', (
+--             WITH RECURSIVE hierarchy AS (
+--                 SELECT id, parent_unit_id, 0 as level FROM organizational_units WHERE id = organizational_units.id
+--                 UNION ALL
+--                 SELECT ou.id, ou.parent_unit_id, h.level + 1
+--                 FROM organizational_units ou
+--                 INNER JOIN hierarchy h ON ou.id = h.parent_unit_id
+--             )
+--             SELECT MAX(level) FROM hierarchy
+--         )) || unit_name
+--     END as hierarchy,
+--     unit_type,
+--     is_bia_eligible,
+--     employee_count
+-- FROM organizational_units
+-- WHERE is_deleted = false
+-- ORDER BY id;
+
+-- Query to get only BIA-eligible units (for dropdown in UI)
+-- SELECT id, unit_code, unit_name, unit_type, employee_count
+-- FROM organizational_units
+-- WHERE is_bia_eligible = true AND is_deleted = false
+-- ORDER BY unit_name;
+
+-- Query to get full path for a specific unit
+-- WITH RECURSIVE unit_path AS (
+--     SELECT id, unit_name, parent_unit_id, unit_name as path
+--     FROM organizational_units
+--     WHERE id = 6  -- Example: IT Infrastructure
+--     UNION ALL
+--     SELECT ou.id, ou.unit_name, ou.parent_unit_id, ou.unit_name || ' > ' || up.path
+--     FROM organizational_units ou
+--     INNER JOIN unit_path up ON ou.id = up.parent_unit_id
+-- )
+-- SELECT path FROM unit_path WHERE parent_unit_id IS NULL;
+

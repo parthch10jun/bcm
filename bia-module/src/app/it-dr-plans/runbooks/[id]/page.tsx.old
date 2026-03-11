@@ -1,0 +1,543 @@
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { 
+  ArrowLeftIcon,
+  PlayIcon,
+  PauseIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  UserIcon,
+  DocumentTextIcon,
+  ArrowPathIcon,
+  ExclamationTriangleIcon,
+  BookOpenIcon,
+  BellIcon,
+  Cog6ToothIcon
+} from '@heroicons/react/24/outline';
+
+export default function RunbookDetailPage({ params }: { params: { id: string } }) {
+  const [activeTab, setActiveTab] = useState<'tasks' | 'dependencies' | 'documentation' | 'history'>('tasks');
+  const [executionMode, setExecutionMode] = useState(false);
+
+  // Mock runbook data
+  const runbook = {
+    id: params.id,
+    name: 'SAP ERP Failover Runbook',
+    drPlan: 'DR-001',
+    criticality: 'Tier 1',
+    estimatedDuration: '120 min',
+    status: 'Ready',
+    lastTested: '2025-10-15',
+    testResult: 'Passed'
+  };
+
+  // Mock tasks with dependencies and sequencing
+  const tasks = [
+    {
+      id: 1,
+      phase: 'Assessment',
+      name: 'Verify incident severity and activate DR team',
+      owner: 'Ahmed Al-Mansouri',
+      sla: '5 min',
+      status: 'pending',
+      dependencies: [],
+      type: 'manual',
+      documentation: ['Incident Assessment Checklist.pdf']
+    },
+    {
+      id: 2,
+      phase: 'Assessment',
+      name: 'Notify stakeholders and initiate communication plan',
+      owner: 'Sarah Johnson',
+      sla: '10 min',
+      status: 'pending',
+      dependencies: [1],
+      type: 'automated',
+      documentation: ['Communication Template.docx']
+    },
+    {
+      id: 3,
+      phase: 'Preparation',
+      name: 'Verify DR site readiness and infrastructure status',
+      owner: 'Mohammed Hassan',
+      sla: '15 min',
+      status: 'pending',
+      dependencies: [1],
+      type: 'manual',
+      documentation: ['DR Site Checklist.pdf']
+    },
+    {
+      id: 4,
+      phase: 'Preparation',
+      name: 'Initiate database replication to DR site',
+      owner: 'System (Automated)',
+      sla: '20 min',
+      status: 'pending',
+      dependencies: [3],
+      type: 'automated',
+      documentation: ['DB Replication Script.sh', 'Replication Guide.pdf']
+    },
+    {
+      id: 5,
+      phase: 'Failover',
+      name: 'Stop production SAP services',
+      owner: 'Ahmed Al-Mansouri',
+      sla: '5 min',
+      status: 'pending',
+      dependencies: [2, 4],
+      type: 'manual',
+      documentation: ['SAP Shutdown Procedure.pdf']
+    },
+    {
+      id: 6,
+      phase: 'Failover',
+      name: 'Execute database failover to DR site',
+      owner: 'System (Automated)',
+      sla: '15 min',
+      status: 'pending',
+      dependencies: [5],
+      type: 'automated',
+      documentation: ['DB Failover Script.sh']
+    },
+    {
+      id: 7,
+      phase: 'Failover',
+      name: 'Start SAP application servers on DR site',
+      owner: 'Mohammed Hassan',
+      sla: '20 min',
+      status: 'pending',
+      dependencies: [6],
+      type: 'manual',
+      documentation: ['SAP Startup Procedure.pdf']
+    },
+    {
+      id: 8,
+      phase: 'Validation',
+      name: 'Verify database connectivity and data integrity',
+      owner: 'System (Automated)',
+      sla: '10 min',
+      status: 'pending',
+      dependencies: [7],
+      type: 'automated',
+      documentation: ['DB Validation Script.sh']
+    },
+    {
+      id: 9,
+      phase: 'Validation',
+      name: 'Test SAP critical transactions',
+      owner: 'Sarah Johnson',
+      sla: '15 min',
+      status: 'pending',
+      dependencies: [8],
+      type: 'manual',
+      documentation: ['SAP Test Cases.xlsx']
+    },
+    {
+      id: 10,
+      phase: 'Validation',
+      name: 'Confirm user access and authentication',
+      owner: 'Ahmed Al-Mansouri',
+      sla: '10 min',
+      status: 'pending',
+      dependencies: [9],
+      type: 'manual',
+      documentation: []
+    },
+    {
+      id: 11,
+      phase: 'Communication',
+      name: 'Notify users of system availability',
+      owner: 'Sarah Johnson',
+      sla: '5 min',
+      status: 'pending',
+      dependencies: [10],
+      type: 'automated',
+      documentation: ['User Notification Template.docx']
+    },
+    {
+      id: 12,
+      phase: 'Communication',
+      name: 'Update incident status and close DR activation',
+      owner: 'Ahmed Al-Mansouri',
+      sla: '10 min',
+      status: 'pending',
+      dependencies: [11],
+      type: 'manual',
+      documentation: []
+    }
+  ];
+
+  // Mock dependencies
+  const dependencies = [
+    { type: 'Upstream System', name: 'Active Directory', criticality: 'Tier 1', status: 'Available' },
+    { type: 'Upstream System', name: 'Network Core', criticality: 'Tier 1', status: 'Available' },
+    { type: 'Vendor', name: 'Oracle Database Support', sla: '99.95%', contact: '+971-4-XXX-XXXX' },
+    { type: 'Vendor', name: 'SAP Support', sla: '99.9%', contact: '+971-4-YYY-YYYY' }
+  ];
+
+  const getStatusColor = (status: string) => {
+    if (status === 'completed') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (status === 'in-progress') return 'bg-amber-50 text-amber-700 border-amber-200';
+    if (status === 'failed') return 'bg-red-50 text-red-700 border-red-200';
+    return 'bg-gray-50 text-gray-600 border-gray-200';
+  };
+
+  const getPhaseColor = (phase: string) => {
+    const colors: Record<string, string> = {
+      Assessment: 'bg-gray-100 text-gray-700',
+      Preparation: 'bg-gray-100 text-gray-700',
+      Failover: 'bg-amber-100 text-amber-700',
+      Validation: 'bg-emerald-100 text-emerald-700',
+      Communication: 'bg-gray-100 text-gray-700'
+    };
+    return colors[phase] || 'bg-gray-100 text-gray-700';
+  };
+
+  return null;
+
+  // return (
+  //   <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">IT DR Plans</h1>
+              <p className="mt-1 text-sm text-gray-500">
+                Manage disaster recovery plans, runbooks, and notifications
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation - Segmented Control */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center space-x-2 bg-gray-100 p-1 rounded-sm max-w-2xl">
+          <Link
+            href="/it-dr-plans"
+            className={`
+              flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-sm font-medium text-xs transition-all duration-200
+              ${false ? 'bg-white text-gray-900 shadow-sm border border-gray-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}
+            `}
+          >
+            <DocumentTextIcon className={`mr-2 h-4 w-4 ${false ? 'text-gray-900' : 'text-gray-400'}`} />
+            DR Plans
+          </Link>
+          <Link
+            href="/it-dr-plans/runbooks"
+            className={`
+              flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-sm font-medium text-xs transition-all duration-200
+              ${true ? 'bg-white text-gray-900 shadow-sm border border-gray-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}
+            `}
+          >
+            <BookOpenIcon className={`mr-2 h-4 w-4 ${true ? 'text-gray-900' : 'text-gray-400'}`} />
+            Runbooks
+          </Link>
+          <Link
+            href="/it-dr-plans/notifications"
+            className={`
+              flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-sm font-medium text-xs transition-all duration-200
+              ${false ? 'bg-white text-gray-900 shadow-sm border border-gray-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}
+            `}
+          >
+            <BellIcon className={`mr-2 h-4 w-4 ${false ? 'text-gray-900' : 'text-gray-400'}`} />
+            Notifications
+          </Link>
+          <Link
+            href="/it-dr-plans/settings"
+            className={`
+              flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-sm font-medium text-xs transition-all duration-200
+              ${false ? 'bg-white text-gray-900 shadow-sm border border-gray-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}
+            `}
+          >
+            <Cog6ToothIcon className={`mr-2 h-4 w-4 ${false ? 'text-gray-900' : 'text-gray-400'}`} />
+            Settings
+          </Link>
+        </div>
+      </div>
+
+      {/* Header */
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/it-dr-plans/runbooks"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
+              >
+                <ArrowLeftIcon className="h-3.5 w-3.5" />
+                Back
+              </Link>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">{runbook.name}</h1>
+                <p className="text-xs text-gray-500 mt-0.5">Runbook ID: {runbook.id} | DR Plan: {runbook.drPlan}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {!executionMode ? (
+                <button 
+                  onClick={() => setExecutionMode(true)}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded-sm hover:bg-emerald-700 transition-colors"
+                >
+                  <PlayIcon className="h-4 w-4" />
+                  Start Execution
+                </button>
+              ) : (
+                <button 
+                  onClick={() => setExecutionMode(false)}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-sm hover:bg-red-700 transition-colors"
+                >
+                  <PauseIcon className="h-4 w-4" />
+                  Stop Execution
+                </button>
+              )}
+              <button className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50">
+                <DocumentTextIcon className="h-4 w-4" />
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Cards */}
+        <div className="px-6 pb-4">
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-sm p-3">
+              <p className="text-xs text-gray-500">Criticality</p>
+              <p className="text-sm font-semibold text-red-700 mt-1">{runbook.criticality}</p>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-sm p-3">
+              <p className="text-xs text-gray-500">Est. Duration</p>
+              <p className="text-sm font-semibold text-gray-900 mt-1">{runbook.estimatedDuration}</p>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-sm p-3">
+              <p className="text-xs text-gray-500">Total Tasks</p>
+              <p className="text-sm font-semibold text-gray-900 mt-1">{tasks.length}</p>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-sm p-3">
+              <p className="text-xs text-gray-500">Last Test</p>
+              <p className="text-sm font-semibold text-gray-900 mt-1">{runbook.lastTested}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="px-6">
+          <div className="flex gap-6 border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'tasks'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Recovery Tasks
+            </button>
+            <button
+              onClick={() => setActiveTab('dependencies')}
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'dependencies'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Dependencies
+            </button>
+            <button
+              onClick={() => setActiveTab('documentation')}
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'documentation'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Documentation
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'history'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Execution History
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto px-6 py-6">
+        {/* Tasks Tab */}
+        {activeTab === 'tasks' && (
+          <div className="space-y-4">
+            {executionMode && (
+              <div className="bg-amber-50 border border-amber-200 rounded-sm p-4">
+                <div className="flex items-center gap-3">
+                  <ArrowPathIcon className="h-5 w-5 text-amber-600 animate-spin" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-900">Execution Mode Active</p>
+                    <p className="text-xs text-amber-700 mt-0.5">Tasks will execute automatically based on dependencies and sequencing</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Group tasks by phase */}
+            {['Assessment', 'Preparation', 'Failover', 'Validation', 'Communication'].map(phase => {
+              const phaseTasks = tasks.filter(t => t.phase === phase);
+              return (
+                <div key={phase} className="bg-white border border-gray-200 rounded-sm p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-sm ${getPhaseColor(phase)}`}>
+                        {phase}
+                      </span>
+                      <span className="text-sm text-gray-600">{phaseTasks.length} tasks</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {phaseTasks.map((task) => (
+                      <div key={task.id} className="border border-gray-200 rounded-sm p-3 hover:bg-gray-50">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs font-medium text-gray-500">Task {task.id}</span>
+                              <h3 className="text-sm font-medium text-gray-900">{task.name}</h3>
+                              {task.type === 'automated' && (
+                                <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-700 border border-gray-300 rounded-sm">
+                                  Automated
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-4 mt-2">
+                              <span className="text-xs text-gray-600 flex items-center gap-1">
+                                <UserIcon className="h-3.5 w-3.5" />
+                                {task.owner}
+                              </span>
+                              <span className="text-xs text-gray-600 flex items-center gap-1">
+                                <ClockIcon className="h-3.5 w-3.5" />
+                                SLA: {task.sla}
+                              </span>
+                              {task.dependencies.length > 0 && (
+                                <span className="text-xs text-gray-500">
+                                  Depends on: Task {task.dependencies.join(', ')}
+                                </span>
+                              )}
+                            </div>
+                            {task.documentation.length > 0 && (
+                              <div className="flex items-center gap-2 mt-2">
+                                <DocumentTextIcon className="h-3.5 w-3.5 text-gray-400" />
+                                <div className="flex flex-wrap gap-1">
+                                  {task.documentation.map((doc, idx) => (
+                                    <span key={idx} className="text-xs text-gray-600 underline cursor-pointer hover:text-gray-900">
+                                      {doc}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-medium border rounded-sm ${getStatusColor(task.status)}`}>
+                              {task.status === 'pending' ? 'Pending' : task.status}
+                            </span>
+                            {executionMode && task.status === 'pending' && (
+                              <button className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-white bg-emerald-600 rounded-sm hover:bg-emerald-700">
+                                <CheckCircleIcon className="h-3.5 w-3.5" />
+                                Complete
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Dependencies Tab */}
+        {activeTab === 'dependencies' && (
+          <div className="bg-white border border-gray-200 rounded-sm p-4">
+            <h2 className="text-sm font-semibold text-gray-900 mb-4">System & Vendor Dependencies</h2>
+            <div className="space-y-3">
+              {dependencies.map((dep, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 border border-gray-200 rounded-sm">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-gray-500">{dep.type}</span>
+                      <h3 className="text-sm font-medium text-gray-900">{dep.name}</h3>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {'criticality' in dep ? `Criticality: ${dep.criticality}` : `SLA: ${dep.sla}`}
+                      {' | '}
+                      {'status' in dep ? `Status: ${dep.status}` : `Contact: ${dep.contact}`}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Documentation Tab */}
+        {activeTab === 'documentation' && (
+          <div className="bg-white border border-gray-200 rounded-sm p-4">
+            <h2 className="text-sm font-semibold text-gray-900 mb-4">Attached Documentation</h2>
+            <div className="space-y-2">
+              {Array.from(new Set(tasks.flatMap(t => t.documentation))).map((doc, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 border border-gray-200 rounded-sm hover:bg-gray-50">
+                  <div className="flex items-center gap-3">
+                    <DocumentTextIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm text-gray-900">{doc}</span>
+                  </div>
+                  <button className="text-xs text-gray-700 hover:text-gray-900 font-medium">Download</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* History Tab */}
+        {activeTab === 'history' && (
+          <div className="bg-white border border-gray-200 rounded-sm p-4">
+            <h2 className="text-sm font-semibold text-gray-900 mb-4">Execution History</h2>
+            <div className="space-y-3">
+              <div className="p-3 border border-gray-200 rounded-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Test Execution - October 15, 2025</p>
+                    <p className="text-xs text-gray-600 mt-1">Duration: 118 minutes | Result: Passed</p>
+                  </div>
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-sm">
+                    Success
+                  </span>
+                </div>
+              </div>
+              <div className="p-3 border border-gray-200 rounded-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Test Execution - September 10, 2025</p>
+                    <p className="text-xs text-gray-600 mt-1">Duration: 135 minutes | Result: Partial (2 tasks failed)</p>
+                  </div>
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 rounded-sm">
+                    Partial
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,59 @@
+# Build artifacts and cache files
+*.zip
+*.tar.gz
+*.pack
+
+# Next.js build artifacts
+.next/
+out/
+*.tsbuildinfo
+
+# Production builds
+*-built/
+*-built.zip
+bia-module-built/
+bia-module-built.zip
+bia-module-production.zip
+
+# Deployment packages
+autobcm-deployment-*/
+deployment-package/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env*.local
+
+# Logs
+*.log
+logs/
+backend.log
+backend-startup.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Java/Maven
+target/
+*.class
+
+# Uploads
+uploads/
+
+# Test files
+test_*.csv
+test_*.sh
+upload_test_data.py
+demo_pagination.*
+

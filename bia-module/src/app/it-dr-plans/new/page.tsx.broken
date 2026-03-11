@@ -1,0 +1,613 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  ArrowLeftIcon,
+  CheckIcon,
+  ServerIcon,
+  DocumentTextIcon,
+  LinkIcon,
+  CogIcon,
+  ShieldCheckIcon,
+  CloudIcon,
+  ClockIcon
+} from '@heroicons/react/24/outline';
+
+const steps = [
+  { id: 1, name: 'Basic Information', icon: DocumentTextIcon },
+  { id: 2, name: 'BIA Linkage', icon: LinkIcon },
+  { id: 3, name: 'Recovery Strategy', icon: ShieldCheckIcon },
+  { id: 4, name: 'Technical Details', icon: ServerIcon },
+  { id: 5, name: 'Dependencies', icon: CogIcon },
+  { id: 6, name: 'Recovery Procedures', icon: CloudIcon },
+  { id: 7, name: 'Review & Submit', icon: CheckIcon }
+];
+
+// Mock BIA data for selection
+const mockBIAs = [
+  { id: 'BIA-FIN-001', name: 'Finance Department BIA', process: 'Financial Reporting', criticality: 'Tier 1', rto: '4 Hours', rpo: '1 Hour' },
+  { id: 'BIA-IT-001', name: 'IT Infrastructure BIA', process: 'Core IT Services', criticality: 'Tier 1', rto: '2 Hours', rpo: '30 Minutes' },
+  { id: 'BIA-IT-002', name: 'Network Services BIA', process: 'Network Operations', criticality: 'Tier 1', rto: '1 Hour', rpo: '15 Minutes' },
+  { id: 'BIA-IT-003', name: 'Email & Collaboration BIA', process: 'Communication Services', criticality: 'Tier 2', rto: '24 Hours', rpo: '4 Hours' },
+  { id: 'BIA-CS-002', name: 'Customer Service BIA', process: 'Customer Portal', criticality: 'Tier 1', rto: '8 Hours', rpo: '2 Hours' }
+];
+
+const mockSystems = [
+  { id: 'SYS-001', name: 'Active Directory', type: 'System', criticality: 'Tier 1' },
+  { id: 'SYS-002', name: 'Network Infrastructure', type: 'System', criticality: 'Tier 1' },
+  { id: 'SYS-003', name: 'Storage Array', type: 'System', criticality: 'Tier 1' },
+  { id: 'APP-001', name: 'Finance Portal', type: 'Application', criticality: 'Tier 2' },
+  { id: 'APP-002', name: 'HR Self-Service', type: 'Application', criticality: 'Tier 2' }
+];
+
+const mockVendors = [
+  { id: 'VEN-001', name: 'SAP AG', service: 'Software Support', sla: '4 Hours' },
+  { id: 'VEN-002', name: 'Oracle Corporation', service: 'Database Support', sla: '2 Hours' },
+  { id: 'VEN-003', name: 'Microsoft', service: 'Cloud Services', sla: '1 Hour' }
+];
+
+export default function NewDRPlanPage() {
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    // Step 1: Basic Information
+    planName: '',
+    description: '',
+    service: '',
+    owner: '',
+    technicalFocalPoint: '',
+
+    // Step 2: BIA Linkage
+    linkedBIA: '',
+
+    // Step 3: Recovery Strategy
+    strategyType: '',
+    drLocation: '',
+    infrastructure: '',
+    failoverMechanism: '',
+
+    // Step 4: Technical Details
+    servers: [] as any[],
+    databases: [] as any[],
+    networks: [] as any[],
+
+    // Step 5: Dependencies
+    upstreamDeps: [] as string[],
+    downstreamDeps: [] as string[],
+    vendors: [] as string[],
+
+    // Step 6: Recovery Procedures
+    procedures: [] as any[]
+  });
+
+  const handleNext = () => {
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSubmit = () => {
+    // In a real app, this would submit to the backend
+    console.log('Submitting DR Plan:', formData);
+    router.push('/it-dr-plans');
+  };
+
+  const updateFormData = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const selectedBIA = mockBIAs.find(bia => bia.id === formData.linkedBIA);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-6 py-4">
+          <div className="flex items-center gap-4 mb-4">
+            <Link
+              href="/it-dr-plans"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
+            >
+              <ArrowLeftIcon className="h-3 w-3" />
+              Back
+            </Link>
+          </div>
+
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900">Create New IT DR Plan</h1>
+            <p className="mt-1 text-xs text-gray-600">
+              Follow the guided workflow to create a comprehensive disaster recovery plan
+            </p>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="px-6 pb-4">
+          <div className="relative">
+            <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200">
+              <div
+                className="h-full bg-gray-900 transition-all duration-300"
+                style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+              />
+            </div>
+            <div className="relative flex justify-between">
+              {steps.map((step) => {
+                const Icon = step.icon;
+                const isCompleted = currentStep > step.id;
+                const isCurrent = currentStep === step.id;
+
+                return (
+                  <div key={step.id} className="flex flex-col items-center">
+                    <div
+                      className={`h-10 w-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                        isCompleted
+                          ? 'bg-gray-900 border-gray-900'
+                          : isCurrent
+                          ? 'bg-white border-gray-900'
+                          : 'bg-white border-gray-300'
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <CheckIcon className="h-5 w-5 text-white" />
+                      ) : (
+                        <Icon className={`h-5 w-5 ${isCurrent ? 'text-gray-900' : 'text-gray-400'}`} />
+                      )}
+                    </div>
+                    <span className={`mt-2 text-[10px] font-medium ${isCurrent ? 'text-gray-900' : 'text-gray-600'}`}>
+                      {step.name}
+                    </span>
+                  </div>
+
+
+      {/* Content */}
+      <div className="px-6 py-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white border border-gray-200 rounded-sm p-6">
+
+            {/* Step 1: Basic Information */}
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Basic Information</h2>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Plan Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.planName}
+                    onChange={(e) => updateFormData('planName', e.target.value)}
+                    placeholder="e.g., SAP ERP System Recovery"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Description <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => updateFormData('description', e.target.value)}
+                    placeholder="Provide a comprehensive description of the DR plan..."
+                    rows={4}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Service/System <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.service}
+                      onChange={(e) => updateFormData('service', e.target.value)}
+                      placeholder="e.g., SAP ERP"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Plan Owner <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.owner}
+                      onChange={(e) => updateFormData('owner', e.target.value)}
+                      placeholder="e.g., Ahmed Al-Mansouri"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Technical Focal Point <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.technicalFocalPoint}
+                    onChange={(e) => updateFormData('technicalFocalPoint', e.target.value)}
+                    placeholder="e.g., Mohammed Hassan"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: BIA Linkage */}
+            {currentStep === 2 && (
+              <div className="space-y-4">
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Link to Business Impact Analysis</h2>
+                <p className="text-xs text-gray-600 mb-4">
+                  Select the BIA that this DR plan supports. RTO and RPO will be automatically inherited.
+                </p>
+
+                <div className="space-y-2">
+                  {mockBIAs.map((bia) => (
+                    <div
+                      key={bia.id}
+                      onClick={() => updateFormData('linkedBIA', bia.id)}
+                      className={`p-4 border-2 rounded-sm cursor-pointer transition-all ${
+                        formData.linkedBIA === bia.id
+                          ? 'border-gray-900 bg-gray-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-medium text-gray-900">{bia.name}</span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-red-50 text-red-700 border border-red-300">
+                              {bia.criticality}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600">{bia.process} • {bia.id}</p>
+                          <div className="flex items-center gap-4 mt-2">
+                            <span className="text-xs text-gray-700">
+                              <span className="font-medium">RTO:</span> {bia.rto}
+                            </span>
+                            <span className="text-xs text-gray-700">
+                              <span className="font-medium">RPO:</span> {bia.rpo}
+                            </span>
+                          </div>
+                        </div>
+                        {formData.linkedBIA === bia.id && (
+                          <CheckIcon className="h-5 w-5 text-gray-900" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {selectedBIA && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-sm">
+                    <p className="text-xs font-medium text-blue-900 mb-2">Selected BIA Details</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-[10px] text-blue-700 uppercase font-medium">BIA ID</p>
+                        <p className="text-xs text-blue-900">{selectedBIA.id}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-blue-700 uppercase font-medium">Process</p>
+                        <p className="text-xs text-blue-900">{selectedBIA.process}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-blue-700 uppercase font-medium">RTO (Inherited)</p>
+                        <p className="text-xs text-blue-900">{selectedBIA.rto}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-blue-700 uppercase font-medium">RPO (Inherited)</p>
+                        <p className="text-xs text-blue-900">{selectedBIA.rpo}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 3: Recovery Strategy */}
+            {currentStep === 3 && (
+              <div className="space-y-4">
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Recovery Strategy</h2>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Strategy Type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.strategyType}
+                    onChange={(e) => updateFormData('strategyType', e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  >
+                    <option value="">Select strategy type...</option>
+                    <option value="Hot Site">Hot Site (Real-time replication)</option>
+                    <option value="Warm Site">Warm Site (Near real-time)</option>
+                    <option value="Cold Site">Cold Site (Backup restoration)</option>
+                    <option value="Cloud-based">Cloud-based DR</option>
+                    <option value="Hybrid">Hybrid Approach</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    DR Location <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.drLocation}
+                    onChange={(e) => updateFormData('drLocation', e.target.value)}
+                    placeholder="e.g., Dubai DR Site"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Infrastructure Description
+                  </label>
+                  <textarea
+                    value={formData.infrastructure}
+                    onChange={(e) => updateFormData('infrastructure', e.target.value)}
+                    placeholder="Describe the DR infrastructure setup..."
+                    rows={3}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Failover Mechanism
+                  </label>
+                  <select
+                    value={formData.failoverMechanism}
+                    onChange={(e) => updateFormData('failoverMechanism', e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  >
+                    <option value="">Select failover mechanism...</option>
+                    <option value="Automated failover">Automated failover</option>
+                    <option value="Automated failover with manual validation">Automated with manual validation</option>
+                    <option value="Manual failover">Manual failover</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Technical Details - Simplified */}
+            {currentStep === 4 && (
+              <div className="space-y-4">
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Technical Details</h2>
+                <p className="text-xs text-gray-600 mb-4">
+                  Provide technical information about servers, databases, and network configuration.
+                </p>
+
+                <div className="p-4 bg-gray-50 border border-gray-200 rounded-sm">
+                  <p className="text-xs text-gray-700 mb-2">
+                    <span className="font-medium">Note:</span> Technical details can be added after plan creation through the detailed edit interface.
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    This includes server configurations, database details, network segments, and backup infrastructure.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Step 5: Dependencies */}
+            {currentStep === 5 && (
+              <div className="space-y-4">
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Dependencies</h2>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">
+                    Upstream Dependencies
+                  </label>
+                  <p className="text-xs text-gray-600 mb-2">Systems and services that this DR plan depends on</p>
+                  <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-sm p-3">
+                    {mockSystems.map((system) => (
+                      <label key={system.id} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.upstreamDeps.includes(system.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              updateFormData('upstreamDeps', [...formData.upstreamDeps, system.id]);
+                            } else {
+                              updateFormData('upstreamDeps', formData.upstreamDeps.filter(id => id !== system.id));
+                            }
+                          }}
+                          className="h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                        />
+                        <span className="text-xs text-gray-900">{system.name}</span>
+                        <span className="text-xs text-gray-600">({system.type})</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">
+                    Vendor Dependencies
+                  </label>
+                  <p className="text-xs text-gray-600 mb-2">Third-party vendors critical for recovery</p>
+                  <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-sm p-3">
+                    {mockVendors.map((vendor) => (
+                      <label key={vendor.id} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.vendors.includes(vendor.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              updateFormData('vendors', [...formData.vendors, vendor.id]);
+                            } else {
+                              updateFormData('vendors', formData.vendors.filter(id => id !== vendor.id));
+                            }
+                          }}
+                          className="h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                        />
+                        <span className="text-xs text-gray-900">{vendor.name}</span>
+                        <span className="text-xs text-gray-600">({vendor.service} - SLA: {vendor.sla})</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 6: Recovery Procedures - Simplified */}
+            {currentStep === 6 && (
+              <div className="space-y-4">
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Recovery Procedures</h2>
+                <p className="text-xs text-gray-600 mb-4">
+                  Define the step-by-step recovery procedures for this DR plan.
+                </p>
+
+                <div className="p-4 bg-gray-50 border border-gray-200 rounded-sm">
+                  <p className="text-xs text-gray-700 mb-2">
+                    <span className="font-medium">Note:</span> Detailed recovery procedures can be added after plan creation.
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    Recovery procedures should include assessment, failover, validation, and communication phases with specific steps and timelines.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Step 7: Review & Submit */}
+            {currentStep === 7 && (
+              <div className="space-y-4">
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Review & Submit</h2>
+                <p className="text-xs text-gray-600 mb-4">
+                  Review all information before submitting the DR plan for approval.
+                </p>
+
+                <div className="space-y-4">
+                  {/* Basic Information Summary */}
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-sm">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Basic Information</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">Plan Name</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.planName || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">Service/System</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.service || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">Plan Owner</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.owner || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">Technical Focal Point</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.technicalFocalPoint || 'Not provided'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* BIA Linkage Summary */}
+                  {selectedBIA && (
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-sm">
+                      <h3 className="text-sm font-semibold text-blue-900 mb-3">Linked BIA</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-[10px] text-blue-700 uppercase font-medium">BIA ID</p>
+                          <p className="text-xs text-blue-900 mt-0.5">{selectedBIA.id}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-blue-700 uppercase font-medium">Process</p>
+                          <p className="text-xs text-blue-900 mt-0.5">{selectedBIA.process}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-blue-700 uppercase font-medium">RTO</p>
+                          <p className="text-xs text-blue-900 mt-0.5">{selectedBIA.rto}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-blue-700 uppercase font-medium">RPO</p>
+                          <p className="text-xs text-blue-900 mt-0.5">{selectedBIA.rpo}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recovery Strategy Summary */}
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-sm">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Recovery Strategy</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">Strategy Type</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.strategyType || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">DR Location</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.drLocation || 'Not provided'}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">Failover Mechanism</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.failoverMechanism || 'Not provided'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dependencies Summary */}
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-sm">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Dependencies</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">Upstream Dependencies</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.upstreamDeps.length} selected</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 uppercase font-medium">Vendor Dependencies</p>
+                        <p className="text-xs text-gray-900 mt-0.5">{formData.vendors.length} selected</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+              <button
+                onClick={handlePrevious}
+                disabled={currentStep === 1}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              {currentStep < steps.length ? (
+                <button
+                  onClick={handleNext}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-sm hover:bg-gray-800 transition-colors"
+                >
+                  Next
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-sm hover:bg-gray-800 transition-colors"
+                >
+                  <CheckIcon className="h-4 w-4" />
+                  Submit DR Plan
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

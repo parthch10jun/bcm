@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leaflet Weather (Perlin 2D) — Basic Heatmap</title>
+  <!-- Leaflet core -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet.heat plugin -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <!-- Perlin noise (NoiseJS) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/noisejs/2.0.0/perlin.min.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #map { height: 100%; width: 100%; }
+    .panel {
+      position: absolute; z-index: 1000; top: 10px; left: 10px;
+      background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb;
+      border-radius: 6px; padding: 10px; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08); font-size: 12px;
+    }
+    .panel h3 { margin: 0 0 8px; font-size: 13px; }
+    .panel label { display:block; margin-top: 6px; }
+    .legend { margin-top: 6px; display:flex; align-items:center; gap:8px; }
+    .bar { flex:1; height:10px; border-radius: 999px; background: linear-gradient(90deg, #2b83ba, #abdda4, #ffffbf, #fdae61, #d7191c); }
+    .legend span { font-size: 11px; color: #374151; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="panel">
+    <h3>Mock Weather (Static)</h3>
+    <div>2D Perlin noise → heatmap</div>
+    <label>
+      Seed: <input id="seed" type="number" step="1" value="1" style="width:70px"> 
+      <button id="regen">Regenerate</button>
+    </label>
+    <label>
+      Grid step (deg): <input id="step" type="number" step="1" min="2" max="20" value="5" style="width:60px">
+    </label>
+    <div class="legend">
+      <span>Cold</span><div class="bar"></div><span>Hot</span>
+    </div>
+  </div>
+
+  <script>
+    // 1) Map setup
+    const map = L.map('map', { worldCopyJump: true }).setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 2) Perlin noise configuration
+    //    We use NoiseJS (global `noise`) which provides noise.perlin2(x, y)
+    function reseed(seed) {
+      if (typeof noise !== 'undefined' && noise.seed) noise.seed(seed);
+    }
+
+    // 3) Generate a grid of points over the world and evaluate noise
+    //    The heat layer expects [lat, lng, intensity] where intensity is 0..1
+    function generateHeatData(stepDeg = 5, seed = 1) {
+      reseed(seed);
+      const freq = 0.02; // spatial frequency (smaller → smoother, larger → more variation)
+      const pts = [];
+      // Avoid extreme poles for better projection visual
+      for (let lat = -80; lat <= 80; lat += stepDeg) {
+        for (let lng = -180; lng <= 180; lng += stepDeg) {
+          // Scale to frequency and compute [-1, 1]
+          const n = noise.perlin2(lng * freq, lat * freq);
+          // Normalize to [0, 1]
+          const value = (n + 1) / 2;
+          // Optionally emphasize hot/cold by applying exponent (gamma)
+          const intensity = Math.pow(value, 1.1);
+          pts.push([lat, lng, intensity]);
+        }
+      }
+      return pts;
+    }
+
+    // 4) Create the heat layer and add to map
+    const gradient = {
+      0.00: '#2b83ba', // blue (cold)
+      0.40: '#abdda4', // green
+      0.60: '#ffffbf', // yellow
+      0.80: '#fdae61', // orange
+      1.00: '#d7191c'  // red (hot)
+    };
+    let heat = L.heatLayer([], { radius: 18, blur: 28, maxZoom: 5, gradient }).addTo(map);
+
+    // 5) Initial populate
+    function refresh() {
+      const seed = Number(document.getElementById('seed').value) || 1;
+      const step = Math.max(2, Math.min(20, Number(document.getElementById('step').value) || 5));
+      const data = generateHeatData(step, seed);
+      heat.setLatLngs(data);
+    }
+    refresh();
+
+    // 6) UI handlers
+    document.getElementById('regen').addEventListener('click', refresh);
+    document.getElementById('step').addEventListener('change', refresh);
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leaflet Weather (Perlin 3D) — Animated Heatmap</title>
+  <!-- Leaflet core -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet.heat plugin -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <!-- Perlin noise (NoiseJS) provides perlin3(x,y,z) we use as 3D noise over time -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/noisejs/2.0.0/perlin.min.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #map { height: 100%; width: 100%; }
+    .panel {
+      position: absolute; z-index: 1000; top: 10px; left: 10px;
+      background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb;
+      border-radius: 6px; padding: 10px; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08); font-size: 12px; width: 240px;
+    }
+    .panel h3 { margin: 0 0 8px; font-size: 13px; }
+    .row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px; }
+    .legend { margin-top: 8px; display:flex; align-items:center; gap:8px; }
+    .bar { flex:1; height:10px; border-radius: 999px; background: linear-gradient(90deg, #2b83ba, #abdda4, #ffffbf, #fdae61, #d7191c); }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="panel">
+    <h3>Mock Weather (Animated)</h3>
+    <div>3D Perlin noise → heatmap (time-varying)</div>
+    <div class="row">
+      <label>Seed: <input id="seed" type="number" value="1" style="width:70px"></label>
+      <button id="reseed">Reseed</button>
+    </div>
+    <div class="row">
+      <label>Grid step (deg): <input id="step" type="number" min="3" max="15" value="6" style="width:60px"></label>
+      <label>Speed: <input id="speed" type="number" step="0.001" value="0.005" style="width:70px"></label>
+    </div>
+    <div class="row">
+      <button id="play">Pause</button>
+      <span id="fps">FPS: --</span>
+    </div>
+    <div class="legend"><span>Cold</span><div class="bar"></div><span>Hot</span></div>
+  </div>
+
+  <script>
+    // 1) Map setup
+    const map = L.map('map', { worldCopyJump: true }).setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 2) Heat layer with a blue→red color ramp
+    const gradient = {
+      0.00: '#2b83ba', 0.40: '#abdda4', 0.60: '#ffffbf', 0.80: '#fdae61', 1.00: '#d7191c'
+    };
+    let heat = L.heatLayer([], { radius: 18, blur: 28, maxZoom: 5, gradient }).addTo(map);
+
+    // 3) Precompute a grid of lat/lng positions we will update every frame.
+    function buildGrid(stepDeg) {
+      const coords = [];
+      for (let lat = -80; lat <= 80; lat += stepDeg) {
+        for (let lng = -180; lng <= 180; lng += stepDeg) {
+          coords.push([lat, lng]);
+        }
+      }
+      return coords;
+    }
+
+    // 4) 3D Perlin noise setup (z = time)
+    //    NoiseJS exposes noise.perlin3(x, y, z). We'll keep x/y scaled and advance z.
+    function reseed(seed) { if (noise && noise.seed) noise.seed(seed); }
+
+    // 5) Evaluate noise for an array of [lat,lng] coords at a given time
+    function evaluate(coords, t, stepDeg) {
+      const freq = 0.02;   // spatial frequency (adjust to taste)
+      const zFreq = 0.5;   // temporal frequency (how fast it morphs)
+      const gamma = 1.1;   // curve the distribution a bit
+      const points = new Array(coords.length);
+      for (let i = 0; i < coords.length; i++) {
+        const lat = coords[i][0];
+        const lng = coords[i][1];
+        const n = noise.perlin3(lng * freq, lat * freq, t * zFreq); // [-1, 1]
+        const value = (n + 1) / 2;                                  // [0, 1]
+        const intensity = Math.pow(value, gamma);
+        points[i] = [lat, lng, intensity];
+      }
+      return points;
+    }
+
+    // 6) Animation loop using requestAnimationFrame
+    let time = 0;                 // time parameter for 3D noise
+    let running = true;           // play/pause toggle
+    let lastFpsTime = performance.now();
+    let frames = 0;
+
+    function animate() {
+      if (!running) return;       // stop if paused
+      const speed = Number(document.getElementById('speed').value) || 0.005;
+      time += speed;              // advance time
+      const data = evaluate(grid, time, step());
+      heat.setLatLngs(data);      // update heatmap with new intensities
+
+      // very lightweight FPS counter
+      frames++;
+      const now = performance.now();
+      if (now - lastFpsTime > 500) {
+        const fps = Math.round(frames * 1000 / (now - lastFpsTime));
+        document.getElementById('fps').textContent = `FPS: ${fps}`;
+        frames = 0; lastFpsTime = now;
+      }
+      requestAnimationFrame(animate);
+    }
+
+    // 7) Initialize
+    const step = () => Math.max(3, Math.min(15, Number(document.getElementById('step').value) || 6));
+    reseed(Number(document.getElementById('seed').value) || 1);
+    let grid = buildGrid(step());
+    heat.setLatLngs(evaluate(grid, time, step()));
+    requestAnimationFrame(animate);
+
+    // 8) Controls
+    document.getElementById('reseed').addEventListener('click', () => {
+      reseed(Number(document.getElementById('seed').value) || 1);
+    });
+    document.getElementById('step').addEventListener('change', () => {
+      grid = buildGrid(step());
+    });
+    document.getElementById('play').addEventListener('click', (e) => {
+      running = !running;
+      e.target.textContent = running ? 'Pause' : 'Play';
+      if (running) requestAnimationFrame(animate);
+    });
+  </script>
+</body>
+</html>
+
