@@ -36,6 +36,10 @@ interface BCPPlan {
   samaStatus: 'Compliant' | 'Has Gaps' | 'Not Assessed';
   location: string;
   enablerType: string;
+  planType: 'ARP' | 'IRP' | 'DRP' | 'CIRP';
+  itService: string;
+  businessProcessesCount: number;
+  recoveryStrategy: 'Hot Site' | 'Warm Site' | 'Cold Site' | 'Cloud DR' | 'Manual';
 }
 
 export default function BCPModuleLandingPage() {
@@ -55,87 +59,163 @@ export default function BCPModuleLandingPage() {
   const bcpPlans: BCPPlan[] = [
     {
       id: 'BCP-001',
-      name: 'IT Systems Recovery Plan',
+      name: 'Core Insurance Platform Recovery',
       status: 'Published',
       owner: 'John Doe',
       lastReviewed: '2024-11-15',
       nextReviewDue: '2025-11',
       lastTestDate: '2024-10-20',
       samaStatus: 'Compliant',
-      location: 'Headquarters - Riyadh',
-      enablerType: 'Technology'
+      location: 'Munich Data Center',
+      enablerType: 'Technology',
+      planType: 'ARP',
+      itService: 'Core Insurance Platform',
+      businessProcessesCount: 5,
+      recoveryStrategy: 'Hot Site'
     },
     {
       id: 'BCP-002',
-      name: 'Customer Service Operations BCP',
-      status: 'In Review',
+      name: 'Claims Management System Recovery',
+      status: 'Published',
       owner: 'Sarah Mitchell',
       lastReviewed: '2024-10-20',
       nextReviewDue: '2025-10',
       lastTestDate: '2024-09-15',
-      samaStatus: 'Has Gaps',
-      location: 'Branch Office - Jeddah',
-      enablerType: 'Human Resources'
+      samaStatus: 'Compliant',
+      location: 'Frankfurt DR Site',
+      enablerType: 'Technology',
+      planType: 'ARP',
+      itService: 'Claims Management System',
+      businessProcessesCount: 3,
+      recoveryStrategy: 'Hot Site'
     },
     {
       id: 'BCP-003',
-      name: 'Data Center Continuity Plan',
+      name: 'Munich Data Center Infrastructure Recovery',
       status: 'Published',
       owner: 'Mike Johnson',
       lastReviewed: '2024-12-01',
       nextReviewDue: '2025-12',
       lastTestDate: '2024-11-10',
       samaStatus: 'Compliant',
-      location: 'Data Center - Dubai',
-      enablerType: 'Building'
+      location: 'Munich Data Center',
+      enablerType: 'Building',
+      planType: 'IRP',
+      itService: 'Munich Data Center',
+      businessProcessesCount: 12,
+      recoveryStrategy: 'Warm Site'
     },
     {
       id: 'BCP-004',
-      name: 'Trading Floor Equipment Recovery',
-      status: 'Draft',
+      name: 'Policy Database Recovery Plan',
+      status: 'In Review',
       owner: 'Emily Davis',
-      lastReviewed: null,
+      lastReviewed: '2024-11-20',
       nextReviewDue: '2025-06',
-      lastTestDate: null,
-      samaStatus: 'Not Assessed',
-      location: 'Headquarters - Riyadh',
-      enablerType: 'Equipment'
+      lastTestDate: '2024-10-15',
+      samaStatus: 'Has Gaps',
+      location: 'Munich Data Center',
+      enablerType: 'Technology',
+      planType: 'DRP',
+      itService: 'Policy Database',
+      businessProcessesCount: 4,
+      recoveryStrategy: 'Cloud DR'
     },
     {
       id: 'BCP-005',
-      name: 'Payment Gateway Vendor Continuity',
-      status: 'Approved',
+      name: 'Cybersecurity Incident Response Plan',
+      status: 'Published',
       owner: 'David Wilson',
       lastReviewed: '2024-11-25',
       nextReviewDue: '2025-11',
       lastTestDate: '2024-10-30',
       samaStatus: 'Compliant',
-      location: 'Regional Hub - London',
-      enablerType: 'Vendors'
+      location: 'All Locations',
+      enablerType: 'Technology',
+      planType: 'CIRP',
+      itService: 'Security Operations Center',
+      businessProcessesCount: 15,
+      recoveryStrategy: 'Manual'
     },
     {
       id: 'BCP-006',
-      name: 'Vital Records Recovery Plan',
+      name: 'Customer Portal Application Recovery',
       status: 'Published',
       owner: 'Lisa Anderson',
       lastReviewed: '2024-11-05',
       nextReviewDue: '2025-11',
       lastTestDate: '2024-10-20',
       samaStatus: 'Compliant',
-      location: 'Data Center - Dubai',
-      enablerType: 'Vital Records'
+      location: 'Frankfurt DR Site',
+      enablerType: 'Technology',
+      planType: 'ARP',
+      itService: 'Customer Portal',
+      businessProcessesCount: 2,
+      recoveryStrategy: 'Warm Site'
     },
     {
       id: 'BCP-007',
-      name: 'Branch Office Relocation Plan',
-      status: 'Retired',
+      name: 'Payment Gateway Recovery Plan',
+      status: 'Approved',
       owner: 'Tom Harris',
-      lastReviewed: '2023-12-15',
-      nextReviewDue: '2024-12',
-      lastTestDate: '2023-11-20',
+      lastReviewed: '2024-12-10',
+      nextReviewDue: '2025-12',
+      lastTestDate: '2024-11-20',
+      samaStatus: 'Compliant',
+      location: 'Cloud (AWS)',
+      enablerType: 'Technology',
+      planType: 'ARP',
+      itService: 'Payment Gateway',
+      businessProcessesCount: 3,
+      recoveryStrategy: 'Cloud DR'
+    },
+    {
+      id: 'BCP-008',
+      name: 'Underwriting System Recovery',
+      status: 'Draft',
+      owner: 'Anna Schmidt',
+      lastReviewed: null,
+      nextReviewDue: '2025-03',
+      lastTestDate: null,
       samaStatus: 'Not Assessed',
-      location: 'Branch Office - Jeddah',
-      enablerType: 'Building'
+      location: 'Munich Data Center',
+      enablerType: 'Technology',
+      planType: 'ARP',
+      itService: 'Underwriting System',
+      businessProcessesCount: 2,
+      recoveryStrategy: 'Warm Site'
+    },
+    {
+      id: 'BCP-009',
+      name: 'Frankfurt Infrastructure Recovery',
+      status: 'Published',
+      owner: 'Klaus Weber',
+      lastReviewed: '2024-11-18',
+      nextReviewDue: '2025-11',
+      lastTestDate: '2024-10-25',
+      samaStatus: 'Compliant',
+      location: 'Frankfurt DR Site',
+      enablerType: 'Building',
+      planType: 'IRP',
+      itService: 'Frankfurt Data Center',
+      businessProcessesCount: 10,
+      recoveryStrategy: 'Cold Site'
+    },
+    {
+      id: 'BCP-010',
+      name: 'Claims Database Backup & Recovery',
+      status: 'Published',
+      owner: 'Maria Schneider',
+      lastReviewed: '2024-12-05',
+      nextReviewDue: '2025-12',
+      lastTestDate: '2024-11-15',
+      samaStatus: 'Compliant',
+      location: 'Munich Data Center',
+      enablerType: 'Technology',
+      planType: 'DRP',
+      itService: 'Claims Database',
+      businessProcessesCount: 3,
+      recoveryStrategy: 'Cloud DR'
     }
   ];
 
@@ -463,6 +543,50 @@ export default function BCPModuleLandingPage() {
                             </div>
                           </th>
                           <th
+                            onClick={() => handleSort('planType')}
+                            className="px-3 py-2 text-center text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[80px]"
+                          >
+                            <div className="flex items-center justify-center gap-1">
+                              Plan Type
+                              {sortColumn === 'planType' && (
+                                <span className="text-gray-400">{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                              )}
+                            </div>
+                          </th>
+                          <th
+                            onClick={() => handleSort('itService')}
+                            className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                          >
+                            <div className="flex items-center gap-1">
+                              IT Service
+                              {sortColumn === 'itService' && (
+                                <span className="text-gray-400">{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                              )}
+                            </div>
+                          </th>
+                          <th
+                            onClick={() => handleSort('businessProcessesCount')}
+                            className="px-3 py-2 text-center text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[100px]"
+                          >
+                            <div className="flex items-center justify-center gap-1">
+                              Business Impact
+                              {sortColumn === 'businessProcessesCount' && (
+                                <span className="text-gray-400">{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                              )}
+                            </div>
+                          </th>
+                          <th
+                            onClick={() => handleSort('recoveryStrategy')}
+                            className="px-3 py-2 text-center text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[110px]"
+                          >
+                            <div className="flex items-center justify-center gap-1">
+                              Recovery Strategy
+                              {sortColumn === 'recoveryStrategy' && (
+                                <span className="text-gray-400">{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                              )}
+                            </div>
+                          </th>
+                          <th
                             onClick={() => handleSort('status')}
                             className="px-3 py-2 text-center text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[90px]"
                           >
@@ -548,6 +672,41 @@ export default function BCPModuleLandingPage() {
                                 >
                                   {plan.name}
                                 </Link>
+                              </td>
+                              <td className="px-3 py-2 text-center">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-medium border ${
+                                  plan.planType === 'ARP' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                  plan.planType === 'IRP' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                                  plan.planType === 'DRP' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                  'bg-red-50 text-red-700 border-red-200'
+                                }`}>
+                                  {plan.planType}
+                                </span>
+                              </td>
+                              <td className="px-3 py-2">
+                                <span className="text-xs text-gray-900">{plan.itService}</span>
+                              </td>
+                              <td className="px-3 py-2 text-center">
+                                <div className="flex items-center justify-center gap-1">
+                                  <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-medium border ${
+                                    plan.businessProcessesCount >= 10 ? 'bg-red-50 text-red-700 border-red-200' :
+                                    plan.businessProcessesCount >= 5 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                    'bg-blue-50 text-blue-700 border-blue-200'
+                                  }`}>
+                                    {plan.businessProcessesCount} {plan.businessProcessesCount === 1 ? 'Process' : 'Processes'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-3 py-2 text-center">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-medium border ${
+                                  plan.recoveryStrategy === 'Hot Site' ? 'bg-green-50 text-green-700 border-green-200' :
+                                  plan.recoveryStrategy === 'Warm Site' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                  plan.recoveryStrategy === 'Cold Site' ? 'bg-gray-50 text-gray-700 border-gray-200' :
+                                  plan.recoveryStrategy === 'Cloud DR' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                  'bg-amber-50 text-amber-700 border-amber-200'
+                                }`}>
+                                  {plan.recoveryStrategy}
+                                </span>
                               </td>
                               <td className="px-3 py-2 text-center">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-medium border ${getStatusBadgeColor(plan.status)}`}>

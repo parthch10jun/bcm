@@ -1,17 +1,38 @@
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { ServerStackIcon, ArrowRightIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
+import { ServerStackIcon, ArrowRightIcon, CheckCircleIcon, XCircleIcon, ClockIcon, ShieldCheckIcon, CubeIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 export default function ITDRMetrics() {
-  // DR Plan Status
-  const planStatus = {
-    active: 24,
-    draft: 3,
-    underReview: 2,
-    total: 29
+  // DR Plan Status by Type
+  const plansByType = [
+    { type: 'ARP', count: 5, color: '#9333ea' },
+    { type: 'IRP', count: 2, color: '#f97316' },
+    { type: 'DRP', count: 2, color: '#3b82f6' },
+    { type: 'CIRP', count: 1, color: '#ef4444' }
+  ];
+
+  // Recovery Strategy Distribution
+  const recoveryStrategies = [
+    { strategy: 'Hot Site', count: 3, color: '#10b981' },
+    { strategy: 'Warm Site', count: 3, color: '#3b82f6' },
+    { strategy: 'Cloud DR', count: 3, color: '#9333ea' },
+    { strategy: 'Cold Site', count: 1, color: '#6b7280' }
+  ];
+
+  // BCM-ITSCM Alignment Metrics
+  const alignmentMetrics = {
+    totalITServices: 15,
+    servicesWithDRPlans: 10,
+    criticalProcessesCovered: 35,
+    totalCriticalProcesses: 42,
+    averageRTO: 4.2,
+    targetRTO: 4.0
   };
+
+  const coveragePercent = Math.round((alignmentMetrics.servicesWithDRPlans / alignmentMetrics.totalITServices) * 100);
+  const processCoveragePercent = Math.round((alignmentMetrics.criticalProcessesCovered / alignmentMetrics.totalCriticalProcesses) * 100);
 
   // Test Results
   const testResults = [
@@ -22,20 +43,12 @@ export default function ITDRMetrics() {
     { month: 'Nov', passed: 5, failed: 1 }
   ];
 
-  // RTO Compliance by Tier
-  const rtoCompliance = [
-    { tier: 'Tier 1', target: 4, actual: 3.5, compliant: true },
-    { tier: 'Tier 2', target: 8, actual: 7.2, compliant: true },
-    { tier: 'Tier 3', target: 24, actual: 26, compliant: false },
-    { tier: 'Tier 4', target: 72, actual: 48, compliant: true }
-  ];
-
-  // Recent DR Tests
+  // Recent DR Tests with IT Service linkage
   const recentTests = [
-    { id: 1, plan: 'Core Banking System', date: '2024-11-15', result: 'Passed', rto: '3.5h' },
-    { id: 2, plan: 'Email Infrastructure', date: '2024-11-10', result: 'Passed', rto: '2.1h' },
-    { id: 3, plan: 'Customer Portal', date: '2024-11-05', result: 'Failed', rto: '6.2h' },
-    { id: 4, plan: 'Data Warehouse', date: '2024-10-28', result: 'Passed', rto: '18h' }
+    { id: 1, plan: 'Core Insurance Platform Recovery', itService: 'Core Insurance Platform', date: '2024-11-15', result: 'Passed', rto: '3.5h', planType: 'ARP' },
+    { id: 2, plan: 'Claims Management System Recovery', itService: 'Claims Management System', date: '2024-11-10', result: 'Passed', rto: '2.1h', planType: 'ARP' },
+    { id: 3, plan: 'Customer Portal Application Recovery', itService: 'Customer Portal', date: '2024-11-05', result: 'Passed', rto: '4.2h', planType: 'ARP' },
+    { id: 4, plan: 'Munich Data Center Infrastructure Recovery', itService: 'Munich Data Center', date: '2024-10-28', result: 'Passed', rto: '18h', planType: 'IRP' }
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -52,38 +65,77 @@ export default function ITDRMetrics() {
     return null;
   };
 
-  const successRate = Math.round((testResults.reduce((sum, t) => sum + t.passed, 0) / 
+  const successRate = Math.round((testResults.reduce((sum, t) => sum + t.passed, 0) /
     testResults.reduce((sum, t) => sum + t.passed + t.failed, 0)) * 100);
+
+  const totalPlans = plansByType.reduce((sum, p) => sum + p.count, 0);
 
   return (
     <div className="bg-white border border-gray-200 rounded-sm p-5">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <ServerStackIcon className="h-5 w-5 text-purple-600" />
-          <h2 className="text-sm font-semibold text-gray-900">IT Disaster Recovery</h2>
+          <h2 className="text-sm font-semibold text-gray-900">ITSCM & DR Metrics</h2>
         </div>
         <Link href="/it-dr-plans" className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
-          View All <ArrowRightIcon className="h-3 w-3" />
+          View All Plans <ArrowRightIcon className="h-3 w-3" />
         </Link>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-4 gap-3 mb-5">
-        <div className="bg-purple-50 border border-purple-100 rounded-sm p-3 text-center">
-          <p className="text-xl font-bold text-purple-600">{planStatus.active}</p>
-          <p className="text-[10px] text-purple-700">Active Plans</p>
+      {/* BCM-ITSCM Alignment Stats */}
+      <div className="mb-5 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-sm">
+        <h3 className="text-xs font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <ShieldCheckIcon className="h-4 w-4 text-purple-600" />
+          BCM-ITSCM Alignment
+        </h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <p className="text-2xl font-bold text-purple-600">{coveragePercent}%</p>
+            <p className="text-[10px] text-gray-700">IT Services with DR Plans</p>
+            <p className="text-[9px] text-gray-500 mt-1">{alignmentMetrics.servicesWithDRPlans}/{alignmentMetrics.totalITServices} services covered</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-blue-600">{processCoveragePercent}%</p>
+            <p className="text-[10px] text-gray-700">Critical Processes Protected</p>
+            <p className="text-[9px] text-gray-500 mt-1">{alignmentMetrics.criticalProcessesCovered}/{alignmentMetrics.totalCriticalProcesses} processes</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-green-600">{totalPlans}</p>
+            <p className="text-[10px] text-gray-700">Total DR Plans</p>
+            <p className="text-[9px] text-gray-500 mt-1">Across all plan types</p>
+          </div>
         </div>
-        <div className="bg-green-50 border border-green-100 rounded-sm p-3 text-center">
-          <p className="text-xl font-bold text-green-600">{successRate}%</p>
-          <p className="text-[10px] text-green-700">Test Success</p>
+      </div>
+
+      {/* Plan Type & Recovery Strategy Distribution */}
+      <div className="grid grid-cols-2 gap-4 mb-5">
+        <div>
+          <h3 className="text-xs font-medium text-gray-700 mb-3">DR Plan Types</h3>
+          <div className="space-y-2">
+            {plansByType.map((plan) => (
+              <div key={plan.type} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: plan.color }}></div>
+                  <span className="text-xs text-gray-700">{plan.type}</span>
+                </div>
+                <span className="text-xs font-semibold text-gray-900">{plan.count}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="bg-blue-50 border border-blue-100 rounded-sm p-3 text-center">
-          <p className="text-xl font-bold text-blue-600">{rtoCompliance.filter(r => r.compliant).length}/{rtoCompliance.length}</p>
-          <p className="text-[10px] text-blue-700">RTO Compliant</p>
-        </div>
-        <div className="bg-gray-50 border border-gray-200 rounded-sm p-3 text-center">
-          <p className="text-xl font-bold text-gray-600">{planStatus.underReview}</p>
-          <p className="text-[10px] text-gray-700">Under Review</p>
+        <div>
+          <h3 className="text-xs font-medium text-gray-700 mb-3">Recovery Strategies</h3>
+          <div className="space-y-2">
+            {recoveryStrategies.map((strategy) => (
+              <div key={strategy.strategy} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: strategy.color }}></div>
+                  <span className="text-xs text-gray-700">{strategy.strategy}</span>
+                </div>
+                <span className="text-xs font-semibold text-gray-900">{strategy.count}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -104,28 +156,46 @@ export default function ITDRMetrics() {
         </div>
       </div>
 
-      {/* Recent Tests Table */}
+      {/* Recent Tests Table with IT Service Linkage */}
       <div className="pt-4 border-t border-gray-200">
-        <h3 className="text-xs font-medium text-gray-700 mb-3">Recent DR Tests</h3>
+        <h3 className="text-xs font-medium text-gray-700 mb-3">Recent DR Tests (IT Service Linkage)</h3>
         <div className="space-y-2">
           {recentTests.map((test) => (
-            <div key={test.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-sm">
-              <div className="flex items-center gap-2">
-                {test.result === 'Passed' ? (
-                  <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                ) : (
-                  <XCircleIcon className="h-4 w-4 text-red-500" />
-                )}
-                <span className="text-xs text-gray-900">{test.plan}</span>
+            <div key={test.id} className="p-3 bg-gray-50 rounded-sm border border-gray-200 hover:border-blue-300 transition-colors">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-start gap-2 flex-1">
+                  {test.result === 'Passed' ? (
+                    <CheckCircleIcon className="h-4 w-4 text-green-500 mt-0.5" />
+                  ) : (
+                    <XCircleIcon className="h-4 w-4 text-red-500 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-gray-900">{test.plan}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <CubeIcon className="h-3 w-3 text-blue-500" />
+                      <span className="text-[10px] text-blue-600">{test.itService}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded-sm text-[10px] font-medium border ${
+                    test.planType === 'ARP' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                    test.planType === 'IRP' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                    test.planType === 'DRP' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                    'bg-red-50 text-red-700 border-red-200'
+                  }`}>
+                    {test.planType}
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-sm text-[10px] font-medium ${
+                    test.result === 'Passed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  }`}>
+                    {test.result}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-[10px] text-gray-500">{test.date}</span>
-                <span className="text-xs font-medium text-gray-700">{test.rto}</span>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                  test.result === 'Passed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                }`}>
-                  {test.result}
-                </span>
+              <div className="flex items-center justify-between text-[10px] text-gray-500 ml-6">
+                <span>{test.date}</span>
+                <span className="font-medium text-gray-700">RTO: {test.rto}</span>
               </div>
             </div>
           ))}

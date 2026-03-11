@@ -32,6 +32,7 @@ import {
   ShieldExclamationIcon,
   ExclamationCircleIcon,
   ClipboardDocumentCheckIcon as TaskIcon,
+  ServerStackIcon,
 } from '@heroicons/react/24/outline';
 
 interface NavigationItem {
@@ -82,10 +83,10 @@ const navigation: NavigationItem[] = [
         description: 'Org structure'
       },
       {
-        name: 'Services',
-        href: '/libraries/services',
-        icon: GlobeAltIcon,
-        description: 'Service master data'
+        name: 'IT Services',
+        href: '/libraries/it-services',
+        icon: ServerStackIcon,
+        description: 'IT service continuity'
       },
       {
         name: 'Locations',

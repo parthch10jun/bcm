@@ -17,7 +17,8 @@ import {
   DocumentTextIcon,
   ExclamationTriangleIcon,
   ExclamationCircleIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  ServerStackIcon
 } from '@heroicons/react/24/outline';
 
 export default function LibrariesPage() {
@@ -37,14 +38,6 @@ export default function LibrariesPage() {
       description: 'Manage employees, contractors, and human resources',
       color: 'bg-indigo-500',
       count: 0
-    },
-    {
-      name: 'Services',
-      href: '/libraries/services',
-      icon: GlobeAltIcon,
-      description: 'Manage customer-facing services and their definitions',
-      color: 'bg-green-500',
-      count: 8
     },
     {
       name: 'Locations',
@@ -69,6 +62,14 @@ export default function LibrariesPage() {
       description: 'Manage technology assets and infrastructure inventory',
       color: 'bg-cyan-500',
       count: 6
+    },
+    {
+      name: 'IT Services',
+      href: '/libraries/it-services',
+      icon: ServerStackIcon,
+      description: 'Manage IT services with RTO/RPO and recovery strategies',
+      color: 'bg-blue-600',
+      count: 15
     },
     {
       name: 'Vendors',
