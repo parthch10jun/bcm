@@ -590,7 +590,7 @@ export default function DRPlanDetailPage() {
   const planId = params.id as string;
   const plan = mockDRPlanDetails[planId as keyof typeof mockDRPlanDetails];
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'procedures' | 'dependencies' | 'technical' | 'testing' | 'linkages'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'procedures' | 'dependencies' | 'technical' | 'testing' | 'linkages' | 'approvals'>('overview');
 
   if (!plan) {
     return (
@@ -750,6 +750,19 @@ export default function DRPlanDetailPage() {
               <span className="flex items-center gap-1">
                 <LinkIcon className="h-3 w-3" />
                 Plan Linkages
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('approvals')}
+              className={`py-3 text-xs font-medium border-b-2 transition-colors ${
+                activeTab === 'approvals'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+              }`}
+            >
+              <span className="flex items-center gap-1">
+                <ShieldCheckIcon className="h-3 w-3" />
+                Approvals
               </span>
             </button>
           </nav>
@@ -1225,6 +1238,27 @@ export default function DRPlanDetailPage() {
               <p className="text-center text-[10px] text-gray-500 mt-4">
                 Incident Response activates this DR Plan → DR Plan may escalate to Crisis Management
               </p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'approvals' && (
+          <div className="space-y-6">
+            {/* Redirect to dedicated approvals page */}
+            <div className="bg-white border border-gray-200 rounded-sm p-8">
+              <div className="text-center">
+                <ShieldCheckIcon className="mx-auto h-12 w-12 text-blue-600" />
+                <h3 className="mt-4 text-sm font-semibold text-gray-900">Executive Approval Workflow</h3>
+                <p className="mt-2 text-xs text-gray-600 max-w-md mx-auto">
+                  View the complete executive approval workflow for this IRBC strategy, including board-level reporting and risk acceptance documentation.
+                </p>
+                <Link
+                  href={`/it-dr-plans/${planId}/approvals`}
+                  className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-sm hover:bg-gray-800"
+                >
+                  View Approval Workflow
+                </Link>
+              </div>
             </div>
           </div>
         )}

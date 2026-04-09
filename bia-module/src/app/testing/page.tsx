@@ -18,22 +18,26 @@ import {
   PlusIcon,
   ArrowPathIcon,
   EyeIcon,
+  ServerStackIcon,
 } from '@heroicons/react/24/outline';
 
-type TestType = 'bcp' | 'tabletop';
+type TestType = 'bcp' | 'tabletop' | 'itscm';
 
 interface TestRecord {
   id: string;
   name: string;
-  type: 'Full Simulation' | 'Tabletop Exercise' | 'Walkthrough' | 'Component Test';
+  type: 'Full Simulation' | 'Tabletop Exercise' | 'Walkthrough' | 'Component Test' | 'Application Failover' | 'Database Recovery' | 'Network Failover' | 'Cyber Incident Response' | 'Full DR Site Activation';
   category: TestType;
   status: 'Draft' | 'Pending Approval' | 'Approved' | 'Scheduled' | 'In Progress' | 'Completed' | 'Cancelled';
   linkedBCP: string | null;
+  linkedITService?: string | null;
   owner: string;
   plannedDate: string;
   nextAction: string;
   criticality: 'High' | 'Medium' | 'Low';
   result?: 'Passed' | 'Passed with Issues' | 'Failed' | 'Pending';
+  rtoTarget?: string;
+  rtoAchieved?: string;
 }
 
 const mockTests: TestRecord[] = [
@@ -46,6 +50,14 @@ const mockTests: TestRecord[] = [
   { id: 'TT-002', name: 'Supply Chain Disruption Scenario', type: 'Tabletop Exercise', category: 'tabletop', status: 'Completed', linkedBCP: null, owner: 'Lisa Park', plannedDate: '2024-11-05', nextAction: 'Generate report', criticality: 'Medium', result: 'Failed' },
   { id: 'TT-003', name: 'Pandemic Response Exercise', type: 'Tabletop Exercise', category: 'tabletop', status: 'Scheduled', linkedBCP: 'BCP-005', owner: 'James Wilson', plannedDate: '2024-12-10', nextAction: 'Prepare materials', criticality: 'Medium' },
   { id: 'TT-004', name: 'Regulatory Crisis Simulation', type: 'Tabletop Exercise', category: 'tabletop', status: 'Draft', linkedBCP: null, owner: 'Emily Wang', plannedDate: '2024-12-20', nextAction: 'Define scenario', criticality: 'Low' },
+  // ITSCM Tests
+  { id: 'ITSCM-T-001', name: 'Core Insurance Platform Failover', type: 'Application Failover', category: 'itscm', status: 'Completed', linkedBCP: 'BCP-001', linkedITService: 'SVC-001', owner: 'Michael Schmidt', plannedDate: '2025-11-10', nextAction: 'Review results', criticality: 'High', result: 'Passed', rtoTarget: '2 Hours', rtoAchieved: '1.5 Hours' },
+  { id: 'ITSCM-T-002', name: 'Oracle Database Recovery Test', type: 'Database Recovery', category: 'itscm', status: 'In Progress', linkedBCP: 'BCP-002', linkedITService: 'SVC-003', owner: 'Anna Schmidt', plannedDate: '2025-11-25', nextAction: 'Execute recovery', criticality: 'High', result: 'Pending', rtoTarget: '4 Hours', rtoAchieved: 'TBD' },
+  { id: 'ITSCM-T-003', name: 'Network Infrastructure Failover', type: 'Network Failover', category: 'itscm', status: 'Scheduled', linkedBCP: 'BCP-003', linkedITService: 'SVC-005', owner: 'Tom Harris', plannedDate: '2025-12-01', nextAction: 'Prepare test plan', criticality: 'High', rtoTarget: '1 Hour' },
+  { id: 'ITSCM-T-004', name: 'Ransomware Response Drill', type: 'Cyber Incident Response', category: 'itscm', status: 'Completed', linkedBCP: 'BCP-006', linkedITService: 'SVC-008', owner: 'David Klein', plannedDate: '2025-10-15', nextAction: 'Document lessons', criticality: 'High', result: 'Passed with Issues', rtoTarget: '6 Hours', rtoAchieved: '7 Hours' },
+  { id: 'ITSCM-T-005', name: 'Full DR Site Activation - Munich', type: 'Full DR Site Activation', category: 'itscm', status: 'Scheduled', linkedBCP: 'BCP-001', linkedITService: 'Multiple', owner: 'Klaus Weber', plannedDate: '2025-12-15', nextAction: 'Coordinate teams', criticality: 'High', rtoTarget: '8 Hours' },
+  { id: 'ITSCM-T-006', name: 'Payment Gateway Failover', type: 'Application Failover', category: 'itscm', status: 'Pending Approval', linkedBCP: 'BCP-004', linkedITService: 'SVC-002', owner: 'Lisa Anderson', plannedDate: '2025-12-05', nextAction: 'Awaiting approval', criticality: 'High', rtoTarget: '4 Hours' },
+  { id: 'ITSCM-T-007', name: 'CRM System Recovery', type: 'Application Failover', category: 'itscm', status: 'Draft', linkedBCP: 'BCP-005', linkedITService: 'SVC-006', owner: 'Emma Weber', plannedDate: '2025-12-20', nextAction: 'Define scope', criticality: 'Medium', rtoTarget: '18 Hours' },
 ];
 
 export default function TestingPage() {
@@ -68,10 +80,12 @@ export default function TestingPage() {
 
   const bcpTests = mockTests.filter(t => t.category === 'bcp');
   const tabletopTests = mockTests.filter(t => t.category === 'tabletop');
+  const itscmTests = mockTests.filter(t => t.category === 'itscm');
 
   const stats = {
     bcp: { total: bcpTests.length, pending: bcpTests.filter(t => t.status === 'Pending Approval').length, scheduled: bcpTests.filter(t => t.status === 'Scheduled').length },
     tabletop: { total: tabletopTests.length, pending: tabletopTests.filter(t => t.status === 'Pending Approval').length, scheduled: tabletopTests.filter(t => t.status === 'Scheduled').length },
+    itscm: { total: itscmTests.length, pending: itscmTests.filter(t => t.status === 'Pending Approval').length, scheduled: itscmTests.filter(t => t.status === 'Scheduled').length },
   };
 
   const uniqueBCPs = [...new Set(mockTests.map(t => t.linkedBCP).filter(Boolean))] as string[];
@@ -114,7 +128,7 @@ export default function TestingPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-lg font-semibold text-gray-900">Testing Records</h1>
-                <p className="text-xs text-gray-500 mt-0.5">BCP tests, tabletop exercises, and simulation tracking</p>
+                <p className="text-xs text-gray-500 mt-0.5">BCP tests, ITSCM tests, tabletop exercises, and simulation tracking</p>
               </div>
               <div className="flex items-center gap-2">
                 <Link href="/testing/dashboard" className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-sm hover:bg-gray-50">
@@ -125,6 +139,11 @@ export default function TestingPage() {
                   <Link href="/testing/new-bcp-test" className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-sm hover:bg-gray-800">
                     <PlusIcon className="h-3.5 w-3.5 mr-1.5" />
                     Schedule BCP Test
+                  </Link>
+                ) : activeTab === 'itscm' ? (
+                  <Link href="/testing/new" className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-sm hover:bg-blue-700">
+                    <PlusIcon className="h-3.5 w-3.5 mr-1.5" />
+                    Schedule ITSCM Test
                   </Link>
                 ) : (
                   <Link href="/testing/new" className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-sm hover:bg-gray-800">
@@ -153,6 +172,23 @@ export default function TestingPage() {
                   <span className="px-1.5 py-0.5 text-[10px] bg-gray-100 text-gray-600 rounded">{stats.bcp.total}</span>
                   {stats.bcp.pending > 0 && (
                     <span className="px-1.5 py-0.5 text-[10px] bg-amber-100 text-amber-700 rounded">{stats.bcp.pending} pending</span>
+                  )}
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('itscm')}
+                className={`px-4 py-3 text-xs font-medium border-b-2 transition-colors ${
+                  activeTab === 'itscm'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <ServerStackIcon className="h-4 w-4" />
+                  ITSCM Testing
+                  <span className="px-1.5 py-0.5 text-[10px] bg-gray-100 text-gray-600 rounded">{stats.itscm.total}</span>
+                  {stats.itscm.pending > 0 && (
+                    <span className="px-1.5 py-0.5 text-[10px] bg-amber-100 text-amber-700 rounded">{stats.itscm.pending} pending</span>
                   )}
                 </div>
               </button>

@@ -22,6 +22,11 @@ import ExecutiveKPIs from './reporting/components/ExecutiveKPIs';
 import BCMLifecycleDashboard from './reporting/components/BCMLifecycleDashboard';
 import DependencyHeatmap from './reporting/components/DependencyHeatmap';
 
+// Import ITSCM dashboard sections
+// import ITSCMSummary from './reporting/components/ITSCMSummary';
+// import ITSCMServiceHealth from './reporting/components/ITSCMServiceHealth';
+// import ITSCMRecoveryCapability from './reporting/components/ITSCMRecoveryCapability';
+
 type TabType = 'bcm-dashboard' | 'executive-dashboard';
 
 export default function HomePage() {
@@ -118,10 +123,21 @@ export default function HomePage() {
             {activeTab === 'bcm-dashboard' && (
               <div className="space-y-6">
                 <ExecutiveSummary />
+
+                {/* ITSCM Section */}
+                {/* <ITSCMSummary /> */}
+
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   <BIAAnalytics />
                   <RiskOverview />
                 </div>
+
+                {/* ITSCM Service Health & Recovery */}
+                {/* <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  <ITSCMServiceHealth />
+                  <ITSCMRecoveryCapability />
+                </div> */}
+
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   <ITDRMetrics />
                   <BCPReadiness />

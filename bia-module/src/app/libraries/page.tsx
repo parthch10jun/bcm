@@ -72,6 +72,14 @@ export default function LibrariesPage() {
       count: 15
     },
     {
+      name: 'IT Internal Operations',
+      href: '/libraries/it-internal-operations',
+      icon: ServerStackIcon,
+      description: 'BIA for IT\'s own critical services (ISO 27031:2025)',
+      color: 'bg-indigo-600',
+      count: 6
+    },
+    {
       name: 'Vendors',
       href: '/libraries/vendors',
       icon: BuildingOffice2Icon,

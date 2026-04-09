@@ -370,13 +370,22 @@ export default function BiaRecordsPage() {
 
                 {/* Create BIA Button */}
                 {canCreateBIA && (
-                  <button
-                    onClick={() => router.push('/bia-records/new')}
-                    className="inline-flex items-center h-[32px] px-3 text-xs font-medium rounded-sm bg-gray-900 text-white hover:bg-gray-800 transition-colors"
-                  >
-                    <PlusIcon className="h-4 w-4 mr-2" />
-                    New BIA
-                  </button>
+                  <>
+                    <button
+                      onClick={() => router.push('/bia-records/new')}
+                      className="inline-flex items-center h-[32px] px-3 text-xs font-medium rounded-sm bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+                    >
+                      <PlusIcon className="h-4 w-4 mr-2" />
+                      New BIA
+                    </button>
+                    <button
+                      onClick={() => router.push('/bia-records/new-aia')}
+                      className="inline-flex items-center h-[32px] px-3 text-xs font-medium rounded-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    >
+                      <ChartBarIcon className="h-4 w-4 mr-2" />
+                      New AIA (Technical BIA)
+                    </button>
+                  </>
                 )}
 
                 {/* Demo BIA Button - Opens pre-filled wizard */}

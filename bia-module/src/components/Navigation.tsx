@@ -199,6 +199,12 @@ const navigation: NavigationItem[] = [
     description: 'Track issues and actions'
   },
   {
+    name: 'Incident Management',
+    href: '/itsm/incidents',
+    icon: ExclamationTriangleIcon,
+    description: 'IT service incident tracking'
+  },
+  {
     name: 'Crisis Management Plans',
     href: '/crisis-plans',
     icon: ShieldExclamationIcon,
@@ -221,6 +227,12 @@ const navigation: NavigationItem[] = [
     href: '/settings',
     icon: CogIcon,
     description: 'Platform configuration'
+  },
+  {
+    name: 'Reports',
+    href: '/reports',
+    icon: DocumentTextIcon,
+    description: 'ITSCM Reports'
   }
 ];
 

@@ -31,8 +31,11 @@ import DependencyGapReport from './components/DependencyGapReport';
 import ExecutiveKPIs from './components/ExecutiveKPIs';
 import BCMLifecycleDashboard from './components/BCMLifecycleDashboard';
 import DependencyHeatmap from './components/DependencyHeatmap';
+import BCMtoITSCMWorkflow from './components/BCMtoITSCMWorkflow';
+import ITServiceContinuityReport from './components/ITServiceContinuityReport';
+import BCMITSCMIntegrationReport from './components/BCMITSCMIntegrationReport';
 
-type TabType = 'bcm-dashboard' | 'executive-dashboard';
+type TabType = 'bcm-dashboard' | 'executive-dashboard' | 'itscm-reports';
 
 export default function ReportingDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('bcm-dashboard');
@@ -47,7 +50,8 @@ export default function ReportingDashboard() {
 
   const tabs = [
     { id: 'bcm-dashboard' as TabType, name: 'BCM Dashboard', icon: ChartBarIcon, description: 'Head of Department View' },
-    { id: 'executive-dashboard' as TabType, name: 'Executive Dashboard', icon: PresentationChartBarIcon, description: 'C-Suite Strategic View' }
+    { id: 'executive-dashboard' as TabType, name: 'Executive Dashboard', icon: PresentationChartBarIcon, description: 'C-Suite Strategic View' },
+    { id: 'itscm-reports' as TabType, name: 'ITSCM Reports', icon: ServerStackIcon, description: 'IT Service Continuity Management' }
   ];
 
   return (
@@ -172,6 +176,92 @@ export default function ReportingDashboard() {
                   <ITDRMetrics />
                   <BCPReadiness />
                 </div>
+              </div>
+            )}
+
+            {/* ITSCM Reports Tab */}
+            {activeTab === 'itscm-reports' && (
+              <div className="space-y-6">
+                {/* BCM to ITSCM Workflow */}
+                <div className="bg-white border border-gray-200 rounded-sm p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ServerStackIcon className="h-5 w-5 text-purple-600" />
+                    <h2 className="text-sm font-semibold text-gray-900">BCM → ITSCM Integration Workflow</h2>
+                  </div>
+                  <p className="text-xs text-gray-600 mb-4">
+                    End-to-end traceability from Business Impact Analysis to IT Disaster Recovery Plans
+                  </p>
+                  <BCMtoITSCMWorkflow />
+                </div>
+
+                {/* Report Selection */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200 rounded-sm p-6 hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-blue-600 rounded-sm">
+                        <ServerStackIcon className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900">IT Service Continuity Assessment</h3>
+                        <p className="text-xs text-gray-600">Comprehensive ITSCM posture analysis</p>
+                      </div>
+                    </div>
+                    <ul className="text-xs text-gray-700 space-y-1 ml-2">
+                      <li className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+                        Service tier analysis & RTO/RPO compliance
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+                        Recovery strategy distribution
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+                        DR testing results & gaps
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+                        ISO 27001 Annex A.17 alignment
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-sm p-6 hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-sm">
+                        <DocumentTextIcon className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900">BCM-ITSCM Integration Report</h3>
+                        <p className="text-xs text-gray-600">Business & IT continuity alignment</p>
+                      </div>
+                    </div>
+                    <ul className="text-xs text-gray-700 space-y-1 ml-2">
+                      <li className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+                        Business process → IT service mapping
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+                        RTO/RPO alignment by tier
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+                        BCM → ITSCM data flow automation
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+                        ISO 22301 & ISO 27001 compliance
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* IT Service Continuity Assessment Report */}
+                <ITServiceContinuityReport />
+
+                {/* BCM-ITSCM Integration Report */}
+                <BCMITSCMIntegrationReport />
               </div>
             )}
           </>
