@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -131,7 +131,7 @@ const defaultRunbook = {
   executionHistory: []
 };
 
-export default function CyberRunbookDetailPage() {
+function CyberRunbookDetailContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const runbookId = params.id as string;
@@ -490,6 +490,18 @@ export default function CyberRunbookDetailPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CyberRunbookDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">Loading runbook...</div>
+      </div>
+    }>
+      <CyberRunbookDetailContent />
+    </Suspense>
   );
 }
 

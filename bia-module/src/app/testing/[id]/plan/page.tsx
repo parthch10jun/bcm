@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -146,7 +146,7 @@ function getTestRecord(testId: string) {
   return { linkedBCP: null, category: 'tabletop', name: 'Test Record', scenarioType: 'custom' };
 }
 
-export default function TestPlanWizard() {
+function TestPlanWizardContent() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1214,5 +1214,17 @@ function ReviewStep({ linkedBCP, planData, testId, isTabletop, tabletopData }: a
         )}
       </div>
     </div>
+  );
+}
+
+export default function TestPlanWizard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">Loading test plan...</div>
+      </div>
+    }>
+      <TestPlanWizardContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -414,7 +414,7 @@ function getITSCMSampleData(): ReportData {
   };
 }
 
-export default function TestReportWizard() {
+function TestReportWizardContent() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -3369,5 +3369,17 @@ function ManagementSummaryStep({ data, setData }: any) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TestReportWizard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">Loading test report...</div>
+      </div>
+    }>
+      <TestReportWizardContent />
+    </Suspense>
   );
 }
