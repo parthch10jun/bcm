@@ -31,8 +31,21 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 
+// Type definition for application items
+interface ApplicationItem {
+  id: string;
+  name: string;
+  type: string;
+  tier: string;
+  rto?: string;
+  rpo?: string;
+  location?: string;
+  sla?: string;
+  dependencies: string[];
+}
+
 // Mock data for ITSCM Application Mapping
-const mockApplications = [
+const mockApplications: ApplicationItem[] = [
   // Business Processes (Layer 1)
   { id: 'bp-1', name: 'Claims Processing', type: 'businessProcess', tier: 'Tier 1', rto: '2h', dependencies: ['app-1', 'app-2'] },
   { id: 'bp-2', name: 'Policy Underwriting', type: 'businessProcess', tier: 'Tier 1', rto: '4h', dependencies: ['app-1', 'app-3'] },

@@ -21,6 +21,7 @@ import {
   LightBulbIcon,
   StarIcon,
   HandThumbUpIcon,
+  InformationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleSolidIcon } from '@heroicons/react/24/solid';
 
@@ -138,10 +139,13 @@ interface TimingData {
 }
 
 interface ResultItem {
-  id: string;
-  result: 'pass' | 'fail' | 'partial' | null;
-  comments: string;
+  id?: string;
+  result?: 'pass' | 'fail' | 'partial' | null;
+  comments?: string;
   actualTime?: string;
+  status?: 'pass' | 'fail' | 'partial';
+  rtoActual?: number;
+  notes?: string;
 }
 
 interface Finding {
@@ -156,11 +160,18 @@ interface Finding {
 }
 
 interface Issue {
+  id?: string;
   description: string;
-  rootCause: string;
+  rootCause?: string;
   correctiveAction: string;
-  owner: string;
-  targetDate: string;
+  owner?: string;
+  targetDate?: string;
+  severity?: string;
+  category?: string;
+  impact?: string;
+  responsible?: string;
+  dueDate?: string;
+  status?: string;
 }
 
 interface RPOData {
