@@ -30,6 +30,7 @@ import {
   MoonIcon,
   ServerIcon,
   ShieldExclamationIcon,
+  ShieldCheckIcon,
   ExclamationCircleIcon,
   ClipboardDocumentCheckIcon as TaskIcon,
   ServerStackIcon,
@@ -221,6 +222,12 @@ const navigation: NavigationItem[] = [
     href: '/testing',
     icon: BeakerIcon,
     description: 'BCP testing and exercises'
+  },
+  {
+    name: 'Control Testing',
+    href: '/control-testing',
+    icon: ShieldCheckIcon,
+    description: 'Control design and effectiveness testing'
   },
   {
     name: 'Settings',
