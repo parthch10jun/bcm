@@ -180,7 +180,8 @@ const navigation: NavigationItem[] = [
     href: '/it-dr-plans',
     icon: ServerIcon,
     description: 'Business Continuity Planning',
-    subItems: [
+    isSection: true,
+    children: [
       {
         name: 'DR Plans',
         href: '/it-dr-plans',
