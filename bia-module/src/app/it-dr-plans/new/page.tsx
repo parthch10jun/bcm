@@ -18,6 +18,21 @@ export default function NewDRPlanPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
 
+  // All useState hooks must be at top level - not inside conditional blocks
+  const [selectedType, setSelectedType] = useState('arp');
+  const [selectedOwner, setSelectedOwner] = useState('usr-001');
+  const [selectedSecondary, setSelectedSecondary] = useState('usr-002');
+  const [selectedBIA, setSelectedBIA] = useState('BIA-001');
+  const [selectedTriggers, setSelectedTriggers] = useState<number[]>([1, 2, 5]);
+  const [runbookSteps, setRunbookSteps] = useState([
+    { id: 1, title: 'Assess & Confirm Disaster', owner: 'IT Manager', duration: '15 min', status: 'configured' },
+    { id: 2, title: 'Activate DR Team', owner: 'IT Manager', duration: '30 min', status: 'configured' },
+    { id: 3, title: 'Initiate Failover', owner: 'Infrastructure Lead', duration: '1 hour', status: 'configured' }
+  ]);
+  const [selectedAssets, setSelectedAssets] = useState<string[]>(['AST-001', 'AST-002']);
+  const [selectedPeople, setSelectedPeople] = useState<string[]>(['USR-001', 'USR-002']);
+  const [selectedVendors, setSelectedVendors] = useState<string[]>(['VND-001', 'VND-002']);
+
   const [formData, setFormData] = useState({
     // Step 1: Basic Information
     planName: 'Primary Data Center Failover Plan',
@@ -271,10 +286,6 @@ TESTING APPROACH:
         { id: 'usr-002', name: 'Michael Chen', role: 'Infrastructure Lead', department: 'IT Infrastructure' },
         { id: 'usr-003', name: 'David Rodriguez', role: 'Application Lead', department: 'IT Applications' }
       ];
-
-      const [selectedType, setSelectedType] = useState('arp');
-      const [selectedOwner, setSelectedOwner] = useState('usr-001');
-      const [selectedSecondary, setSelectedSecondary] = useState('usr-002');
 
       return (
         <div className="space-y-6">
@@ -580,8 +591,6 @@ TESTING APPROACH:
         { id: 'BIA-003', name: 'Internal IT Services', rto: '8h', rpo: '4h', mtd: '24h', impact: '€20K/hour', tier: 'Tier 2' }
       ];
 
-      const [selectedBIA, setSelectedBIA] = useState('BIA-001');
-
       return (
         <div className="space-y-6">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
@@ -702,13 +711,6 @@ TESTING APPROACH:
         { id: 5, name: 'Cyber Attack / Ransomware', severity: 'Critical', icon: '🛡️' },
         { id: 6, name: 'Government Evacuation Order', severity: 'Medium', icon: '🚨' }
       ];
-
-      const [selectedTriggers, setSelectedTriggers] = useState<number[]>([1, 2, 5]);
-      const [runbookSteps, setRunbookSteps] = useState([
-        { id: 1, title: 'Assess & Confirm Disaster', owner: 'IT Manager', duration: '15 min', status: 'configured' },
-        { id: 2, title: 'Activate DR Team', owner: 'IT Manager', duration: '30 min', status: 'configured' },
-        { id: 3, title: 'Initiate Failover', owner: 'Infrastructure Lead', duration: '1 hour', status: 'configured' }
-      ]);
 
       const addRunbookStep = () => {
         const newStep = {
@@ -903,10 +905,6 @@ TESTING APPROACH:
         { id: 'VND-003', name: 'Dell Technologies', type: 'Hardware', service: 'Server Hardware & Support' },
         { id: 'VND-004', name: 'Commvault', type: 'Software', service: 'Backup & Recovery Software' }
       ];
-
-      const [selectedAssets, setSelectedAssets] = useState<string[]>(['AST-001', 'AST-002']);
-      const [selectedPeople, setSelectedPeople] = useState<string[]>(['USR-001', 'USR-002']);
-      const [selectedVendors, setSelectedVendors] = useState<string[]>(['VND-001', 'VND-002']);
 
       return (
         <div className="space-y-6">
