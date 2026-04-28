@@ -259,8 +259,32 @@ TESTING APPROACH:
     const step = steps[currentStep];
 
     if (step.fieldType === 'basic-info') {
+      const planTypes = [
+        { id: 'arp', name: 'Application Recovery Plan (ARP)', icon: '📱', desc: 'Single application or application suite' },
+        { id: 'irp', name: 'Infrastructure Recovery Plan (IRP)', icon: '🏢', desc: 'Data centers, networks, infrastructure' },
+        { id: 'drp', name: 'Data Recovery Plan (DRP)', icon: '💾', desc: 'Databases and data recovery' },
+        { id: 'cirp', name: 'Cyber Incident Response Plan (CIRP)', icon: '🛡️', desc: 'Cyber attacks and incidents' }
+      ];
+
+      const mockOwners = [
+        { id: 'usr-001', name: 'Sarah Johnson', role: 'IT Manager', department: 'IT Operations' },
+        { id: 'usr-002', name: 'Michael Chen', role: 'Infrastructure Lead', department: 'IT Infrastructure' },
+        { id: 'usr-003', name: 'David Rodriguez', role: 'Application Lead', department: 'IT Applications' }
+      ];
+
+      const [selectedType, setSelectedType] = useState('arp');
+      const [selectedOwner, setSelectedOwner] = useState('usr-001');
+      const [selectedSecondary, setSelectedSecondary] = useState('usr-002');
+
       return (
-        <div className="space-y-4">
+        <div className="space-y-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
+            <p className="text-xs text-blue-700">
+              <strong>Plan Classification:</strong> Select plan type and assign ownership from your organization
+            </p>
+          </div>
+
+          {/* Plan Name - Keep as input since it's unique */}
           <div>
             <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
               Plan Name <span className="text-red-500">*</span>
@@ -269,73 +293,116 @@ TESTING APPROACH:
               type="text"
               value={formData.planName}
               onChange={(e) => setFormData({ ...formData, planName: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="e.g., Primary Data Center Failover Plan"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
+              placeholder="e.g., Core Banking System DR Plan"
             />
-            <p className="text-[10px] text-gray-500 mt-1">Descriptive name for this DR plan</p>
           </div>
 
+          {/* Plan Type - Interactive Cards */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
               Plan Type <span className="text-red-500">*</span>
             </label>
-            <select
-              value={formData.planType}
-              onChange={(e) => setFormData({ ...formData, planType: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-            >
-              <option value="datacenter-failure">Data Center Failure</option>
-              <option value="ransomware-attack">Ransomware Attack</option>
-              <option value="network-outage">Network Outage</option>
-              <option value="application-failure">Application Failure</option>
-              <option value="natural-disaster">Natural Disaster</option>
-              <option value="cyber-attack">Cyber Attack</option>
-              <option value="power-outage">Power Outage</option>
-            </select>
-            <p className="text-[10px] text-gray-500 mt-1">Type of disaster scenario this plan addresses</p>
+            <div className="grid grid-cols-2 gap-3">
+              {planTypes.map(type => (
+                <button
+                  key={type.id}
+                  onClick={() => {
+                    setSelectedType(type.id);
+                    setFormData({ ...formData, planType: type.id });
+                  }}
+                  className={`p-4 border-2 rounded-sm text-left transition-all ${
+                    selectedType === type.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">{type.icon}</span>
+                    <div className="flex-1">
+                      <div className="text-xs font-semibold text-gray-900">{type.name}</div>
+                      <div className="text-[10px] text-gray-500 mt-1">{type.desc}</div>
+                    </div>
+                    {selectedType === type.id && (
+                      <CheckCircleIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
+          {/* Plan Owner - Select from Organization */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Description
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={4}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="Describe the disaster scenario and recovery approach..."
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Overview of the disaster scenario and recovery strategy</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
                 Plan Owner <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                value={formData.owner}
-                onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-                placeholder="Enter owner name or email"
-              />
-              <p className="text-[10px] text-gray-500 mt-1">Primary responsible person</p>
+              <Link
+                href="/libraries"
+                className="text-xs text-blue-600 hover:text-blue-700"
+              >
+                Browse People Library →
+              </Link>
             </div>
+            <div className="space-y-2">
+              {mockOwners.map(owner => (
+                <button
+                  key={owner.id}
+                  onClick={() => {
+                    setSelectedOwner(owner.id);
+                    setFormData({ ...formData, owner: owner.name });
+                  }}
+                  className={`w-full p-3 border-2 rounded-sm text-left transition-all ${
+                    selectedOwner === owner.id
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="text-xs font-medium text-gray-900">{owner.name}</div>
+                      <div className="text-[10px] text-gray-500">{owner.role} • {owner.department}</div>
+                    </div>
+                    {selectedOwner === owner.id && (
+                      <CheckCircleIcon className="h-5 w-5 text-green-600" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
 
-            <div>
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-                Secondary Owner
-              </label>
-              <input
-                type="text"
-                value={formData.secondaryOwner}
-                onChange={(e) => setFormData({ ...formData, secondaryOwner: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-                placeholder="Enter secondary owner"
-              />
-              <p className="text-[10px] text-gray-500 mt-1">Backup responsible person</p>
+          {/* Secondary Owner */}
+          <div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
+              Secondary Owner
+            </label>
+            <div className="space-y-2">
+              {mockOwners.filter(o => o.id !== selectedOwner).map(owner => (
+                <button
+                  key={owner.id}
+                  onClick={() => {
+                    setSelectedSecondary(owner.id);
+                    setFormData({ ...formData, secondaryOwner: owner.name });
+                  }}
+                  className={`w-full p-3 border-2 rounded-sm text-left transition-all ${
+                    selectedSecondary === owner.id
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="text-xs font-medium text-gray-900">{owner.name}</div>
+                      <div className="text-[10px] text-gray-500">{owner.role}</div>
+                    </div>
+                    {selectedSecondary === owner.id && (
+                      <CheckCircleIcon className="h-5 w-5 text-green-600" />
+                    )}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -507,80 +574,121 @@ TESTING APPROACH:
     }
 
     if (step.fieldType === 'recovery-objectives') {
+      const mockBIARecords = [
+        { id: 'BIA-001', name: 'Core Banking Operations', rto: '2h', rpo: '15min', mtd: '4h', impact: '€100K/hour', tier: 'Tier 1' },
+        { id: 'BIA-002', name: 'Customer Service Platform', rto: '4h', rpo: '1h', mtd: '8h', impact: '€50K/hour', tier: 'Tier 1' },
+        { id: 'BIA-003', name: 'Internal IT Services', rto: '8h', rpo: '4h', mtd: '24h', impact: '€20K/hour', tier: 'Tier 2' }
+      ];
+
+      const [selectedBIA, setSelectedBIA] = useState('BIA-001');
+
       return (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              Define recovery time objectives (RTO), recovery point objectives (RPO), and maximum tolerable downtime (MTD).
+              <strong>Link to BIA:</strong> Select existing Business Impact Analysis to inherit RTO/RPO/MTD objectives
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-                Recovery Time Objective (RTO) <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  value={formData.rto}
-                  onChange={(e) => setFormData({ ...formData, rto: e.target.value })}
-                  className="w-full px-3 py-2 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-                  placeholder="4"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none">hours</span>
-              </div>
-              <p className="text-[10px] text-gray-500 mt-1">Time to restore operations</p>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-                Recovery Point Objective (RPO) <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  value={formData.rpo}
-                  onChange={(e) => setFormData({ ...formData, rpo: e.target.value })}
-                  className="w-full px-3 py-2 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-                  placeholder="1"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none">hours</span>
-              </div>
-              <p className="text-[10px] text-gray-500 mt-1">Acceptable data loss</p>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-                Maximum Tolerable Downtime (MTD)
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  value={formData.mtd}
-                  onChange={(e) => setFormData({ ...formData, mtd: e.target.value })}
-                  className="w-full px-3 py-2 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-                  placeholder="24"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none">hours</span>
-              </div>
-              <p className="text-[10px] text-gray-500 mt-1">Maximum acceptable downtime</p>
-            </div>
-          </div>
-
+          {/* BIA Selection */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              RTO Justification
-            </label>
-            <textarea
-              value={formData.rtoJustification}
-              onChange={(e) => setFormData({ ...formData, rtoJustification: e.target.value })}
-              rows={3}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="Explain the business rationale for the selected RTO..."
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Business justification for recovery objectives</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Link to BIA Record <span className="text-red-500">*</span>
+              </label>
+              <Link href="/bia-records" className="text-xs text-blue-600 hover:text-blue-700">
+                Browse BIA Records →
+              </Link>
+            </div>
+
+            <div className="space-y-2">
+              {mockBIARecords.map(bia => (
+                <button
+                  key={bia.id}
+                  onClick={() => {
+                    setSelectedBIA(bia.id);
+                    setFormData({ ...formData, rto: bia.rto, rpo: bia.rpo, mtd: bia.mtd });
+                  }}
+                  className={`w-full p-4 border-2 rounded-sm text-left transition-all ${
+                    selectedBIA === bia.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs font-semibold text-gray-900">{bia.name}</span>
+                        <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-sm ${
+                          bia.tier === 'Tier 1' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                        }`}>
+                          {bia.tier}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-3 text-[10px]">
+                        <div>
+                          <span className="text-gray-500">RTO:</span>
+                          <span className="ml-1 font-semibold text-gray-900">{bia.rto}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">RPO:</span>
+                          <span className="ml-1 font-semibold text-gray-900">{bia.rpo}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">MTD:</span>
+                          <span className="ml-1 font-semibold text-gray-900">{bia.mtd}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Impact:</span>
+                          <span className="ml-1 font-semibold text-red-600">{bia.impact}</span>
+                        </div>
+                      </div>
+                    </div>
+                    {selectedBIA === bia.id && (
+                      <CheckCircleIcon className="h-6 w-6 text-blue-600 flex-shrink-0 ml-3" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Recovery Objectives - Auto-populated from BIA */}
+          {selectedBIA && (
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-sm p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircleIcon className="h-5 w-5 text-green-600" />
+                <h3 className="text-xs font-semibold text-gray-900">Recovery Objectives (Auto-populated from BIA)</h3>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {mockBIARecords.find(b => b.id === selectedBIA) && (
+                  <>
+                    <div className="bg-white border border-green-200 rounded-sm p-3">
+                      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">RTO</div>
+                      <div className="text-2xl font-bold text-gray-900">
+                        {mockBIARecords.find(b => b.id === selectedBIA)?.rto}
+                      </div>
+                      <div className="text-[10px] text-gray-500 mt-1">Recovery Time Objective</div>
+                    </div>
+                    <div className="bg-white border border-green-200 rounded-sm p-3">
+                      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">RPO</div>
+                      <div className="text-2xl font-bold text-gray-900">
+                        {mockBIARecords.find(b => b.id === selectedBIA)?.rpo}
+                      </div>
+                      <div className="text-[10px] text-gray-500 mt-1">Recovery Point Objective</div>
+                    </div>
+                    <div className="bg-white border border-green-200 rounded-sm p-3">
+                      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">MTD</div>
+                      <div className="text-2xl font-bold text-gray-900">
+                        {mockBIARecords.find(b => b.id === selectedBIA)?.mtd}
+                      </div>
+                      <div className="text-[10px] text-gray-500 mt-1">Maximum Tolerable Downtime</div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       );
     }
