@@ -323,7 +323,14 @@ export default function BCPModuleLandingPage() {
                   Management dashboard providing situational awareness across all BCPs
                 </p>
               </div>
-              <div>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/it-dr-plans/coverage"
+                  className="inline-flex items-center px-3 py-2 border border-gray-300 text-xs font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  <ShieldCheckIcon className="h-3.5 w-3.5 mr-1.5" />
+                  DR Coverage
+                </Link>
                 <button
                   onClick={() => router.push('/it-dr-plans/create')}
                   className="inline-flex items-center px-3 py-2 border border-transparent text-xs font-medium rounded-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
