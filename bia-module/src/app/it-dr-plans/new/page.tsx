@@ -9,98 +9,12 @@ import {
   DocumentTextIcon,
   ServerIcon,
   ClockIcon,
-  ShieldCheckIcon,
-  PlusIcon,
-  XMarkIcon
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
-import LibrarySelectionModal from '@/components/LibrarySelectionModal';
 
 export default function NewDRPlanPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
-
-  // All useState hooks must be at top level - not inside conditional blocks
-  const [selectedType, setSelectedType] = useState('arp');
-  const [selectedOwner, setSelectedOwner] = useState('usr-001');
-  const [selectedSecondary, setSelectedSecondary] = useState('usr-002');
-  const [selectedBIA, setSelectedBIA] = useState('BIA-001');
-  const [selectedTriggers, setSelectedTriggers] = useState<number[]>([1, 2, 5]);
-  const [runbookSteps, setRunbookSteps] = useState([
-    { id: 1, title: 'Assess & Confirm Disaster', owner: 'IT Manager', duration: '15 min', status: 'configured' },
-    { id: 2, title: 'Activate DR Team', owner: 'IT Manager', duration: '30 min', status: 'configured' },
-    { id: 3, title: 'Initiate Failover', owner: 'Infrastructure Lead', duration: '1 hour', status: 'configured' }
-  ]);
-  const [selectedAssets, setSelectedAssets] = useState<string[]>(['AST-001', 'AST-002']);
-  const [selectedPeople, setSelectedPeople] = useState<string[]>(['USR-001', 'USR-002']);
-  const [selectedVendors, setSelectedVendors] = useState<string[]>(['VND-001', 'VND-002']);
-  const [selectedBusinessUnits, setSelectedBusinessUnits] = useState<string[]>(['BU-001', 'BU-002']);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>(['LOC-001', 'LOC-002']);
-  const [selectedTestFrequency, setSelectedTestFrequency] = useState('quarterly');
-  const [testObjectives, setTestObjectives] = useState([
-    { id: 1, objective: 'Verify RTO compliance', status: 'Not Started' },
-    { id: 2, objective: 'Validate backup restoration', status: 'Not Started' },
-    { id: 3, objective: 'Test failover procedures', status: 'Not Started' }
-  ]);
-
-  // Modal states
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'owner' | 'secondary' | 'bia' | 'business-units' | 'locations' | 'assets' | 'people' | 'vendors' | null>(null);
-
-  // Mock Library Data
-  const mockOwners = [
-    { id: 'usr-001', name: 'Sarah Johnson', role: 'IT Manager', department: 'IT Operations', email: 'sarah.j@company.com' },
-    { id: 'usr-002', name: 'Michael Chen', role: 'Infrastructure Lead', department: 'IT Infrastructure', email: 'michael.c@company.com' },
-    { id: 'usr-003', name: 'David Rodriguez', role: 'Application Lead', department: 'IT Applications', email: 'david.r@company.com' },
-    { id: 'usr-004', name: 'Jennifer Martinez', role: 'Security Lead', department: 'IT Security', email: 'jennifer.m@company.com' },
-    { id: 'usr-005', name: 'Robert Taylor', role: 'Data Lead', department: 'Data Management', email: 'robert.t@company.com' }
-  ];
-
-  const mockBIARecords = [
-    { id: 'BIA-001', name: 'Core Banking Operations', rto: '2h', rpo: '15min', mtd: '4h', impact: '€100K/hour', tier: 'Tier 1' },
-    { id: 'BIA-002', name: 'Customer Service Platform', rto: '4h', rpo: '1h', mtd: '8h', impact: '€50K/hour', tier: 'Tier 1' },
-    { id: 'BIA-003', name: 'Internal IT Services', rto: '8h', rpo: '4h', mtd: '24h', impact: '€20K/hour', tier: 'Tier 2' },
-    { id: 'BIA-004', name: 'Payment Processing', rto: '1h', rpo: '5min', mtd: '2h', impact: '€200K/hour', tier: 'Tier 1' },
-    { id: 'BIA-005', name: 'Email & Collaboration', rto: '12h', rpo: '8h', mtd: '48h', impact: '€10K/hour', tier: 'Tier 3' }
-  ];
-
-  const mockAssets = [
-    { id: 'AST-001', name: 'Dell PowerEdge R750 Server Cluster', type: 'Equipment', location: 'Newark DC', status: 'Active' },
-    { id: 'AST-002', name: 'NetApp AFF A400 Storage Array', type: 'Equipment', location: 'Newark DC', status: 'Active' },
-    { id: 'AST-003', name: 'VMware vSphere 8.0 Enterprise', type: 'Technology', location: 'Virtual', status: 'Active' },
-    { id: 'AST-004', name: 'Backup Generator (250kVA)', type: 'Equipment', location: 'Newark DC', status: 'Active' },
-    { id: 'AST-005', name: 'Cisco Nexus 9000 Switch', type: 'Equipment', location: 'Newark DC', status: 'Active' }
-  ];
-
-  const mockPeople = [
-    { id: 'USR-001', name: 'Sarah Johnson', role: 'IT Operations Manager', department: 'IT Operations', phone: '+1-555-0100' },
-    { id: 'USR-002', name: 'Michael Chen', role: 'Database Administrator', department: 'IT Infrastructure', phone: '+1-555-0101' },
-    { id: 'USR-003', name: 'David Rodriguez', role: 'Network Engineer', department: 'IT Infrastructure', phone: '+1-555-0102' },
-    { id: 'USR-004', name: 'Jennifer Martinez', role: 'Security Analyst', department: 'IT Security', phone: '+1-555-0103' },
-    { id: 'USR-005', name: 'Robert Taylor', role: 'Application Developer', department: 'IT Applications', phone: '+1-555-0104' }
-  ];
-
-  const mockVendors = [
-    { id: 'VND-001', name: 'Verizon Business', type: 'Telecommunications', service: 'Primary Network Provider', sla: '99.9%' },
-    { id: 'VND-002', name: 'AWS', type: 'Cloud Services', service: 'Cloud Infrastructure & DR Site', sla: '99.99%' },
-    { id: 'VND-003', name: 'Dell Technologies', type: 'Hardware', service: 'Server Hardware & Support', sla: '4-hour onsite' },
-    { id: 'VND-004', name: 'Commvault', type: 'Software', service: 'Backup & Recovery Software', sla: '24/7' },
-    { id: 'VND-005', name: 'Zerto', type: 'Software', service: 'Disaster Recovery Replication', sla: '99.9%' }
-  ];
-
-  const mockBusinessUnits = [
-    { id: 'BU-001', name: 'IT Operations', icon: '💻', headCount: 45, department: 'Technology' },
-    { id: 'BU-002', name: 'Finance', icon: '💰', headCount: 32, department: 'Finance & Accounting' },
-    { id: 'BU-003', name: 'Customer Service', icon: '🎧', headCount: 78, department: 'Operations' },
-    { id: 'BU-004', name: 'Sales', icon: '📊', headCount: 56, department: 'Commercial' },
-    { id: 'BU-005', name: 'Human Resources', icon: '👥', headCount: 23, department: 'Corporate' }
-  ];
-
-  const mockLocations = [
-    { id: 'LOC-001', name: 'Newark Data Center', type: 'Primary', address: '123 Main St, Newark, NJ', capacity: '500 racks' },
-    { id: 'LOC-002', name: 'Jersey City DR Site', type: 'DR Site', address: '456 Backup Ave, Jersey City, NJ', capacity: '300 racks' },
-    { id: 'LOC-003', name: 'Manhattan Office', type: 'Office', address: '789 Broadway, New York, NY', capacity: '200 employees' },
-    { id: 'LOC-004', name: 'AWS US-East-1', type: 'Cloud', address: 'Virginia, USA', capacity: 'Unlimited' }
-  ];
 
   const [formData, setFormData] = useState({
     // Step 1: Basic Information
@@ -339,68 +253,12 @@ TESTING APPROACH:
     router.push('/it-dr-plans');
   };
 
-  const handleModalSelect = (id: string) => {
-    if (modalType === 'owner') {
-      setSelectedOwner(id);
-      const owner = mockOwners.find(o => o.id === id);
-      if (owner) setFormData({ ...formData, owner: owner.name });
-    } else if (modalType === 'secondary') {
-      setSelectedSecondary(id);
-      const owner = mockOwners.find(o => o.id === id);
-      if (owner) setFormData({ ...formData, secondaryOwner: owner.name });
-    } else if (modalType === 'bia') {
-      setSelectedBIA(id);
-      const bia = mockBIARecords.find(b => b.id === id);
-      if (bia) setFormData({ ...formData, rto: bia.rto, rpo: bia.rpo, mtd: bia.mtd });
-    } else if (modalType === 'assets') {
-      setSelectedAssets(prev =>
-        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-      );
-    } else if (modalType === 'people') {
-      setSelectedPeople(prev =>
-        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-      );
-    } else if (modalType === 'vendors') {
-      setSelectedVendors(prev =>
-        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-      );
-    } else if (modalType === 'business-units') {
-      setSelectedBusinessUnits(prev =>
-        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-      );
-    } else if (modalType === 'locations') {
-      setSelectedLocations(prev =>
-        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-      );
-    }
-  };
-
   const renderStepContent = () => {
     const step = steps[currentStep];
 
     if (step.fieldType === 'basic-info') {
-      const planTypes = [
-        { id: 'arp', name: 'Application Recovery Plan (ARP)', icon: '📱', desc: 'Single application or application suite' },
-        { id: 'irp', name: 'Infrastructure Recovery Plan (IRP)', icon: '🏢', desc: 'Data centers, networks, infrastructure' },
-        { id: 'drp', name: 'Data Recovery Plan (DRP)', icon: '💾', desc: 'Databases and data recovery' },
-        { id: 'cirp', name: 'Cyber Incident Response Plan (CIRP)', icon: '🛡️', desc: 'Cyber attacks and incidents' }
-      ];
-
-      const mockOwners = [
-        { id: 'usr-001', name: 'Sarah Johnson', role: 'IT Manager', department: 'IT Operations' },
-        { id: 'usr-002', name: 'Michael Chen', role: 'Infrastructure Lead', department: 'IT Infrastructure' },
-        { id: 'usr-003', name: 'David Rodriguez', role: 'Application Lead', department: 'IT Applications' }
-      ];
-
       return (
-        <div className="space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
-            <p className="text-xs text-blue-700">
-              <strong>Plan Classification:</strong> Select plan type and assign ownership from your organization
-            </p>
-          </div>
-
-          {/* Plan Name - Keep as input since it's unique */}
+        <div className="space-y-4">
           <div>
             <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
               Plan Name <span className="text-red-500">*</span>
@@ -409,114 +267,73 @@ TESTING APPROACH:
               type="text"
               value={formData.planName}
               onChange={(e) => setFormData({ ...formData, planName: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
-              placeholder="e.g., Core Banking System DR Plan"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="e.g., Primary Data Center Failover Plan"
             />
+            <p className="text-[10px] text-gray-500 mt-1">Descriptive name for this DR plan</p>
           </div>
 
-          {/* Plan Type - Interactive Cards */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
               Plan Type <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-3">
-              {planTypes.map(type => (
-                <button
-                  key={type.id}
-                  onClick={() => {
-                    setSelectedType(type.id);
-                    setFormData({ ...formData, planType: type.id });
-                  }}
-                  className={`p-4 border-2 rounded-sm text-left transition-all ${
-                    selectedType === type.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-3xl">{type.icon}</span>
-                    <div className="flex-1">
-                      <div className="text-xs font-semibold text-gray-900">{type.name}</div>
-                      <div className="text-[10px] text-gray-500 mt-1">{type.desc}</div>
-                    </div>
-                    {selectedType === type.id && (
-                      <CheckCircleIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                    )}
-                  </div>
-                </button>
-              ))}
+            <select
+              value={formData.planType}
+              onChange={(e) => setFormData({ ...formData, planType: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+            >
+              <option value="datacenter-failure">Data Center Failure</option>
+              <option value="ransomware-attack">Ransomware Attack</option>
+              <option value="network-outage">Network Outage</option>
+              <option value="application-failure">Application Failure</option>
+              <option value="natural-disaster">Natural Disaster</option>
+              <option value="cyber-attack">Cyber Attack</option>
+              <option value="power-outage">Power Outage</option>
+            </select>
+            <p className="text-[10px] text-gray-500 mt-1">Type of disaster scenario this plan addresses</p>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="Describe the disaster scenario and recovery approach..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Overview of the disaster scenario and recovery strategy</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+                Plan Owner <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.owner}
+                onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                placeholder="Enter owner name or email"
+              />
+              <p className="text-[10px] text-gray-500 mt-1">Primary responsible person</p>
             </div>
-          </div>
 
-          {/* Plan Owner - Select from Library Modal */}
-          <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
-              Plan Owner <span className="text-red-500">*</span>
-            </label>
-            {selectedOwner ? (
-              <div className="flex items-center gap-3 p-4 border-2 border-green-500 bg-green-50 rounded-sm">
-                <div className="flex-1">
-                  <div className="text-xs font-medium text-gray-900">
-                    {mockOwners.find(o => o.id === selectedOwner)?.name}
-                  </div>
-                  <div className="text-[10px] text-gray-500">
-                    {mockOwners.find(o => o.id === selectedOwner)?.role} • {mockOwners.find(o => o.id === selectedOwner)?.department}
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setModalType('owner');
-                    setModalOpen(true);
-                  }}
-                  className="px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                >
-                  Change
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => {
-                  setModalType('owner');
-                  setModalOpen(true);
-                }}
-                className="w-full p-4 border-2 border-dashed border-gray-300 rounded-sm text-center hover:border-gray-400 hover:bg-gray-50 transition-colors"
-              >
-                <PlusIcon className="h-5 w-5 mx-auto mb-1 text-gray-400" />
-                <span className="text-xs font-medium text-gray-700">Select Plan Owner from Library</span>
-              </button>
-            )}
-          </div>
-
-          {/* Secondary Owner */}
-          <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
-              Secondary Owner
-            </label>
-            <div className="space-y-2">
-              {mockOwners.filter(o => o.id !== selectedOwner).map(owner => (
-                <button
-                  key={owner.id}
-                  onClick={() => {
-                    setSelectedSecondary(owner.id);
-                    setFormData({ ...formData, secondaryOwner: owner.name });
-                  }}
-                  className={`w-full p-3 border-2 rounded-sm text-left transition-all ${
-                    selectedSecondary === owner.id
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-gray-900">{owner.name}</div>
-                      <div className="text-[10px] text-gray-500">{owner.role}</div>
-                    </div>
-                    {selectedSecondary === owner.id && (
-                      <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                    )}
-                  </div>
-                </button>
-              ))}
+            <div>
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+                Secondary Owner
+              </label>
+              <input
+                type="text"
+                value={formData.secondaryOwner}
+                onChange={(e) => setFormData({ ...formData, secondaryOwner: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                placeholder="Enter secondary owner"
+              />
+              <p className="text-[10px] text-gray-500 mt-1">Backup responsible person</p>
             </div>
           </div>
         </div>
@@ -525,68 +342,39 @@ TESTING APPROACH:
 
     if (step.fieldType === 'scope') {
       return (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              <strong>Scope Definition:</strong> Select business units and locations from your organization
+              Define which systems, processes, and business units are covered by this DR plan.
             </p>
           </div>
 
-          {/* Business Units */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Business Units Affected ({selectedBusinessUnits.length} selected)
-              </label>
-              <button
-                onClick={() => {
-                  setModalType('business-units');
-                  setModalOpen(true);
-                }}
-                className="px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-              >
-                Browse Business Units →
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {mockBusinessUnits.filter(bu => selectedBusinessUnits.includes(bu.id)).map(bu => (
-                <div key={bu.id} className="p-3 bg-gray-50 border border-gray-200 rounded-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{bu.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-medium text-gray-900 truncate">{bu.name}</div>
-                      <div className="text-[10px] text-gray-500">{bu.headCount} employees</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Business Units Affected
+            </label>
+            <input
+              type="text"
+              value={formData.businessUnits}
+              onChange={(e) => setFormData({ ...formData, businessUnits: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="e.g., Finance, IT Operations, Customer Service"
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Comma-separated list of affected business units</p>
           </div>
 
-          {/* Geographic Scope */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Geographic Scope ({selectedLocations.length} selected)
-              </label>
-              <button
-                onClick={() => {
-                  setModalType('locations');
-                  setModalOpen(true);
-                }}
-                className="px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-              >
-                Browse Locations →
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {mockLocations.filter(loc => selectedLocations.includes(loc.id)).map(loc => (
-                <div key={loc.id} className="p-3 bg-gray-50 border border-gray-200 rounded-sm">
-                  <div className="text-xs font-medium text-gray-900">{loc.name}</div>
-                  <div className="text-[10px] text-gray-500 mt-0.5">{loc.type} • {loc.address}</div>
-                </div>
-              ))}
-            </div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Geographic Scope
+            </label>
+            <input
+              type="text"
+              value={formData.geographicScope}
+              onChange={(e) => setFormData({ ...formData, geographicScope: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="e.g., Primary Data Center - New York, Backup Site - New Jersey"
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Locations and facilities covered by this plan</p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-sm p-4">
@@ -717,541 +505,218 @@ TESTING APPROACH:
     }
 
     if (step.fieldType === 'recovery-objectives') {
-      const mockBIARecords = [
-        { id: 'BIA-001', name: 'Core Banking Operations', rto: '2h', rpo: '15min', mtd: '4h', impact: '€100K/hour', tier: 'Tier 1' },
-        { id: 'BIA-002', name: 'Customer Service Platform', rto: '4h', rpo: '1h', mtd: '8h', impact: '€50K/hour', tier: 'Tier 1' },
-        { id: 'BIA-003', name: 'Internal IT Services', rto: '8h', rpo: '4h', mtd: '24h', impact: '€20K/hour', tier: 'Tier 2' }
-      ];
-
       return (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              <strong>Link to BIA:</strong> Select existing Business Impact Analysis to inherit RTO/RPO/MTD objectives
+              Define recovery time objectives (RTO), recovery point objectives (RPO), and maximum tolerable downtime (MTD).
             </p>
           </div>
 
-          {/* BIA Selection */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Link to BIA Record <span className="text-red-500">*</span>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+                Recovery Time Objective (RTO) <span className="text-red-500">*</span>
               </label>
-              <Link href="/bia-records" className="text-xs text-blue-600 hover:text-blue-700">
-                Browse BIA Records →
-              </Link>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={formData.rto}
+                  onChange={(e) => setFormData({ ...formData, rto: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  placeholder="4"
+                />
+                <span className="absolute right-3 top-2 text-xs text-gray-500">hours</span>
+              </div>
+              <p className="text-[10px] text-gray-500 mt-1">Time to restore operations</p>
             </div>
 
-            <div className="space-y-2">
-              {mockBIARecords.map(bia => (
-                <button
-                  key={bia.id}
-                  onClick={() => {
-                    setSelectedBIA(bia.id);
-                    setFormData({ ...formData, rto: bia.rto, rpo: bia.rpo, mtd: bia.mtd });
-                  }}
-                  className={`w-full p-4 border-2 rounded-sm text-left transition-all ${
-                    selectedBIA === bia.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-semibold text-gray-900">{bia.name}</span>
-                        <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-sm ${
-                          bia.tier === 'Tier 1' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
-                        }`}>
-                          {bia.tier}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-4 gap-3 text-[10px]">
-                        <div>
-                          <span className="text-gray-500">RTO:</span>
-                          <span className="ml-1 font-semibold text-gray-900">{bia.rto}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">RPO:</span>
-                          <span className="ml-1 font-semibold text-gray-900">{bia.rpo}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">MTD:</span>
-                          <span className="ml-1 font-semibold text-gray-900">{bia.mtd}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Impact:</span>
-                          <span className="ml-1 font-semibold text-red-600">{bia.impact}</span>
-                        </div>
-                      </div>
-                    </div>
-                    {selectedBIA === bia.id && (
-                      <CheckCircleIcon className="h-6 w-6 text-blue-600 flex-shrink-0 ml-3" />
-                    )}
-                  </div>
-                </button>
-              ))}
+            <div>
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+                Recovery Point Objective (RPO) <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={formData.rpo}
+                  onChange={(e) => setFormData({ ...formData, rpo: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  placeholder="1"
+                />
+                <span className="absolute right-3 top-2 text-xs text-gray-500">hours</span>
+              </div>
+              <p className="text-[10px] text-gray-500 mt-1">Acceptable data loss</p>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+                Maximum Tolerable Downtime (MTD)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={formData.mtd}
+                  onChange={(e) => setFormData({ ...formData, mtd: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  placeholder="24"
+                />
+                <span className="absolute right-3 top-2 text-xs text-gray-500">hours</span>
+              </div>
+              <p className="text-[10px] text-gray-500 mt-1">Maximum acceptable downtime</p>
             </div>
           </div>
 
-          {/* Recovery Objectives - Auto-populated from BIA */}
-          {selectedBIA && (
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-sm p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                <h3 className="text-xs font-semibold text-gray-900">Recovery Objectives (Auto-populated from BIA)</h3>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                {mockBIARecords.find(b => b.id === selectedBIA) && (
-                  <>
-                    <div className="bg-white border border-green-200 rounded-sm p-3">
-                      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">RTO</div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        {mockBIARecords.find(b => b.id === selectedBIA)?.rto}
-                      </div>
-                      <div className="text-[10px] text-gray-500 mt-1">Recovery Time Objective</div>
-                    </div>
-                    <div className="bg-white border border-green-200 rounded-sm p-3">
-                      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">RPO</div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        {mockBIARecords.find(b => b.id === selectedBIA)?.rpo}
-                      </div>
-                      <div className="text-[10px] text-gray-500 mt-1">Recovery Point Objective</div>
-                    </div>
-                    <div className="bg-white border border-green-200 rounded-sm p-3">
-                      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">MTD</div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        {mockBIARecords.find(b => b.id === selectedBIA)?.mtd}
-                      </div>
-                      <div className="text-[10px] text-gray-500 mt-1">Maximum Tolerable Downtime</div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
+          <div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              RTO Justification
+            </label>
+            <textarea
+              value={formData.rtoJustification}
+              onChange={(e) => setFormData({ ...formData, rtoJustification: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="Explain the business rationale for the selected RTO..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Business justification for recovery objectives</p>
+          </div>
         </div>
       );
     }
 
     if (step.fieldType === 'procedures') {
-      const activationTriggers = [
-        { id: 1, name: 'Complete Data Center Loss', severity: 'Critical', icon: '🔥' },
-        { id: 2, name: 'Natural Disaster', severity: 'Critical', icon: '🌪️' },
-        { id: 3, name: 'Extended Power Outage (>2h)', severity: 'High', icon: '⚡' },
-        { id: 4, name: 'Critical Infrastructure Failure', severity: 'High', icon: '🔧' },
-        { id: 5, name: 'Cyber Attack / Ransomware', severity: 'Critical', icon: '🛡️' },
-        { id: 6, name: 'Government Evacuation Order', severity: 'Medium', icon: '🚨' }
-      ];
-
-      const addRunbookStep = () => {
-        const newStep = {
-          id: runbookSteps.length + 1,
-          title: 'New Recovery Step',
-          owner: 'Unassigned',
-          duration: '30 min',
-          status: 'pending'
-        };
-        setRunbookSteps([...runbookSteps, newStep]);
-      };
-
       return (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              <strong>Build DR Runbook:</strong> Define activation triggers and recovery procedures using interactive components
+              Document the step-by-step procedures for activating and executing this DR plan.
             </p>
           </div>
 
-          {/* Activation Triggers */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
-              Activation Triggers <span className="text-red-500">*</span>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Activation Criteria <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-3">
-              {activationTriggers.map(trigger => (
-                <button
-                  key={trigger.id}
-                  onClick={() => {
-                    setSelectedTriggers(prev =>
-                      prev.includes(trigger.id)
-                        ? prev.filter(id => id !== trigger.id)
-                        : [...prev, trigger.id]
-                    );
-                  }}
-                  className={`p-3 border-2 rounded-sm text-left transition-all ${
-                    selectedTriggers.includes(trigger.id)
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{trigger.icon}</span>
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-gray-900">{trigger.name}</div>
-                      <div className={`text-[10px] mt-0.5 ${
-                        trigger.severity === 'Critical' ? 'text-red-600' :
-                        trigger.severity === 'High' ? 'text-orange-600' : 'text-yellow-600'
-                      }`}>
-                        {trigger.severity} Severity
-                      </div>
-                    </div>
-                    {selectedTriggers.includes(trigger.id) && (
-                      <CheckCircleIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-            <p className="text-[10px] text-gray-500 mt-2">
-              Selected {selectedTriggers.length} of {activationTriggers.length} triggers
-            </p>
+            <textarea
+              value={formData.activationCriteria}
+              onChange={(e) => setFormData({ ...formData, activationCriteria: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="Define the conditions that trigger plan activation..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Conditions that trigger this DR plan</p>
           </div>
 
-          {/* Recovery Runbook */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Recovery Runbook <span className="text-red-500">*</span>
-              </label>
-              <button
-                onClick={addRunbookStep}
-                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm bg-gray-900 text-white hover:bg-gray-800"
-              >
-                <PlusIcon className="h-3.5 w-3.5 mr-1" />
-                Add Step
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              {runbookSteps.map((step, idx) => (
-                <div key={step.id} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-sm">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">
-                    {idx + 1}
-                  </div>
-                  <div className="flex-1 grid grid-cols-3 gap-3">
-                    <input
-                      type="text"
-                      value={step.title}
-                      onChange={(e) => {
-                        const updated = [...runbookSteps];
-                        updated[idx] = { ...updated[idx], title: e.target.value };
-                        setRunbookSteps(updated);
-                      }}
-                      className="px-2 py-1 text-xs border border-gray-300 rounded-sm"
-                      placeholder="Step description"
-                    />
-                    <input
-                      type="text"
-                      value={step.owner}
-                      className="px-2 py-1 text-xs border border-gray-300 rounded-sm"
-                      placeholder="Owner"
-                    />
-                    <input
-                      type="text"
-                      value={step.duration}
-                      className="px-2 py-1 text-xs border border-gray-300 rounded-sm"
-                      placeholder="Duration"
-                    />
-                  </div>
-                  <button className="p-1 text-gray-400 hover:text-red-600">
-                    <XMarkIcon className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <p className="text-[10px] text-gray-500 mt-2">
-              {runbookSteps.length} recovery steps defined • Click step to edit details
-            </p>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Step-by-Step Recovery Procedures <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={formData.procedures}
+              onChange={(e) => setFormData({ ...formData, procedures: e.target.value })}
+              rows={12}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 font-mono"
+              placeholder={'1. Assess the situation and confirm disaster scenario\n2. Activate DR team and notify stakeholders\n3. Initiate failover procedures\n4. Verify system availability at backup site\n5. Begin data recovery and validation\n6. ...'}
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Detailed recovery steps in sequential order</p>
           </div>
 
-          {/* Escalation Matrix */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Escalation Matrix
-              </label>
-              <button className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
-                <PlusIcon className="h-3.5 w-3.5 mr-1" />
-                Add Level
-              </button>
-            </div>
-            <div className="border border-gray-200 rounded-sm overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Level</th>
-                    <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                    <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Timeframe</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {[
-                    { level: 1, role: 'IT Operations Manager', contact: 'Sarah Johnson', timeframe: '0-30 min' },
-                    { level: 2, role: 'VP of IT', contact: 'Michael Chen', timeframe: '30-60 min' },
-                    { level: 3, role: 'CIO', contact: 'David Rodriguez', timeframe: '1+ hours' },
-                    { level: 4, role: 'CEO', contact: 'Jennifer Martinez', timeframe: 'Critical' }
-                  ].map((escalation, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50">
-                      <td className="px-3 py-2">
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-900 text-white text-[10px] font-bold">
-                          {escalation.level}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 text-xs font-medium text-gray-900">{escalation.role}</td>
-                      <td className="px-3 py-2 text-xs text-gray-700">{escalation.contact}</td>
-                      <td className="px-3 py-2">
-                        <span className="inline-flex px-2 py-0.5 text-[10px] font-medium rounded-sm bg-blue-50 text-blue-700 border border-blue-200">
-                          {escalation.timeframe}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Escalation Procedure
+            </label>
+            <textarea
+              value={formData.escalationProcedure}
+              onChange={(e) => setFormData({ ...formData, escalationProcedure: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="Define escalation path and decision-making authority..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Escalation path for issues during recovery</p>
           </div>
         </div>
       );
     }
 
     if (step.fieldType === 'resources') {
-      const mockAssets = [
-        { id: 'AST-001', name: 'Dell PowerEdge R750 Server Cluster', type: 'Equipment', location: 'Newark DC' },
-        { id: 'AST-002', name: 'NetApp AFF A400 Storage Array', type: 'Equipment', location: 'Newark DC' },
-        { id: 'AST-003', name: 'VMware vSphere 8.0 Enterprise', type: 'Technology', location: 'Virtual' },
-        { id: 'AST-004', name: 'Backup Generator (250kVA)', type: 'Equipment', location: 'Newark DC' }
-      ];
-
-      const mockPeople = [
-        { id: 'USR-001', name: 'Sarah Johnson', role: 'IT Operations Manager', department: 'IT Operations' },
-        { id: 'USR-002', name: 'Michael Chen', role: 'Database Administrator', department: 'IT Infrastructure' },
-        { id: 'USR-003', name: 'David Rodriguez', role: 'Network Engineer', department: 'IT Infrastructure' },
-        { id: 'USR-004', name: 'Jennifer Martinez', role: 'Security Analyst', department: 'IT Security' }
-      ];
-
-      const mockVendors = [
-        { id: 'VND-001', name: 'Verizon Business', type: 'Telecommunications', service: 'Primary Network Provider' },
-        { id: 'VND-002', name: 'AWS', type: 'Cloud Services', service: 'Cloud Infrastructure & DR Site' },
-        { id: 'VND-003', name: 'Dell Technologies', type: 'Hardware', service: 'Server Hardware & Support' },
-        { id: 'VND-004', name: 'Commvault', type: 'Software', service: 'Backup & Recovery Software' }
-      ];
-
       return (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              <strong>Link to Libraries:</strong> Select resources from existing libraries instead of manual entry
+              Identify critical resources, key personnel, and external dependencies required for recovery.
             </p>
           </div>
 
-          {/* Critical Assets & Equipment */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Assets & Equipment ({selectedAssets.length} selected)
-              </label>
-              <Link
-                href="/libraries"
-                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Browse Asset Library →
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {mockAssets.map(asset => (
-                <button
-                  key={asset.id}
-                  onClick={() => {
-                    setSelectedAssets(prev =>
-                      prev.includes(asset.id)
-                        ? prev.filter(id => id !== asset.id)
-                        : [...prev, asset.id]
-                    );
-                  }}
-                  className={`p-3 border-2 rounded-sm text-left transition-all ${
-                    selectedAssets.includes(asset.id)
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-gray-900">{asset.name}</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5">{asset.type} • {asset.location}</div>
-                    </div>
-                    {selectedAssets.includes(asset.id) && (
-                      <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0 ml-2" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Critical Resources
+            </label>
+            <textarea
+              value={formData.criticalResources}
+              onChange={(e) => setFormData({ ...formData, criticalResources: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="List critical hardware, software, facilities, and other resources..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Hardware, software, facilities needed for recovery</p>
           </div>
 
-          {/* Key Personnel */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Key Personnel ({selectedPeople.length} selected)
-              </label>
-              <Link
-                href="/libraries"
-                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Browse People Library →
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {mockPeople.map(person => (
-                <button
-                  key={person.id}
-                  onClick={() => {
-                    setSelectedPeople(prev =>
-                      prev.includes(person.id)
-                        ? prev.filter(id => id !== person.id)
-                        : [...prev, person.id]
-                    );
-                  }}
-                  className={`p-3 border-2 rounded-sm text-left transition-all ${
-                    selectedPeople.includes(person.id)
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-gray-900">{person.name}</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5">{person.role}</div>
-                    </div>
-                    {selectedPeople.includes(person.id) && (
-                      <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0 ml-2" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Key Personnel
+            </label>
+            <textarea
+              value={formData.keyPersonnel}
+              onChange={(e) => setFormData({ ...formData, keyPersonnel: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="List key personnel and their roles in recovery..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Personnel required for plan execution</p>
           </div>
 
-          {/* Vendor Dependencies */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Vendor Dependencies ({selectedVendors.length} selected)
-              </label>
-              <Link
-                href="/libraries"
-                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Browse Vendor Library →
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {mockVendors.map(vendor => (
-                <button
-                  key={vendor.id}
-                  onClick={() => {
-                    setSelectedVendors(prev =>
-                      prev.includes(vendor.id)
-                        ? prev.filter(id => id !== vendor.id)
-                        : [...prev, vendor.id]
-                    );
-                  }}
-                  className={`p-3 border-2 rounded-sm text-left transition-all ${
-                    selectedVendors.includes(vendor.id)
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-gray-900">{vendor.name}</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5">{vendor.service}</div>
-                    </div>
-                    {selectedVendors.includes(vendor.id) && (
-                      <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0 ml-2" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              External Dependencies
+            </label>
+            <textarea
+              value={formData.externalDependencies}
+              onChange={(e) => setFormData({ ...formData, externalDependencies: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="List external vendors, service providers, and dependencies..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Third-party vendors and service providers</p>
           </div>
         </div>
       );
     }
 
     if (step.fieldType === 'testing') {
-      const testFrequencies = [
-        { id: 'monthly', name: 'Monthly', icon: '📅', description: '12 tests per year', recommended: 'Tier 1 systems' },
-        { id: 'quarterly', name: 'Quarterly', icon: '📆', description: '4 tests per year', recommended: 'Tier 1-2 systems' },
-        { id: 'semi-annual', name: 'Semi-Annual', icon: '🗓️', description: '2 tests per year', recommended: 'Tier 2-3 systems' },
-        { id: 'annual', name: 'Annual', icon: '📋', description: '1 test per year', recommended: 'Tier 3 systems' }
-      ];
-
-      const addTestObjective = () => {
-        const newObjective = {
-          id: testObjectives.length + 1,
-          objective: 'New test objective',
-          status: 'Not Started'
-        };
-        setTestObjectives([...testObjectives, newObjective]);
-      };
-
-      const removeTestObjective = (id: number) => {
-        setTestObjectives(testObjectives.filter(obj => obj.id !== id));
-      };
-
-      const updateTestObjective = (id: number, field: string, value: string) => {
-        setTestObjectives(testObjectives.map(obj =>
-          obj.id === id ? { ...obj, [field]: value } : obj
-        ));
-      };
-
       return (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              <strong>Testing & Validation:</strong> Define test frequency and validation objectives
+              Define testing schedule, objectives, and validation criteria for this DR plan.
             </p>
           </div>
 
-          {/* Test Frequency - Interactive Cards */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
               Test Frequency <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-3">
-              {testFrequencies.map(freq => (
-                <button
-                  key={freq.id}
-                  onClick={() => {
-                    setSelectedTestFrequency(freq.id);
-                    setFormData({ ...formData, testFrequency: freq.id });
-                  }}
-                  className={`p-3 border-2 rounded-sm text-left transition-all ${
-                    selectedTestFrequency === freq.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">{freq.icon}</span>
-                    <div className="flex-1">
-                      <div className="text-xs font-semibold text-gray-900">{freq.name}</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5">{freq.description}</div>
-                      <div className="text-[10px] text-blue-600 mt-1">✓ {freq.recommended}</div>
-                    </div>
-                    {selectedTestFrequency === freq.id && (
-                      <CheckCircleIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
+            <select
+              value={formData.testFrequency}
+              onChange={(e) => setFormData({ ...formData, testFrequency: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+            >
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="semi-annual">Semi-Annual</option>
+              <option value="annual">Annual</option>
+            </select>
+            <p className="text-[10px] text-gray-500 mt-1">How often this plan should be tested</p>
           </div>
 
-          {/* Test Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
@@ -1261,8 +726,9 @@ TESTING APPROACH:
                 type="date"
                 value={formData.lastTested}
                 onChange={(e) => setFormData({ ...formData, lastTested: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
               />
+              <p className="text-[10px] text-gray-500 mt-1">Date of last test execution</p>
             </div>
 
             <div>
@@ -1273,58 +739,24 @@ TESTING APPROACH:
                 type="date"
                 value={formData.nextTest}
                 onChange={(e) => setFormData({ ...formData, nextTest: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
               />
+              <p className="text-[10px] text-gray-500 mt-1">Date of next scheduled test</p>
             </div>
           </div>
 
-          {/* Test Objectives - Dynamic List */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Test Objectives ({testObjectives.length})
-              </label>
-              <button
-                onClick={addTestObjective}
-                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm bg-gray-900 text-white hover:bg-gray-800"
-              >
-                <PlusIcon className="h-3.5 w-3.5 mr-1" />
-                Add Objective
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              {testObjectives.map((obj, idx) => (
-                <div key={obj.id} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-sm">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-900 text-white text-[10px] font-bold flex items-center justify-center">
-                    {idx + 1}
-                  </div>
-                  <input
-                    type="text"
-                    value={obj.objective}
-                    onChange={(e) => updateTestObjective(obj.id, 'objective', e.target.value)}
-                    className="flex-1 px-2 py-1.5 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
-                    placeholder="Test objective..."
-                  />
-                  <select
-                    value={obj.status}
-                    onChange={(e) => updateTestObjective(obj.id, 'status', e.target.value)}
-                    className="px-2 py-1.5 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
-                  >
-                    <option value="Not Started">Not Started</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Failed">Failed</option>
-                  </select>
-                  <button
-                    onClick={() => removeTestObjective(obj.id)}
-                    className="p-1 text-gray-400 hover:text-red-600"
-                  >
-                    <XMarkIcon className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Test Objectives
+            </label>
+            <textarea
+              value={formData.testObjectives}
+              onChange={(e) => setFormData({ ...formData, testObjectives: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              placeholder="Define what should be validated during testing..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Goals and success criteria for testing</p>
           </div>
         </div>
       );
@@ -1538,182 +970,6 @@ TESTING APPROACH:
           )}
         </div>
       </div>
-
-      {/* Library Selection Modal */}
-      <LibrarySelectionModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={
-          modalType === 'owner' ? 'Select Plan Owner' :
-          modalType === 'secondary' ? 'Select Secondary Owner' :
-          modalType === 'bia' ? 'Select BIA Record' :
-          modalType === 'business-units' ? 'Select Business Units' :
-          modalType === 'locations' ? 'Select Locations' :
-          modalType === 'assets' ? 'Select Assets & Equipment' :
-          modalType === 'people' ? 'Select Team Members' :
-          modalType === 'vendors' ? 'Select Vendors' :
-          'Select from Library'
-        }
-        description={
-          modalType === 'owner' ? 'Choose the primary owner from your organization' :
-          modalType === 'secondary' ? 'Choose a backup owner' :
-          modalType === 'bia' ? 'Link to existing Business Impact Analysis to inherit RTO/RPO/MTD' :
-          modalType === 'business-units' ? 'Select business units affected by this DR plan' :
-          modalType === 'locations' ? 'Select facilities and locations covered by this plan' :
-          modalType === 'assets' ? 'Select critical assets and equipment from your library' :
-          modalType === 'people' ? 'Select key personnel for the recovery team' :
-          modalType === 'vendors' ? 'Select vendors and service providers' :
-          undefined
-        }
-        items={
-          modalType === 'owner' || modalType === 'secondary' ? mockOwners :
-          modalType === 'bia' ? mockBIARecords :
-          modalType === 'business-units' ? mockBusinessUnits :
-          modalType === 'locations' ? mockLocations :
-          modalType === 'assets' ? mockAssets :
-          modalType === 'people' ? mockPeople :
-          modalType === 'vendors' ? mockVendors :
-          []
-        }
-        selectedIds={
-          modalType === 'owner' ? [selectedOwner] :
-          modalType === 'secondary' ? [selectedSecondary] :
-          modalType === 'bia' ? [selectedBIA] :
-          modalType === 'business-units' ? selectedBusinessUnits :
-          modalType === 'locations' ? selectedLocations :
-          modalType === 'assets' ? selectedAssets :
-          modalType === 'people' ? selectedPeople :
-          modalType === 'vendors' ? selectedVendors :
-          []
-        }
-        onSelect={handleModalSelect}
-        multiSelect={modalType === 'business-units' || modalType === 'locations' || modalType === 'assets' || modalType === 'people' || modalType === 'vendors'}
-        renderItem={(item, isSelected) => {
-          if (modalType === 'owner' || modalType === 'secondary') {
-            const owner = item as typeof mockOwners[0];
-            return (
-              <div className={`p-3 border-2 rounded-sm transition-all ${
-                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="text-xs font-medium text-gray-900">{owner.name}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{owner.role} • {owner.department}</div>
-                    <div className="text-[10px] text-gray-400 mt-0.5">{owner.email}</div>
-                  </div>
-                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
-                </div>
-              </div>
-            );
-          } else if (modalType === 'bia') {
-            const bia = item as typeof mockBIARecords[0];
-            return (
-              <div className={`p-4 border-2 rounded-sm transition-all ${
-                isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-semibold text-gray-900">{bia.name}</span>
-                      <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-sm ${
-                        bia.tier === 'Tier 1' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
-                      }`}>
-                        {bia.tier}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2 text-[10px]">
-                      <div><span className="text-gray-500">RTO:</span> <span className="font-semibold">{bia.rto}</span></div>
-                      <div><span className="text-gray-500">RPO:</span> <span className="font-semibold">{bia.rpo}</span></div>
-                      <div><span className="text-gray-500">MTD:</span> <span className="font-semibold">{bia.mtd}</span></div>
-                      <div><span className="text-gray-500">Impact:</span> <span className="font-semibold text-red-600">{bia.impact}</span></div>
-                    </div>
-                  </div>
-                  {isSelected && <CheckCircleIcon className="h-6 w-6 text-blue-600 ml-3" />}
-                </div>
-              </div>
-            );
-          } else if (modalType === 'assets') {
-            const asset = item as typeof mockAssets[0];
-            return (
-              <div className={`p-3 border-2 rounded-sm transition-all ${
-                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="text-xs font-medium text-gray-900">{asset.name}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{asset.type} • {asset.location}</div>
-                  </div>
-                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
-                </div>
-              </div>
-            );
-          } else if (modalType === 'people') {
-            const person = item as typeof mockPeople[0];
-            return (
-              <div className={`p-3 border-2 rounded-sm transition-all ${
-                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="text-xs font-medium text-gray-900">{person.name}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{person.role} • {person.phone}</div>
-                  </div>
-                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
-                </div>
-              </div>
-            );
-          } else if (modalType === 'business-units') {
-            const bu = item as typeof mockBusinessUnits[0];
-            return (
-              <div className={`p-3 border-2 rounded-sm transition-all ${
-                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 flex-1">
-                    <span className="text-2xl">{bu.icon}</span>
-                    <div>
-                      <div className="text-xs font-medium text-gray-900">{bu.name}</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5">{bu.headCount} employees • {bu.department}</div>
-                    </div>
-                  </div>
-                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
-                </div>
-              </div>
-            );
-          } else if (modalType === 'locations') {
-            const loc = item as typeof mockLocations[0];
-            return (
-              <div className={`p-3 border-2 rounded-sm transition-all ${
-                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="text-xs font-medium text-gray-900">{loc.name}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{loc.type} • {loc.address}</div>
-                  </div>
-                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
-                </div>
-              </div>
-            );
-          } else if (modalType === 'vendors') {
-            const vendor = item as typeof mockVendors[0];
-            return (
-              <div className={`p-3 border-2 rounded-sm transition-all ${
-                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="text-xs font-medium text-gray-900">{vendor.name}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{vendor.service} • SLA: {vendor.sla}</div>
-                  </div>
-                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
-                </div>
-              </div>
-            );
-          }
-          return null;
-        }}
-      />
     </div>
   );
 }
