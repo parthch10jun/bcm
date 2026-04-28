@@ -30,6 +30,7 @@ import {
   MoonIcon,
   ServerIcon,
   ShieldExclamationIcon,
+  ShieldCheckIcon,
   ExclamationCircleIcon,
   ClipboardDocumentCheckIcon as TaskIcon,
   ServerStackIcon,
