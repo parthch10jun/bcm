@@ -523,10 +523,10 @@ TESTING APPROACH:
                   type="number"
                   value={formData.rto}
                   onChange={(e) => setFormData({ ...formData, rto: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  className="w-full px-3 py-2 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   placeholder="4"
                 />
-                <span className="absolute right-3 top-2 text-xs text-gray-500">hours</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none">hours</span>
               </div>
               <p className="text-[10px] text-gray-500 mt-1">Time to restore operations</p>
             </div>
@@ -540,10 +540,10 @@ TESTING APPROACH:
                   type="number"
                   value={formData.rpo}
                   onChange={(e) => setFormData({ ...formData, rpo: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  className="w-full px-3 py-2 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   placeholder="1"
                 />
-                <span className="absolute right-3 top-2 text-xs text-gray-500">hours</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none">hours</span>
               </div>
               <p className="text-[10px] text-gray-500 mt-1">Acceptable data loss</p>
             </div>
@@ -557,10 +557,10 @@ TESTING APPROACH:
                   type="number"
                   value={formData.mtd}
                   onChange={(e) => setFormData({ ...formData, mtd: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  className="w-full px-3 py-2 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   placeholder="24"
                 />
-                <span className="absolute right-3 top-2 text-xs text-gray-500">hours</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none">hours</span>
               </div>
               <p className="text-[10px] text-gray-500 mt-1">Maximum acceptable downtime</p>
             </div>
