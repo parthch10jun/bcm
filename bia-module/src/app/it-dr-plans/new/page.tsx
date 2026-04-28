@@ -9,7 +9,9 @@ import {
   DocumentTextIcon,
   ServerIcon,
   ClockIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  PlusIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 export default function NewDRPlanPage() {
@@ -584,108 +586,358 @@ TESTING APPROACH:
     }
 
     if (step.fieldType === 'procedures') {
+      const activationTriggers = [
+        { id: 1, name: 'Complete Data Center Loss', severity: 'Critical', icon: '🔥' },
+        { id: 2, name: 'Natural Disaster', severity: 'Critical', icon: '🌪️' },
+        { id: 3, name: 'Extended Power Outage (>2h)', severity: 'High', icon: '⚡' },
+        { id: 4, name: 'Critical Infrastructure Failure', severity: 'High', icon: '🔧' },
+        { id: 5, name: 'Cyber Attack / Ransomware', severity: 'Critical', icon: '🛡️' },
+        { id: 6, name: 'Government Evacuation Order', severity: 'Medium', icon: '🚨' }
+      ];
+
+      const [selectedTriggers, setSelectedTriggers] = useState<number[]>([1, 2, 5]);
+      const [runbookSteps, setRunbookSteps] = useState([
+        { id: 1, title: 'Assess & Confirm Disaster', owner: 'IT Manager', duration: '15 min', status: 'configured' },
+        { id: 2, title: 'Activate DR Team', owner: 'IT Manager', duration: '30 min', status: 'configured' },
+        { id: 3, title: 'Initiate Failover', owner: 'Infrastructure Lead', duration: '1 hour', status: 'configured' }
+      ]);
+
+      const addRunbookStep = () => {
+        const newStep = {
+          id: runbookSteps.length + 1,
+          title: 'New Recovery Step',
+          owner: 'Unassigned',
+          duration: '30 min',
+          status: 'pending'
+        };
+        setRunbookSteps([...runbookSteps, newStep]);
+      };
+
       return (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              Document the step-by-step procedures for activating and executing this DR plan.
+              <strong>Build DR Runbook:</strong> Define activation triggers and recovery procedures using interactive components
             </p>
           </div>
 
+          {/* Activation Triggers */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Activation Criteria <span className="text-red-500">*</span>
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
+              Activation Triggers <span className="text-red-500">*</span>
             </label>
-            <textarea
-              value={formData.activationCriteria}
-              onChange={(e) => setFormData({ ...formData, activationCriteria: e.target.value })}
-              rows={3}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="Define the conditions that trigger plan activation..."
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Conditions that trigger this DR plan</p>
+            <div className="grid grid-cols-2 gap-3">
+              {activationTriggers.map(trigger => (
+                <button
+                  key={trigger.id}
+                  onClick={() => {
+                    setSelectedTriggers(prev =>
+                      prev.includes(trigger.id)
+                        ? prev.filter(id => id !== trigger.id)
+                        : [...prev, trigger.id]
+                    );
+                  }}
+                  className={`p-3 border-2 rounded-sm text-left transition-all ${
+                    selectedTriggers.includes(trigger.id)
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{trigger.icon}</span>
+                    <div className="flex-1">
+                      <div className="text-xs font-medium text-gray-900">{trigger.name}</div>
+                      <div className={`text-[10px] mt-0.5 ${
+                        trigger.severity === 'Critical' ? 'text-red-600' :
+                        trigger.severity === 'High' ? 'text-orange-600' : 'text-yellow-600'
+                      }`}>
+                        {trigger.severity} Severity
+                      </div>
+                    </div>
+                    {selectedTriggers.includes(trigger.id) && (
+                      <CheckCircleIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-500 mt-2">
+              Selected {selectedTriggers.length} of {activationTriggers.length} triggers
+            </p>
           </div>
 
+          {/* Recovery Runbook */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Step-by-Step Recovery Procedures <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={formData.procedures}
-              onChange={(e) => setFormData({ ...formData, procedures: e.target.value })}
-              rows={12}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 font-mono"
-              placeholder={'1. Assess the situation and confirm disaster scenario\n2. Activate DR team and notify stakeholders\n3. Initiate failover procedures\n4. Verify system availability at backup site\n5. Begin data recovery and validation\n6. ...'}
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Detailed recovery steps in sequential order</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Recovery Runbook <span className="text-red-500">*</span>
+              </label>
+              <button
+                onClick={addRunbookStep}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm bg-gray-900 text-white hover:bg-gray-800"
+              >
+                <PlusIcon className="h-3.5 w-3.5 mr-1" />
+                Add Step
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {runbookSteps.map((step, idx) => (
+                <div key={step.id} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-sm">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 grid grid-cols-3 gap-3">
+                    <input
+                      type="text"
+                      value={step.title}
+                      onChange={(e) => {
+                        const updated = [...runbookSteps];
+                        updated[idx] = { ...updated[idx], title: e.target.value };
+                        setRunbookSteps(updated);
+                      }}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded-sm"
+                      placeholder="Step description"
+                    />
+                    <input
+                      type="text"
+                      value={step.owner}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded-sm"
+                      placeholder="Owner"
+                    />
+                    <input
+                      type="text"
+                      value={step.duration}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded-sm"
+                      placeholder="Duration"
+                    />
+                  </div>
+                  <button className="p-1 text-gray-400 hover:text-red-600">
+                    <XMarkIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-500 mt-2">
+              {runbookSteps.length} recovery steps defined • Click step to edit details
+            </p>
           </div>
 
+          {/* Escalation Matrix */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Escalation Procedure
-            </label>
-            <textarea
-              value={formData.escalationProcedure}
-              onChange={(e) => setFormData({ ...formData, escalationProcedure: e.target.value })}
-              rows={3}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="Define escalation path and decision-making authority..."
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Escalation path for issues during recovery</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Escalation Matrix
+              </label>
+              <button className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
+                <PlusIcon className="h-3.5 w-3.5 mr-1" />
+                Add Level
+              </button>
+            </div>
+            <div className="border border-gray-200 rounded-sm overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Level</th>
+                    <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th className="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Timeframe</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {[
+                    { level: 1, role: 'IT Operations Manager', contact: 'Sarah Johnson', timeframe: '0-30 min' },
+                    { level: 2, role: 'VP of IT', contact: 'Michael Chen', timeframe: '30-60 min' },
+                    { level: 3, role: 'CIO', contact: 'David Rodriguez', timeframe: '1+ hours' },
+                    { level: 4, role: 'CEO', contact: 'Jennifer Martinez', timeframe: 'Critical' }
+                  ].map((escalation, idx) => (
+                    <tr key={idx} className="hover:bg-gray-50">
+                      <td className="px-3 py-2">
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-900 text-white text-[10px] font-bold">
+                          {escalation.level}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-xs font-medium text-gray-900">{escalation.role}</td>
+                      <td className="px-3 py-2 text-xs text-gray-700">{escalation.contact}</td>
+                      <td className="px-3 py-2">
+                        <span className="inline-flex px-2 py-0.5 text-[10px] font-medium rounded-sm bg-blue-50 text-blue-700 border border-blue-200">
+                          {escalation.timeframe}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       );
     }
 
     if (step.fieldType === 'resources') {
+      const mockAssets = [
+        { id: 'AST-001', name: 'Dell PowerEdge R750 Server Cluster', type: 'Equipment', location: 'Newark DC' },
+        { id: 'AST-002', name: 'NetApp AFF A400 Storage Array', type: 'Equipment', location: 'Newark DC' },
+        { id: 'AST-003', name: 'VMware vSphere 8.0 Enterprise', type: 'Technology', location: 'Virtual' },
+        { id: 'AST-004', name: 'Backup Generator (250kVA)', type: 'Equipment', location: 'Newark DC' }
+      ];
+
+      const mockPeople = [
+        { id: 'USR-001', name: 'Sarah Johnson', role: 'IT Operations Manager', department: 'IT Operations' },
+        { id: 'USR-002', name: 'Michael Chen', role: 'Database Administrator', department: 'IT Infrastructure' },
+        { id: 'USR-003', name: 'David Rodriguez', role: 'Network Engineer', department: 'IT Infrastructure' },
+        { id: 'USR-004', name: 'Jennifer Martinez', role: 'Security Analyst', department: 'IT Security' }
+      ];
+
+      const mockVendors = [
+        { id: 'VND-001', name: 'Verizon Business', type: 'Telecommunications', service: 'Primary Network Provider' },
+        { id: 'VND-002', name: 'AWS', type: 'Cloud Services', service: 'Cloud Infrastructure & DR Site' },
+        { id: 'VND-003', name: 'Dell Technologies', type: 'Hardware', service: 'Server Hardware & Support' },
+        { id: 'VND-004', name: 'Commvault', type: 'Software', service: 'Backup & Recovery Software' }
+      ];
+
+      const [selectedAssets, setSelectedAssets] = useState<string[]>(['AST-001', 'AST-002']);
+      const [selectedPeople, setSelectedPeople] = useState<string[]>(['USR-001', 'USR-002']);
+      const [selectedVendors, setSelectedVendors] = useState<string[]>(['VND-001', 'VND-002']);
+
       return (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              Identify critical resources, key personnel, and external dependencies required for recovery.
+              <strong>Link to Libraries:</strong> Select resources from existing libraries instead of manual entry
             </p>
           </div>
 
+          {/* Critical Assets & Equipment */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Critical Resources
-            </label>
-            <textarea
-              value={formData.criticalResources}
-              onChange={(e) => setFormData({ ...formData, criticalResources: e.target.value })}
-              rows={4}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="List critical hardware, software, facilities, and other resources..."
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Hardware, software, facilities needed for recovery</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Assets & Equipment ({selectedAssets.length} selected)
+              </label>
+              <Link
+                href="/libraries"
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Browse Asset Library →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {mockAssets.map(asset => (
+                <button
+                  key={asset.id}
+                  onClick={() => {
+                    setSelectedAssets(prev =>
+                      prev.includes(asset.id)
+                        ? prev.filter(id => id !== asset.id)
+                        : [...prev, asset.id]
+                    );
+                  }}
+                  className={`p-3 border-2 rounded-sm text-left transition-all ${
+                    selectedAssets.includes(asset.id)
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="text-xs font-medium text-gray-900">{asset.name}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">{asset.type} • {asset.location}</div>
+                    </div>
+                    {selectedAssets.includes(asset.id) && (
+                      <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0 ml-2" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
+          {/* Key Personnel */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Key Personnel
-            </label>
-            <textarea
-              value={formData.keyPersonnel}
-              onChange={(e) => setFormData({ ...formData, keyPersonnel: e.target.value })}
-              rows={4}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="List key personnel and their roles in recovery..."
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Personnel required for plan execution</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Key Personnel ({selectedPeople.length} selected)
+              </label>
+              <Link
+                href="/libraries"
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Browse People Library →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {mockPeople.map(person => (
+                <button
+                  key={person.id}
+                  onClick={() => {
+                    setSelectedPeople(prev =>
+                      prev.includes(person.id)
+                        ? prev.filter(id => id !== person.id)
+                        : [...prev, person.id]
+                    );
+                  }}
+                  className={`p-3 border-2 rounded-sm text-left transition-all ${
+                    selectedPeople.includes(person.id)
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="text-xs font-medium text-gray-900">{person.name}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">{person.role}</div>
+                    </div>
+                    {selectedPeople.includes(person.id) && (
+                      <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0 ml-2" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
+          {/* Vendor Dependencies */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              External Dependencies
-            </label>
-            <textarea
-              value={formData.externalDependencies}
-              onChange={(e) => setFormData({ ...formData, externalDependencies: e.target.value })}
-              rows={4}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="List external vendors, service providers, and dependencies..."
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Third-party vendors and service providers</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Vendor Dependencies ({selectedVendors.length} selected)
+              </label>
+              <Link
+                href="/libraries"
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Browse Vendor Library →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {mockVendors.map(vendor => (
+                <button
+                  key={vendor.id}
+                  onClick={() => {
+                    setSelectedVendors(prev =>
+                      prev.includes(vendor.id)
+                        ? prev.filter(id => id !== vendor.id)
+                        : [...prev, vendor.id]
+                    );
+                  }}
+                  className={`p-3 border-2 rounded-sm text-left transition-all ${
+                    selectedVendors.includes(vendor.id)
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="text-xs font-medium text-gray-900">{vendor.name}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">{vendor.service}</div>
+                    </div>
+                    {selectedVendors.includes(vendor.id) && (
+                      <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0 ml-2" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       );
