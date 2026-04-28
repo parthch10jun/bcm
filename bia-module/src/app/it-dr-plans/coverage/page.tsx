@@ -401,7 +401,7 @@ export default function DRCoveragePage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredSystems.map(system => {
-                  const statusConfig = coverageStatusConfig[system.coverageStatus];
+                  const statusConfig = coverageStatusConfig[system.coverageStatus as keyof typeof coverageStatusConfig];
                   const StatusIcon = statusConfig.icon;
 
                   return (
