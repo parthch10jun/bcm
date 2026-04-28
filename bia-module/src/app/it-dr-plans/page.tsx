@@ -332,11 +332,11 @@ export default function BCPModuleLandingPage() {
                   DR Coverage
                 </Link>
                 <button
-                  onClick={() => router.push('/it-dr-plans/create')}
+                  onClick={() => router.push('/it-dr-plans/new')}
                   className="inline-flex items-center px-3 py-2 border border-transparent text-xs font-medium rounded-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
                   <PlusIcon className="h-3.5 w-3.5 mr-1.5" />
-                  Create BCP
+                  Create DR Plan
                 </button>
               </div>
             </div>

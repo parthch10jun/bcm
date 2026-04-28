@@ -178,7 +178,21 @@ const navigation: NavigationItem[] = [
     name: 'Business Continuity Plan',
     href: '/it-dr-plans',
     icon: ServerIcon,
-    description: 'Business Continuity Planning'
+    description: 'Business Continuity Planning',
+    subItems: [
+      {
+        name: 'DR Plans',
+        href: '/it-dr-plans',
+        icon: ServerIcon,
+        description: 'Disaster Recovery Plans'
+      },
+      {
+        name: 'DR Coverage',
+        href: '/it-dr-plans/coverage',
+        icon: ShieldCheckIcon,
+        description: 'Enterprise DR coverage view'
+      }
+    ]
   },
   {
     name: 'Incident Response Plan',
