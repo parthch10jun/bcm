@@ -35,6 +35,12 @@ export default function NewDRPlanPage() {
   const [selectedVendors, setSelectedVendors] = useState<string[]>(['VND-001', 'VND-002']);
   const [selectedBusinessUnits, setSelectedBusinessUnits] = useState<string[]>(['BU-001', 'BU-002']);
   const [selectedLocations, setSelectedLocations] = useState<string[]>(['LOC-001', 'LOC-002']);
+  const [selectedTestFrequency, setSelectedTestFrequency] = useState('quarterly');
+  const [testObjectives, setTestObjectives] = useState([
+    { id: 1, objective: 'Verify RTO compliance', status: 'Not Started' },
+    { id: 2, objective: 'Validate backup restoration', status: 'Not Started' },
+    { id: 3, objective: 'Test failover procedures', status: 'Not Started' }
+  ]);
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -1176,31 +1182,76 @@ TESTING APPROACH:
     }
 
     if (step.fieldType === 'testing') {
+      const testFrequencies = [
+        { id: 'monthly', name: 'Monthly', icon: '📅', description: '12 tests per year', recommended: 'Tier 1 systems' },
+        { id: 'quarterly', name: 'Quarterly', icon: '📆', description: '4 tests per year', recommended: 'Tier 1-2 systems' },
+        { id: 'semi-annual', name: 'Semi-Annual', icon: '🗓️', description: '2 tests per year', recommended: 'Tier 2-3 systems' },
+        { id: 'annual', name: 'Annual', icon: '📋', description: '1 test per year', recommended: 'Tier 3 systems' }
+      ];
+
+      const addTestObjective = () => {
+        const newObjective = {
+          id: testObjectives.length + 1,
+          objective: 'New test objective',
+          status: 'Not Started'
+        };
+        setTestObjectives([...testObjectives, newObjective]);
+      };
+
+      const removeTestObjective = (id: number) => {
+        setTestObjectives(testObjectives.filter(obj => obj.id !== id));
+      };
+
+      const updateTestObjective = (id: number, field: string, value: string) => {
+        setTestObjectives(testObjectives.map(obj =>
+          obj.id === id ? { ...obj, [field]: value } : obj
+        ));
+      };
+
       return (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              Define testing schedule, objectives, and validation criteria for this DR plan.
+              <strong>Testing & Validation:</strong> Define test frequency and validation objectives
             </p>
           </div>
 
+          {/* Test Frequency - Interactive Cards */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
               Test Frequency <span className="text-red-500">*</span>
             </label>
-            <select
-              value={formData.testFrequency}
-              onChange={(e) => setFormData({ ...formData, testFrequency: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-            >
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="semi-annual">Semi-Annual</option>
-              <option value="annual">Annual</option>
-            </select>
-            <p className="text-[10px] text-gray-500 mt-1">How often this plan should be tested</p>
+            <div className="grid grid-cols-2 gap-3">
+              {testFrequencies.map(freq => (
+                <button
+                  key={freq.id}
+                  onClick={() => {
+                    setSelectedTestFrequency(freq.id);
+                    setFormData({ ...formData, testFrequency: freq.id });
+                  }}
+                  className={`p-3 border-2 rounded-sm text-left transition-all ${
+                    selectedTestFrequency === freq.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">{freq.icon}</span>
+                    <div className="flex-1">
+                      <div className="text-xs font-semibold text-gray-900">{freq.name}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">{freq.description}</div>
+                      <div className="text-[10px] text-blue-600 mt-1">✓ {freq.recommended}</div>
+                    </div>
+                    {selectedTestFrequency === freq.id && (
+                      <CheckCircleIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
+          {/* Test Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
@@ -1210,9 +1261,8 @@ TESTING APPROACH:
                 type="date"
                 value={formData.lastTested}
                 onChange={(e) => setFormData({ ...formData, lastTested: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
               />
-              <p className="text-[10px] text-gray-500 mt-1">Date of last test execution</p>
             </div>
 
             <div>
@@ -1223,24 +1273,58 @@ TESTING APPROACH:
                 type="date"
                 value={formData.nextTest}
                 onChange={(e) => setFormData({ ...formData, nextTest: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
               />
-              <p className="text-[10px] text-gray-500 mt-1">Date of next scheduled test</p>
             </div>
           </div>
 
+          {/* Test Objectives - Dynamic List */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Test Objectives
-            </label>
-            <textarea
-              value={formData.testObjectives}
-              onChange={(e) => setFormData({ ...formData, testObjectives: e.target.value })}
-              rows={4}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="Define what should be validated during testing..."
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Goals and success criteria for testing</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Test Objectives ({testObjectives.length})
+              </label>
+              <button
+                onClick={addTestObjective}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-sm bg-gray-900 text-white hover:bg-gray-800"
+              >
+                <PlusIcon className="h-3.5 w-3.5 mr-1" />
+                Add Objective
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {testObjectives.map((obj, idx) => (
+                <div key={obj.id} className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-sm">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-900 text-white text-[10px] font-bold flex items-center justify-center">
+                    {idx + 1}
+                  </div>
+                  <input
+                    type="text"
+                    value={obj.objective}
+                    onChange={(e) => updateTestObjective(obj.id, 'objective', e.target.value)}
+                    className="flex-1 px-2 py-1.5 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
+                    placeholder="Test objective..."
+                  />
+                  <select
+                    value={obj.status}
+                    onChange={(e) => updateTestObjective(obj.id, 'status', e.target.value)}
+                    className="px-2 py-1.5 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900"
+                  >
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Failed">Failed</option>
+                  </select>
+                  <button
+                    onClick={() => removeTestObjective(obj.id)}
+                    className="p-1 text-gray-400 hover:text-red-600"
+                  >
+                    <XMarkIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );
