@@ -33,10 +33,12 @@ export default function NewDRPlanPage() {
   const [selectedAssets, setSelectedAssets] = useState<string[]>(['AST-001', 'AST-002']);
   const [selectedPeople, setSelectedPeople] = useState<string[]>(['USR-001', 'USR-002']);
   const [selectedVendors, setSelectedVendors] = useState<string[]>(['VND-001', 'VND-002']);
+  const [selectedBusinessUnits, setSelectedBusinessUnits] = useState<string[]>(['BU-001', 'BU-002']);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>(['LOC-001', 'LOC-002']);
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'owner' | 'secondary' | 'bia' | 'assets' | 'people' | 'vendors' | null>(null);
+  const [modalType, setModalType] = useState<'owner' | 'secondary' | 'bia' | 'business-units' | 'locations' | 'assets' | 'people' | 'vendors' | null>(null);
 
   // Mock Library Data
   const mockOwners = [
@@ -77,6 +79,21 @@ export default function NewDRPlanPage() {
     { id: 'VND-003', name: 'Dell Technologies', type: 'Hardware', service: 'Server Hardware & Support', sla: '4-hour onsite' },
     { id: 'VND-004', name: 'Commvault', type: 'Software', service: 'Backup & Recovery Software', sla: '24/7' },
     { id: 'VND-005', name: 'Zerto', type: 'Software', service: 'Disaster Recovery Replication', sla: '99.9%' }
+  ];
+
+  const mockBusinessUnits = [
+    { id: 'BU-001', name: 'IT Operations', icon: '💻', headCount: 45, department: 'Technology' },
+    { id: 'BU-002', name: 'Finance', icon: '💰', headCount: 32, department: 'Finance & Accounting' },
+    { id: 'BU-003', name: 'Customer Service', icon: '🎧', headCount: 78, department: 'Operations' },
+    { id: 'BU-004', name: 'Sales', icon: '📊', headCount: 56, department: 'Commercial' },
+    { id: 'BU-005', name: 'Human Resources', icon: '👥', headCount: 23, department: 'Corporate' }
+  ];
+
+  const mockLocations = [
+    { id: 'LOC-001', name: 'Newark Data Center', type: 'Primary', address: '123 Main St, Newark, NJ', capacity: '500 racks' },
+    { id: 'LOC-002', name: 'Jersey City DR Site', type: 'DR Site', address: '456 Backup Ave, Jersey City, NJ', capacity: '300 racks' },
+    { id: 'LOC-003', name: 'Manhattan Office', type: 'Office', address: '789 Broadway, New York, NY', capacity: '200 employees' },
+    { id: 'LOC-004', name: 'AWS US-East-1', type: 'Cloud', address: 'Virginia, USA', capacity: 'Unlimited' }
   ];
 
   const [formData, setFormData] = useState({
@@ -341,6 +358,14 @@ TESTING APPROACH:
       setSelectedVendors(prev =>
         prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
       );
+    } else if (modalType === 'business-units') {
+      setSelectedBusinessUnits(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      );
+    } else if (modalType === 'locations') {
+      setSelectedLocations(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      );
     }
   };
 
@@ -494,39 +519,68 @@ TESTING APPROACH:
 
     if (step.fieldType === 'scope') {
       return (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="bg-blue-50 border border-blue-200 rounded-sm p-3">
             <p className="text-xs text-blue-700">
-              Define which systems, processes, and business units are covered by this DR plan.
+              <strong>Scope Definition:</strong> Select business units and locations from your organization
             </p>
           </div>
 
+          {/* Business Units */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Business Units Affected
-            </label>
-            <input
-              type="text"
-              value={formData.businessUnits}
-              onChange={(e) => setFormData({ ...formData, businessUnits: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="e.g., Finance, IT Operations, Customer Service"
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Comma-separated list of affected business units</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Business Units Affected ({selectedBusinessUnits.length} selected)
+              </label>
+              <button
+                onClick={() => {
+                  setModalType('business-units');
+                  setModalOpen(true);
+                }}
+                className="px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              >
+                Browse Business Units →
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {mockBusinessUnits.filter(bu => selectedBusinessUnits.includes(bu.id)).map(bu => (
+                <div key={bu.id} className="p-3 bg-gray-50 border border-gray-200 rounded-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{bu.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-medium text-gray-900 truncate">{bu.name}</div>
+                      <div className="text-[10px] text-gray-500">{bu.headCount} employees</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
+          {/* Geographic Scope */}
           <div>
-            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2">
-              Geographic Scope
-            </label>
-            <input
-              type="text"
-              value={formData.geographicScope}
-              onChange={(e) => setFormData({ ...formData, geographicScope: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              placeholder="e.g., Primary Data Center - New York, Backup Site - New Jersey"
-            />
-            <p className="text-[10px] text-gray-500 mt-1">Locations and facilities covered by this plan</p>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Geographic Scope ({selectedLocations.length} selected)
+              </label>
+              <button
+                onClick={() => {
+                  setModalType('locations');
+                  setModalOpen(true);
+                }}
+                className="px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              >
+                Browse Locations →
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {mockLocations.filter(loc => selectedLocations.includes(loc.id)).map(loc => (
+                <div key={loc.id} className="p-3 bg-gray-50 border border-gray-200 rounded-sm">
+                  <div className="text-xs font-medium text-gray-900">{loc.name}</div>
+                  <div className="text-[10px] text-gray-500 mt-0.5">{loc.type} • {loc.address}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-sm p-4">
@@ -1409,6 +1463,8 @@ TESTING APPROACH:
           modalType === 'owner' ? 'Select Plan Owner' :
           modalType === 'secondary' ? 'Select Secondary Owner' :
           modalType === 'bia' ? 'Select BIA Record' :
+          modalType === 'business-units' ? 'Select Business Units' :
+          modalType === 'locations' ? 'Select Locations' :
           modalType === 'assets' ? 'Select Assets & Equipment' :
           modalType === 'people' ? 'Select Team Members' :
           modalType === 'vendors' ? 'Select Vendors' :
@@ -1418,6 +1474,8 @@ TESTING APPROACH:
           modalType === 'owner' ? 'Choose the primary owner from your organization' :
           modalType === 'secondary' ? 'Choose a backup owner' :
           modalType === 'bia' ? 'Link to existing Business Impact Analysis to inherit RTO/RPO/MTD' :
+          modalType === 'business-units' ? 'Select business units affected by this DR plan' :
+          modalType === 'locations' ? 'Select facilities and locations covered by this plan' :
           modalType === 'assets' ? 'Select critical assets and equipment from your library' :
           modalType === 'people' ? 'Select key personnel for the recovery team' :
           modalType === 'vendors' ? 'Select vendors and service providers' :
@@ -1426,6 +1484,8 @@ TESTING APPROACH:
         items={
           modalType === 'owner' || modalType === 'secondary' ? mockOwners :
           modalType === 'bia' ? mockBIARecords :
+          modalType === 'business-units' ? mockBusinessUnits :
+          modalType === 'locations' ? mockLocations :
           modalType === 'assets' ? mockAssets :
           modalType === 'people' ? mockPeople :
           modalType === 'vendors' ? mockVendors :
@@ -1435,13 +1495,15 @@ TESTING APPROACH:
           modalType === 'owner' ? [selectedOwner] :
           modalType === 'secondary' ? [selectedSecondary] :
           modalType === 'bia' ? [selectedBIA] :
+          modalType === 'business-units' ? selectedBusinessUnits :
+          modalType === 'locations' ? selectedLocations :
           modalType === 'assets' ? selectedAssets :
           modalType === 'people' ? selectedPeople :
           modalType === 'vendors' ? selectedVendors :
           []
         }
         onSelect={handleModalSelect}
-        multiSelect={modalType === 'assets' || modalType === 'people' || modalType === 'vendors'}
+        multiSelect={modalType === 'business-units' || modalType === 'locations' || modalType === 'assets' || modalType === 'people' || modalType === 'vendors'}
         renderItem={(item, isSelected) => {
           if (modalType === 'owner' || modalType === 'secondary') {
             const owner = item as typeof mockOwners[0];
@@ -1511,6 +1573,39 @@ TESTING APPROACH:
                   <div className="flex-1">
                     <div className="text-xs font-medium text-gray-900">{person.name}</div>
                     <div className="text-[10px] text-gray-500 mt-0.5">{person.role} • {person.phone}</div>
+                  </div>
+                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
+                </div>
+              </div>
+            );
+          } else if (modalType === 'business-units') {
+            const bu = item as typeof mockBusinessUnits[0];
+            return (
+              <div className={`p-3 border-2 rounded-sm transition-all ${
+                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-2xl">{bu.icon}</span>
+                    <div>
+                      <div className="text-xs font-medium text-gray-900">{bu.name}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">{bu.headCount} employees • {bu.department}</div>
+                    </div>
+                  </div>
+                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
+                </div>
+              </div>
+            );
+          } else if (modalType === 'locations') {
+            const loc = item as typeof mockLocations[0];
+            return (
+              <div className={`p-3 border-2 rounded-sm transition-all ${
+                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-gray-900">{loc.name}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">{loc.type} • {loc.address}</div>
                   </div>
                   {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
                 </div>
