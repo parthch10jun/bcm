@@ -13,6 +13,7 @@ import {
   PlusIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import LibrarySelectionModal from '@/components/LibrarySelectionModal';
 
 export default function NewDRPlanPage() {
   const router = useRouter();
@@ -32,6 +33,51 @@ export default function NewDRPlanPage() {
   const [selectedAssets, setSelectedAssets] = useState<string[]>(['AST-001', 'AST-002']);
   const [selectedPeople, setSelectedPeople] = useState<string[]>(['USR-001', 'USR-002']);
   const [selectedVendors, setSelectedVendors] = useState<string[]>(['VND-001', 'VND-002']);
+
+  // Modal states
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'owner' | 'secondary' | 'bia' | 'assets' | 'people' | 'vendors' | null>(null);
+
+  // Mock Library Data
+  const mockOwners = [
+    { id: 'usr-001', name: 'Sarah Johnson', role: 'IT Manager', department: 'IT Operations', email: 'sarah.j@company.com' },
+    { id: 'usr-002', name: 'Michael Chen', role: 'Infrastructure Lead', department: 'IT Infrastructure', email: 'michael.c@company.com' },
+    { id: 'usr-003', name: 'David Rodriguez', role: 'Application Lead', department: 'IT Applications', email: 'david.r@company.com' },
+    { id: 'usr-004', name: 'Jennifer Martinez', role: 'Security Lead', department: 'IT Security', email: 'jennifer.m@company.com' },
+    { id: 'usr-005', name: 'Robert Taylor', role: 'Data Lead', department: 'Data Management', email: 'robert.t@company.com' }
+  ];
+
+  const mockBIARecords = [
+    { id: 'BIA-001', name: 'Core Banking Operations', rto: '2h', rpo: '15min', mtd: '4h', impact: '€100K/hour', tier: 'Tier 1' },
+    { id: 'BIA-002', name: 'Customer Service Platform', rto: '4h', rpo: '1h', mtd: '8h', impact: '€50K/hour', tier: 'Tier 1' },
+    { id: 'BIA-003', name: 'Internal IT Services', rto: '8h', rpo: '4h', mtd: '24h', impact: '€20K/hour', tier: 'Tier 2' },
+    { id: 'BIA-004', name: 'Payment Processing', rto: '1h', rpo: '5min', mtd: '2h', impact: '€200K/hour', tier: 'Tier 1' },
+    { id: 'BIA-005', name: 'Email & Collaboration', rto: '12h', rpo: '8h', mtd: '48h', impact: '€10K/hour', tier: 'Tier 3' }
+  ];
+
+  const mockAssets = [
+    { id: 'AST-001', name: 'Dell PowerEdge R750 Server Cluster', type: 'Equipment', location: 'Newark DC', status: 'Active' },
+    { id: 'AST-002', name: 'NetApp AFF A400 Storage Array', type: 'Equipment', location: 'Newark DC', status: 'Active' },
+    { id: 'AST-003', name: 'VMware vSphere 8.0 Enterprise', type: 'Technology', location: 'Virtual', status: 'Active' },
+    { id: 'AST-004', name: 'Backup Generator (250kVA)', type: 'Equipment', location: 'Newark DC', status: 'Active' },
+    { id: 'AST-005', name: 'Cisco Nexus 9000 Switch', type: 'Equipment', location: 'Newark DC', status: 'Active' }
+  ];
+
+  const mockPeople = [
+    { id: 'USR-001', name: 'Sarah Johnson', role: 'IT Operations Manager', department: 'IT Operations', phone: '+1-555-0100' },
+    { id: 'USR-002', name: 'Michael Chen', role: 'Database Administrator', department: 'IT Infrastructure', phone: '+1-555-0101' },
+    { id: 'USR-003', name: 'David Rodriguez', role: 'Network Engineer', department: 'IT Infrastructure', phone: '+1-555-0102' },
+    { id: 'USR-004', name: 'Jennifer Martinez', role: 'Security Analyst', department: 'IT Security', phone: '+1-555-0103' },
+    { id: 'USR-005', name: 'Robert Taylor', role: 'Application Developer', department: 'IT Applications', phone: '+1-555-0104' }
+  ];
+
+  const mockVendors = [
+    { id: 'VND-001', name: 'Verizon Business', type: 'Telecommunications', service: 'Primary Network Provider', sla: '99.9%' },
+    { id: 'VND-002', name: 'AWS', type: 'Cloud Services', service: 'Cloud Infrastructure & DR Site', sla: '99.99%' },
+    { id: 'VND-003', name: 'Dell Technologies', type: 'Hardware', service: 'Server Hardware & Support', sla: '4-hour onsite' },
+    { id: 'VND-004', name: 'Commvault', type: 'Software', service: 'Backup & Recovery Software', sla: '24/7' },
+    { id: 'VND-005', name: 'Zerto', type: 'Software', service: 'Disaster Recovery Replication', sla: '99.9%' }
+  ];
 
   const [formData, setFormData] = useState({
     // Step 1: Basic Information
@@ -270,6 +316,34 @@ TESTING APPROACH:
     router.push('/it-dr-plans');
   };
 
+  const handleModalSelect = (id: string) => {
+    if (modalType === 'owner') {
+      setSelectedOwner(id);
+      const owner = mockOwners.find(o => o.id === id);
+      if (owner) setFormData({ ...formData, owner: owner.name });
+    } else if (modalType === 'secondary') {
+      setSelectedSecondary(id);
+      const owner = mockOwners.find(o => o.id === id);
+      if (owner) setFormData({ ...formData, secondaryOwner: owner.name });
+    } else if (modalType === 'bia') {
+      setSelectedBIA(id);
+      const bia = mockBIARecords.find(b => b.id === id);
+      if (bia) setFormData({ ...formData, rto: bia.rto, rpo: bia.rpo, mtd: bia.mtd });
+    } else if (modalType === 'assets') {
+      setSelectedAssets(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      );
+    } else if (modalType === 'people') {
+      setSelectedPeople(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      );
+    } else if (modalType === 'vendors') {
+      setSelectedVendors(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      );
+    }
+  };
+
   const renderStepContent = () => {
     const step = steps[currentStep];
 
@@ -343,45 +417,43 @@ TESTING APPROACH:
             </div>
           </div>
 
-          {/* Plan Owner - Select from Organization */}
+          {/* Plan Owner - Select from Library Modal */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Plan Owner <span className="text-red-500">*</span>
-              </label>
-              <Link
-                href="/libraries"
-                className="text-xs text-blue-600 hover:text-blue-700"
-              >
-                Browse People Library →
-              </Link>
-            </div>
-            <div className="space-y-2">
-              {mockOwners.map(owner => (
-                <button
-                  key={owner.id}
-                  onClick={() => {
-                    setSelectedOwner(owner.id);
-                    setFormData({ ...formData, owner: owner.name });
-                  }}
-                  className={`w-full p-3 border-2 rounded-sm text-left transition-all ${
-                    selectedOwner === owner.id
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-gray-900">{owner.name}</div>
-                      <div className="text-[10px] text-gray-500">{owner.role} • {owner.department}</div>
-                    </div>
-                    {selectedOwner === owner.id && (
-                      <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                    )}
+            <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-3">
+              Plan Owner <span className="text-red-500">*</span>
+            </label>
+            {selectedOwner ? (
+              <div className="flex items-center gap-3 p-4 border-2 border-green-500 bg-green-50 rounded-sm">
+                <div className="flex-1">
+                  <div className="text-xs font-medium text-gray-900">
+                    {mockOwners.find(o => o.id === selectedOwner)?.name}
                   </div>
+                  <div className="text-[10px] text-gray-500">
+                    {mockOwners.find(o => o.id === selectedOwner)?.role} • {mockOwners.find(o => o.id === selectedOwner)?.department}
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setModalType('owner');
+                    setModalOpen(true);
+                  }}
+                  className="px-3 py-1.5 text-xs font-medium rounded-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                >
+                  Change
                 </button>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setModalType('owner');
+                  setModalOpen(true);
+                }}
+                className="w-full p-4 border-2 border-dashed border-gray-300 rounded-sm text-center hover:border-gray-400 hover:bg-gray-50 transition-colors"
+              >
+                <PlusIcon className="h-5 w-5 mx-auto mb-1 text-gray-400" />
+                <span className="text-xs font-medium text-gray-700">Select Plan Owner from Library</span>
+              </button>
+            )}
           </div>
 
           {/* Secondary Owner */}
@@ -1328,6 +1400,141 @@ TESTING APPROACH:
           )}
         </div>
       </div>
+
+      {/* Library Selection Modal */}
+      <LibrarySelectionModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={
+          modalType === 'owner' ? 'Select Plan Owner' :
+          modalType === 'secondary' ? 'Select Secondary Owner' :
+          modalType === 'bia' ? 'Select BIA Record' :
+          modalType === 'assets' ? 'Select Assets & Equipment' :
+          modalType === 'people' ? 'Select Team Members' :
+          modalType === 'vendors' ? 'Select Vendors' :
+          'Select from Library'
+        }
+        description={
+          modalType === 'owner' ? 'Choose the primary owner from your organization' :
+          modalType === 'secondary' ? 'Choose a backup owner' :
+          modalType === 'bia' ? 'Link to existing Business Impact Analysis to inherit RTO/RPO/MTD' :
+          modalType === 'assets' ? 'Select critical assets and equipment from your library' :
+          modalType === 'people' ? 'Select key personnel for the recovery team' :
+          modalType === 'vendors' ? 'Select vendors and service providers' :
+          undefined
+        }
+        items={
+          modalType === 'owner' || modalType === 'secondary' ? mockOwners :
+          modalType === 'bia' ? mockBIARecords :
+          modalType === 'assets' ? mockAssets :
+          modalType === 'people' ? mockPeople :
+          modalType === 'vendors' ? mockVendors :
+          []
+        }
+        selectedIds={
+          modalType === 'owner' ? [selectedOwner] :
+          modalType === 'secondary' ? [selectedSecondary] :
+          modalType === 'bia' ? [selectedBIA] :
+          modalType === 'assets' ? selectedAssets :
+          modalType === 'people' ? selectedPeople :
+          modalType === 'vendors' ? selectedVendors :
+          []
+        }
+        onSelect={handleModalSelect}
+        multiSelect={modalType === 'assets' || modalType === 'people' || modalType === 'vendors'}
+        renderItem={(item, isSelected) => {
+          if (modalType === 'owner' || modalType === 'secondary') {
+            const owner = item as typeof mockOwners[0];
+            return (
+              <div className={`p-3 border-2 rounded-sm transition-all ${
+                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-gray-900">{owner.name}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">{owner.role} • {owner.department}</div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">{owner.email}</div>
+                  </div>
+                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
+                </div>
+              </div>
+            );
+          } else if (modalType === 'bia') {
+            const bia = item as typeof mockBIARecords[0];
+            return (
+              <div className={`p-4 border-2 rounded-sm transition-all ${
+                isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-semibold text-gray-900">{bia.name}</span>
+                      <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-sm ${
+                        bia.tier === 'Tier 1' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      }`}>
+                        {bia.tier}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 text-[10px]">
+                      <div><span className="text-gray-500">RTO:</span> <span className="font-semibold">{bia.rto}</span></div>
+                      <div><span className="text-gray-500">RPO:</span> <span className="font-semibold">{bia.rpo}</span></div>
+                      <div><span className="text-gray-500">MTD:</span> <span className="font-semibold">{bia.mtd}</span></div>
+                      <div><span className="text-gray-500">Impact:</span> <span className="font-semibold text-red-600">{bia.impact}</span></div>
+                    </div>
+                  </div>
+                  {isSelected && <CheckCircleIcon className="h-6 w-6 text-blue-600 ml-3" />}
+                </div>
+              </div>
+            );
+          } else if (modalType === 'assets') {
+            const asset = item as typeof mockAssets[0];
+            return (
+              <div className={`p-3 border-2 rounded-sm transition-all ${
+                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-gray-900">{asset.name}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">{asset.type} • {asset.location}</div>
+                  </div>
+                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
+                </div>
+              </div>
+            );
+          } else if (modalType === 'people') {
+            const person = item as typeof mockPeople[0];
+            return (
+              <div className={`p-3 border-2 rounded-sm transition-all ${
+                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-gray-900">{person.name}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">{person.role} • {person.phone}</div>
+                  </div>
+                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
+                </div>
+              </div>
+            );
+          } else if (modalType === 'vendors') {
+            const vendor = item as typeof mockVendors[0];
+            return (
+              <div className={`p-3 border-2 rounded-sm transition-all ${
+                isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-gray-900">{vendor.name}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">{vendor.service} • SLA: {vendor.sla}</div>
+                  </div>
+                  {isSelected && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
+                </div>
+              </div>
+            );
+          }
+          return null;
+        }}
+      />
     </div>
   );
 }
